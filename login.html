@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Login</title>
+</head>
+<body>
+
+<h1>Login with Google</h1>
+
+<button id="googleBtn">Login with Google</button>
+
+<script type="module">
+  import { supabase } from './supabase.js';
+
+  document.getElementById("googleBtn").onclick = async () => {
+      const { data, error } = await supabase.auth.signInWithOAuth({
+          provider: "google",
+          options: {
+              redirectTo: window.location.origin + "/menu.html"
+          }
+      });
+      if (error) console.log(error);
+  };
+</script>
+
+</body>
+</html>
