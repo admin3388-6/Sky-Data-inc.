@@ -2,36 +2,74 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Login</title>
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login - Sky Data</title>
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
-
+<style>
+    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+    .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
+    input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
+    button { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    .btn-primary { background: #4e54c8; color: white; }
+    .btn-primary:hover { background: #3f44a0; }
+    .btn-google { background: #db4437; color: white; margin-bottom: 20px; }
+    .switch-link { margin-top: 15px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: underline; }
+    #message { margin-top: 10px; font-size: 14px; color: green; display: none; }
+    .error { color: red !important; }
+</style>
 </head>
 <body>
 
-<h1>Login with Google</h1>
+<div class="container">
+    <h2 id="formTitle">Login</h2>
 
-<!-- reCAPTCHA -->
-<div class="g-recaptcha" 
-     data-sitekey="6LcODRgsAAAAAFqkmCio3mLuQTj024Zb00qlCPby"
-     id="captcha"></div>
+    <button id="googleBtn" class="btn-google">Login with Google</button>
 
-<br>
+    <div style="display: flex; align-items: center; justify-content: center; margin: 10px 0;">
+        <hr style="flex: 1; border: none; height: 1px; background: #ddd;">
+        <span style="padding: 0 10px; color: #888;">OR</span>
+        <hr style="flex: 1; border: none; height: 1px; background: #ddd;">
+    </div>
 
-<button id="loginBtn">Login</button>
+    <input type="email" id="email" placeholder="Email Address">
+    <input type="password" id="password" placeholder="Password">
+
+    <div class="g-recaptcha" data-sitekey="6LcODRgsAAAAAFqkmCio3mLuQTj024Zb00qlCPby" style="margin: 10px 0;"></div>
+
+    <button id="submitBtn" class="btn-primary">Login</button>
+    
+    <div id="message"></div>
+    <div class="switch-link" id="switchBtn">Don't have an account? Sign Up</div>
+</div>
 
 <script type="module">
 import { supabase } from "./supabase.js";
 
-document.getElementById("loginBtn").onclick = async () => {
+let isLoginMode = true; // للتبديل بين الدخول والتسجيل
+
+// التبديل بين وضع التسجيل والدخول
+document.getElementById("switchBtn").onclick = () => {
+    isLoginMode = !isLoginMode;
+    document.getElementById("formTitle").textContent = isLoginMode ? "Login" : "Create Account";
+    document.getElementById("submitBtn").textContent = isLoginMode ? "Login" : "Sign Up";
+    document.getElementById("switchBtn").textContent = isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Login";
+    document.getElementById("message").style.display = "none";
+};
+
+// التعامل مع الزر الرئيسي (دخول أو تسجيل)
+document.getElementById("submitBtn").onclick = async () => {
+    const email = document.getElementById("email").value;
+    const password = document.getElementById("password").value;
+    const messageDiv = document.getElementById("message");
     
+    // 1. التحقق من Recaptcha
     const token = grecaptcha.getResponse();
     if (!token) {
         alert("Please complete the reCAPTCHA");
         return;
     }
 
-    // تحقق من reCAPTCHA عبر API في Vercel
+    // التحقق من السيرفر (Vercel API)
     const verify = await fetch("/api/verify-recaptcha", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,13 +81,53 @@ document.getElementById("loginBtn").onclick = async () => {
         return;
     }
 
-    // تسجيل الدخول بعد النجاح
-    await supabase.auth.signInWithOAuth({
-    provider: "google",
-    options: {
-        redirectTo: "https://skydata.casacam.net/menu.html"
+    messageDiv.style.display = "block";
+    messageDiv.textContent = "Processing...";
+    messageDiv.className = "";
+
+    if (isLoginMode) {
+        // --- تسجيل الدخول ---
+        const { data, error } = await supabase.auth.signInWithPassword({
+            email: email,
+            password: password
+        });
+
+        if (error) {
+            messageDiv.textContent = error.message;
+            messageDiv.className = "error";
+        } else {
+            // نجاح الدخول
+            window.location.href = "menu.html";
+        }
+
+    } else {
+        // --- إنشاء حساب جديد ---
+        const { data, error } = await supabase.auth.signUp({
+            email: email,
+            password: password,
+            options: {
+                // بعد الضغط على الرابط في الإيميل، سيتم توجيهه لهذه الصفحة
+                emailRedirectTo: window.location.origin + "/menu.html"
+            }
+        });
+
+        if (error) {
+            messageDiv.textContent = error.message;
+            messageDiv.className = "error";
+        } else {
+            // نجاح التسجيل
+            messageDiv.textContent = "Verification email sent! Please check your inbox.";
+            grecaptcha.reset(); // إعادة تعيين الكابتشا
+        }
     }
-});
+};
+
+// زر جوجل القديم
+document.getElementById("googleBtn").onclick = async () => {
+    await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: { redirectTo: window.location.origin + "/menu.html" }
+    });
 };
 </script>
 
