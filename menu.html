@@ -22,10 +22,12 @@
   document.getElementById("name").textContent = "Name: " + user.user_metadata.full_name;
   document.getElementById("email").textContent = "Email: " + user.email;
 
+  // هنا التعديل: إضافة الرتبة مع البيانات المرسلة
   await supabase.from("users").upsert({
       id: user.id,
       name: user.user_metadata.full_name,
-      email: user.email
+      email: user.email,
+      rank: "free pro" 
   });
 </script>
 
