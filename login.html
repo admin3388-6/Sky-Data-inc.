@@ -1,27 +1,56 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
+<meta charset="UTF-8">
+<title>Login</title>
+
+<script src="https://www.google.com/recaptcha/api.js" async defer></script>
+
 </head>
 <body>
 
 <h1>Login with Google</h1>
 
-<button id="googleBtn">Login with Google</button>
+<!-- reCAPTCHA -->
+<div class="g-recaptcha" 
+     data-sitekey="6LcODRgsAAAAAFqkmCio3mLuQTj024Zb00qlCPby"
+     id="captcha"></div>
+
+<br>
+
+<button id="loginBtn">Login</button>
 
 <script type="module">
-  import { supabase } from './supabase.js';
+import { supabase } from "./supabase.js";
 
-  document.getElementById("googleBtn").onclick = async () => {
-      const { data, error } = await supabase.auth.signInWithOAuth({
-          provider: "google",
-          options: {
-              redirectTo: window.location.origin + "/menu.html"
-          }
-      });
-      if (error) console.log(error);
-  };
+document.getElementById("loginBtn").onclick = async () => {
+    
+    const token = grecaptcha.getResponse();
+    if (!token) {
+        alert("Please complete the reCAPTCHA");
+        return;
+    }
+
+    // تحقق من reCAPTCHA عبر API في Vercel
+    const verify = await fetch("/api/verify-recaptcha", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token })
+    }).then(r => r.json());
+
+    if (!verify.success) {
+        alert("Recaptcha failed");
+        return;
+    }
+
+    // تسجيل الدخول بعد النجاح
+    await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+            redirectTo: window.location.origin + "/menu.html"
+        }
+    });
+};
 </script>
 
 </body>
