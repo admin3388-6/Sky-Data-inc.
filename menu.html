@@ -22,7 +22,6 @@
   document.getElementById("name").textContent = "Name: " + user.user_metadata.full_name;
   document.getElementById("email").textContent = "Email: " + user.email;
 
-  // حفظ المستخدم في قاعدة البيانات
   await supabase.from("users").upsert({
       id: user.id,
       name: user.user_metadata.full_name,
