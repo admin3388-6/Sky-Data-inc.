@@ -7,28 +7,46 @@
 <body>
 
 <h1>User Info</h1>
-<p id="name"></p>
-<p id="email"></p>
-
-<script type="module">
+<p id="name">Loading...</p>
+<p id="email">Loading...</p>
+<p id="rank">Rank: Loading...</p> <script type="module">
   import { supabase } from './supabase.js';
 
+  // 1. جلب بيانات الجلسة الحالية
   const { data: { user } } = await supabase.auth.getUser();
 
+  // 2. إذا لم يكن مسجلاً، ارجعه لصفحة الدخول
   if (!user) {
     window.location.href = "login.html";
   }
 
-  document.getElementById("name").textContent = "Name: " + user.user_metadata.full_name;
-  document.getElementById("email").textContent = "Email: " + user.email;
-
-  // هنا التعديل: إضافة الرتبة مع البيانات المرسلة
-  await supabase.from("users").upsert({
+  // 3. تحديث أو إنشاء بيانات المستخدم في قاعدة البيانات
+  // لاحظ: نحن لا نرسل الرتبة هنا، لكي لا نحذف رتبة الـ PRO
+  // قاعدة البيانات ستضع "free" تلقائياً للأعضاء الجدد
+  const { error } = await supabase.from("users").upsert({
       id: user.id,
       name: user.user_metadata.full_name,
-      email: user.email,
-      rank: "free pro" 
-  });
+      email: user.email
+  }, { onConflict: 'id' });
+
+  if (error) console.error('Error updating profile:', error);
+
+  // 4. جلب الرتبة الحالية من قاعدة البيانات لعرضها للمستخدم
+  let { data: profile } = await supabase
+    .from('users')
+    .select('rank')
+    .eq('id', user.id)
+    .single();
+
+  // 5. عرض المعلومات في الصفحة
+  document.getElementById("name").textContent = "Name: " + user.user_metadata.full_name;
+  document.getElementById("email").textContent = "Email: " + user.email;
+  
+  // عرض الرتبة (إذا كانت موجودة)
+  if (profile) {
+      document.getElementById("rank").textContent = "Rank: " + profile.rank;
+  }
+
 </script>
 
 </body>
