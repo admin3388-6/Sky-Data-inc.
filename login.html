@@ -45,11 +45,11 @@ document.getElementById("loginBtn").onclick = async () => {
 
     // تسجيل الدخول بعد النجاح
     await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: {
-            redirectTo: window.location.origin + "/menu.html"
-        }
-    });
+    provider: "google",
+    options: {
+        redirectTo: "https://skydata.casacam.net/menu.html"
+    }
+});
 };
 </script>
 
