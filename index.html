@@ -1,21 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Index</title>
+<meta charset="UTF-8">
+<title>Welcome</title>
+<style>
+    body {
+        margin: 0;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        font-family: Arial;
+        background: linear-gradient(135deg, #4e54c8, #8f94fb);
+        overflow: hidden;
+    }
+
+    .container {
+        text-align: center;
+        color: white;
+        animation: fadeIn 1.5s ease;
+    }
+
+    h1 {
+        font-size: 45px;
+        margin-bottom: 20px;
+        text-shadow: 0px 0px 10px #0004;
+    }
+
+    button {
+        padding: 15px 35px;
+        font-size: 18px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        background: white;
+        color: #4e54c8;
+        font-weight: bold;
+        transition: 0.3s;
+    }
+
+    button:hover {
+        transform: scale(1.1);
+        background: #ddd;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+</style>
 </head>
+
 <body>
 
-<script type="module">
-  import { supabase } from './supabase.js';
+<div class="container">
+    <h1>Welcome to My App</h1>
+    <button onclick="startApp()">Start</button>
+</div>
 
-  const { data: { user } } = await supabase.auth.getUser();
-
-  if (user) {
-    window.location.href = "menu.html";
-  } else {
+<script>
+function startApp() {
     window.location.href = "login.html";
-  }
+}
 </script>
 
 </body>
