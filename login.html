@@ -7,38 +7,28 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <style>
-    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+    body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
     .container { background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
     
     h2 { margin-bottom: 20px; color: #333; }
-
-    input { width: 100%; padding: 12px 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
-    input:focus { border-color: #4e54c8; outline: none; }
-
-    /* إخفاء حقل الاسم افتراضياً */
+    input { width: 100%; padding: 12px 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
     #nameField { display: none; }
 
-    button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
+    button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
     
     .btn-primary { background: #4e54c8; color: white; margin-top: 15px; }
-    .btn-primary:hover { background: #3f44a0; transform: translateY(-2px); }
+    .btn-primary:hover { background: #3f44a0; }
     
     .social-btn { color: white; margin-bottom: 10px; }
     .btn-google { background: #db4437; }
-    .btn-google:hover { background: #c53929; }
     .btn-linkedin { background: #0077b5; }
-    .btn-linkedin:hover { background: #006097; }
 
     .divider { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
     .divider hr { flex: 1; border: none; height: 1px; background: #e0e0e0; }
-    .divider span { padding: 0 10px; color: #888; font-size: 12px; font-weight: bold; }
-
     .switch-link { margin-top: 20px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: none; }
-    .switch-link:hover { text-decoration: underline; }
-
+    
     #message { margin-top: 15px; font-size: 14px; color: green; display: none; padding: 10px; background: #e8f5e9; border-radius: 5px; }
     .error { color: #d32f2f !important; background: #ffebee !important; }
-    
     .honey-trap { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
 </style>
 </head>
@@ -47,36 +37,20 @@
 <div class="container">
     <h2 id="formTitle"><i class="fas fa-user-lock"></i> Login</h2>
 
-    <button id="googleBtn" class="social-btn btn-google">
-        <i class="fab fa-google"></i> Continue with Google
-    </button>
+    <button id="googleBtn" class="social-btn btn-google"><i class="fab fa-google"></i> Google</button>
+    <button id="linkedinBtn" class="social-btn btn-linkedin"><i class="fab fa-linkedin"></i> LinkedIn</button>
 
-    <button id="linkedinBtn" class="social-btn btn-linkedin">
-        <i class="fab fa-linkedin"></i> Continue with LinkedIn
-    </button>
+    <div class="divider"><hr><span>OR EMAIL</span><hr></div>
 
-    <div class="divider">
-        <hr><span>OR EMAIL</span><hr>
-    </div>
-
-    <div id="nameField">
-        <input type="text" id="fullName" placeholder="Full Name">
-    </div>
-
+    <div id="nameField"><input type="text" id="fullName" placeholder="Full Name"></div>
     <input type="email" id="email" placeholder="Email Address">
     <input type="password" id="password" placeholder="Password">
+    
+    <div class="honey-trap"><input type="text" id="website_url" tabindex="-1" autocomplete="off"></div>
 
-    <div class="honey-trap">
-        <input type="text" id="website_url" tabindex="-1" autocomplete="off">
-    </div>
+    <div class="g-recaptcha" data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" style="margin: 10px 0; display: flex; justify-content: center;"></div>
 
-    <div class="g-recaptcha" 
-         data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" 
-         style="margin: 10px 0; display: flex; justify-content: center;"></div>
-
-    <button id="submitBtn" class="btn-primary">
-        <i class="fas fa-sign-in-alt" id="btnIcon"></i> <span id="btnText">Login</span>
-    </button>
+    <button id="submitBtn" class="btn-primary"><i class="fas fa-sign-in-alt" id="btnIcon"></i> <span id="btnText">Login</span></button>
     
     <div id="message"></div>
     <div class="switch-link" id="switchBtn">Don't have an account? Sign Up</div>
@@ -84,10 +58,11 @@
 
 <script type="module">
 import { supabase } from "./supabase.js";
+// استدعاء الحماية فقط (لا نحتاج كوكيز هنا لأن المستخدم سيرى البانر في الاندكس أو المينيو)
+import './system.js'; 
 
-if (window.console) {
-    console.log("%cSTOP!", "color: red; font-size: 50px; font-weight: bold; text-shadow: 2px 2px 0px black;");
-}
+// 🛡️ حماية الكونسول
+if (window.console) { console.log("%cSTOP!", "color: red; font-size: 50px; font-weight: bold;"); }
 
 let isLoginMode = true; 
 
@@ -95,115 +70,62 @@ document.getElementById("switchBtn").onclick = () => {
     isLoginMode = !isLoginMode;
     const title = document.getElementById("formTitle");
     const btnText = document.getElementById("btnText");
-    const btnIcon = document.getElementById("btnIcon");
-    const switchBtn = document.getElementById("switchBtn");
     const nameField = document.getElementById("nameField");
-
+    
     if (isLoginMode) {
         title.innerHTML = '<i class="fas fa-user-lock"></i> Login';
         btnText.textContent = "Login";
-        btnIcon.className = "fas fa-sign-in-alt";
-        switchBtn.textContent = "Don't have an account? Sign Up";
-        nameField.style.display = "none"; // إخفاء الاسم عند الدخول
+        document.getElementById("switchBtn").textContent = "Don't have an account? Sign Up";
+        nameField.style.display = "none";
     } else {
         title.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
         btnText.textContent = "Sign Up";
-        btnIcon.className = "fas fa-user-check";
-        switchBtn.textContent = "Already have an account? Login";
-        nameField.style.display = "block"; // إظهار الاسم عند التسجيل
+        document.getElementById("switchBtn").textContent = "Already have an account? Login";
+        nameField.style.display = "block";
     }
     document.getElementById("message").style.display = "none";
 };
 
 document.getElementById("submitBtn").onclick = async () => {
     const trap = document.getElementById("website_url").value;
-    if (trap) { return; }
+    if (trap) return;
 
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
-    const fullName = document.getElementById("fullName").value; // قراءة الاسم
+    const fullName = document.getElementById("fullName").value;
     const messageDiv = document.getElementById("message");
     
     const token = grecaptcha.getResponse();
-    if (!token) {
-        alert("Please complete the reCAPTCHA");
-        return;
-    }
+    if (!token) { alert("Please complete the reCAPTCHA"); return; }
 
     const btnText = document.getElementById("btnText");
     const originalText = btnText.textContent;
     btnText.textContent = "Processing...";
     
     const verify = await fetch("/api/verify-recaptcha", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token })
     }).then(r => r.json());
 
-    if (!verify.success) {
-        alert("Security check failed");
-        btnText.textContent = originalText;
-        return;
-    }
+    if (!verify.success) { alert("Security Check Failed"); btnText.textContent = originalText; return; }
 
-    messageDiv.style.display = "block";
-    messageDiv.textContent = "Connecting securely...";
-    messageDiv.className = "";
+    messageDiv.style.display = "block"; messageDiv.textContent = "Connecting..."; messageDiv.className = "";
 
     if (isLoginMode) {
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
-        if (error) {
-            messageDiv.textContent = error.message;
-            messageDiv.className = "error";
-            btnText.textContent = originalText;
-        } else {
-            window.location.href = "menu.html";
-        }
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) { messageDiv.textContent = error.message; messageDiv.className = "error"; btnText.textContent = originalText; }
+        else { window.location.href = "menu.html"; }
     } else {
-        // التحقق من كتابة الاسم عند التسجيل
-        if (!fullName) {
-            messageDiv.textContent = "Please enter your Full Name";
-            messageDiv.className = "error";
-            btnText.textContent = originalText;
-            return;
-        }
-
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                data: { full_name: fullName }, // إرسال الاسم ليتم حفظه
-                emailRedirectTo: window.location.origin + "/menu.html"
-            }
+        if (!fullName) { messageDiv.textContent = "Enter Full Name"; messageDiv.className = "error"; btnText.textContent = originalText; return; }
+        const { error } = await supabase.auth.signUp({
+            email, password, options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin + "/menu.html" }
         });
-        if (error) {
-            messageDiv.textContent = error.message;
-            messageDiv.className = "error";
-            btnText.textContent = originalText;
-        } else {
-            messageDiv.textContent = "Verification email sent! Check your inbox.";
-            grecaptcha.reset(); 
-            btnText.textContent = originalText;
-        }
+        if (error) { messageDiv.textContent = error.message; messageDiv.className = "error"; btnText.textContent = originalText; }
+        else { messageDiv.textContent = "Verification email sent!"; grecaptcha.reset(); btnText.textContent = originalText; }
     }
 };
 
-document.getElementById("googleBtn").onclick = async () => {
-    await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin + "/menu.html" }
-    });
-};
-
-document.getElementById("linkedinBtn").onclick = async () => {
-    await supabase.auth.signInWithOAuth({
-        provider: "linkedin_oidc",
-        options: { redirectTo: window.location.origin + "/menu.html" }
-    });
-};
+document.getElementById("googleBtn").onclick = async () => await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/menu.html" } });
+document.getElementById("linkedinBtn").onclick = async () => await supabase.auth.signInWithOAuth({ provider: "linkedin_oidc", options: { redirectTo: window.location.origin + "/menu.html" } });
 </script>
 
 </body>

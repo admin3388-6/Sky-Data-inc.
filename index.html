@@ -2,7 +2,8 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Welcome</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Welcome - Sky Data</title>
 <style>
     body {
         margin: 0;
@@ -10,7 +11,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
-        font-family: Arial;
+        font-family: 'Segoe UI', sans-serif;
         background: linear-gradient(135deg, #4e54c8, #8f94fb);
         overflow: hidden;
     }
@@ -24,44 +25,75 @@
     h1 {
         font-size: 45px;
         margin-bottom: 20px;
-        text-shadow: 0px 0px 10px #0004;
+        text-shadow: 0px 5px 15px rgba(0,0,0,0.2);
     }
 
     button {
-        padding: 15px 35px;
+        padding: 15px 45px;
         font-size: 18px;
         border: none;
-        border-radius: 10px;
+        border-radius: 30px;
         cursor: pointer;
         background: white;
         color: #4e54c8;
         font-weight: bold;
         transition: 0.3s;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     }
 
     button:hover {
-        transform: scale(1.1);
-        background: #ddd;
+        transform: scale(1.05) translateY(-3px);
+        box-shadow: 0 8px 20px rgba(0,0,0,0.3);
     }
 
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(20px); }
         to { opacity: 1; transform: translateY(0); }
     }
+    
+    /* تنسيق بانر الكوكيز (لأنه سيظهر هنا أيضاً) */
+    .cookie-banner {
+        position: fixed; bottom: -200px; left: 0; width: 100%;
+        background: white; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+        z-index: 3000; transition: bottom 0.5s;
+        display: flex; flex-direction: column; align-items: center; text-align: center; color: #333;
+    }
+    .cookie-banner.show { bottom: 0; }
+    .cookie-actions { display: flex; gap: 10px; margin-top: 15px; }
+    .btn-accept { background: #4e54c8; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+    .btn-reject { background: transparent; border: 1px solid #999; color: #555; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
 </style>
 </head>
 
 <body>
 
 <div class="container">
-    <h1>Welcome to My App</h1>
-    <button onclick="startApp()">Start</button>
+    <h1>Welcome to Sky Data</h1>
+    <p style="opacity: 0.8; margin-bottom: 30px;">Secure. Fast. Reliable.</p>
+    <button onclick="startApp()">Get Started</button>
 </div>
 
-<script>
-function startApp() {
-    window.location.href = "login.html";
-}
+<div class="cookie-banner" id="cookieBanner">
+    <div style="max-width: 600px;">
+        <h3>We Value Your Privacy</h3>
+        <p style="font-size: 14px; color: #666;">We use cookies to enhance your experience.</p>
+        <div class="cookie-actions">
+            <button class="btn-reject" onclick="userCookieDecision('reject')">Reject</button>
+            <button class="btn-accept" onclick="userCookieDecision('accept')">Accept All</button>
+        </div>
+    </div>
+</div>
+
+<script type="module">
+// 1. استدعاء النظام المركزي (لتفعيل الحماية والكوكيز)
+import { initCookieSystem, handleCookieChoice } from './system.js';
+
+window.onload = () => {
+    initCookieSystem(); // إظهار الكوكيز
+};
+
+window.userCookieDecision = (choice) => handleCookieChoice(choice);
+window.startApp = () => window.location.href = "login.html";
 </script>
 
 </body>
