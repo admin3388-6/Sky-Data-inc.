@@ -117,3 +117,31 @@ function enableTracking() {
     // مثال: حفظ معلومات الجهاز (محاكاة)
     localStorage.setItem('device_info', navigator.userAgent);
 }
+// ... (اترك الأكواد السابقة كما هي) ...
+
+// ==========================================
+// 4. OneSignal Notification System (الإشعارات)
+// ==========================================
+export function initNotifications() {
+    // 1. حقن السكربت ديناميكياً (بدون تلوث HTML)
+    const script = document.createElement('script');
+    script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+    script.defer = true;
+    document.head.appendChild(script);
+
+    // 2. إعداد OneSignal
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+            appId: "201dc615-587a-4e1c-a979-8b9d80667386",
+            safari_web_id: "web.onesignal.auto.xxxxx", // اختياري لمتصفح سفاري
+            notifyButton: {
+                enable: true, /* يظهر زر جرس صغير للاشتراك */
+            },
+            allowLocalhostAsSecureOrigin: true, // للسماح بالتجربة على جهازك
+        });
+        
+        console.log("System: Notifications Service Started.");
+    });
+        }
+
