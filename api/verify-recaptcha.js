@@ -1,6 +1,6 @@
 export default async function handler(req, res) {
     // 1. الحماية: السماح فقط للطلبات القادمة من موقعك
-    const allowedOrigin = 'https://skydata.casacam.net'; // أو window.location.origin في الفرونت إند، لكن هنا يجب أن يكون ثابتاً أو ديناميكياً
+    const allowedOrigin = 'https://skydata.bond'; // أو window.location.origin في الفرونت إند، لكن هنا يجب أن يكون ثابتاً أو ديناميكياً
     const origin = req.headers.origin;
 
     // ملاحظة: أثناء التطوير (Localhost) قد تحتاج لتعطيل هذا الشرط مؤقتاً أو إضافة localhost
