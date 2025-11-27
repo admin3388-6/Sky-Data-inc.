@@ -1,151 +1,84 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Sky Data</title>
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<style>
-    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-    .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-    input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-    button { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-    .btn-primary { background: #4e54c8; color: white; }
-    .btn-primary:hover { background: #3f44a0; }
-    .btn-google { background: #db4437; color: white; margin-bottom: 20px; }
-    .switch-link { margin-top: 15px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: underline; }
-    #message { margin-top: 10px; font-size: 14px; color: green; display: none; }
-    .error { color: red !important; }
-    
-    /* إخفاء حقل المصيدة تماماً */
-    .honey-trap { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
-</style>
+  <meta charset="UTF-8">
+  <title>Sky Data Menu</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+      body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
+      .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
+      button { background: #ff4b4b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; }
+      button:hover { background: #d43f3f; }
+  </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 id="formTitle">Login</h2>
-
-    <button id="googleBtn" class="btn-google">Login with Google</button>
-
-    <div style="display: flex; align-items: center; justify-content: center; margin: 10px 0;">
-        <hr style="flex: 1; border: none; height: 1px; background: #ddd;">
-        <span style="padding: 0 10px; color: #888;">OR</span>
-        <hr style="flex: 1; border: none; height: 1px; background: #ddd;">
-    </div>
-
-    <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="password" placeholder="Password">
-
-    <div class="honey-trap">
-        <input type="text" id="website_url" tabindex="-1" autocomplete="off">
-    </div>
-
-    <div class="g-recaptcha" 
-         data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" 
-         style="margin: 10px 0;"></div>
-
-    <button id="submitBtn" class="btn-primary">Login</button>
+<div class="card">
+    <h1>User Profile</h1>
+    <div id="loader">Checking Security...</div>
     
-    <div id="message"></div>
-    <div class="switch-link" id="switchBtn">Don't have an account? Sign Up</div>
+    <div id="content" style="display:none;">
+        <p id="name"></p>
+        <p id="email"></p>
+        <p id="rank" style="font-weight: bold; color: blue;"></p>
+        
+        <br>
+        <button id="logoutBtn">Logout</button>
+    </div>
 </div>
 
 <script type="module">
-import { supabase } from "./supabase.js";
+  import { supabase } from './supabase.js';
 
-// 🛡️ حماية Self-XSS (تحذير الكونسول)
-if (window.console) {
+  // 🛡️ حماية Self-XSS (تحذير الكونسول)
+  if (window.console) {
     console.log("%cSTOP!", "color: red; font-size: 50px; font-weight: bold; text-shadow: 2px 2px 0px black;");
     console.log("%cThis feature is intended for developers only. If someone told you to copy-paste code here, it is a scam.", "color: white; background: red; font-size: 16px; padding: 10px; border-radius: 5px;");
-}
+  }
 
-let isLoginMode = true; 
+  // 1. دالة التحميل
+  async function loadProfile() {
+      const { data: { user } } = await supabase.auth.getUser();
 
-document.getElementById("switchBtn").onclick = () => {
-    isLoginMode = !isLoginMode;
-    document.getElementById("formTitle").textContent = isLoginMode ? "Login" : "Create Account";
-    document.getElementById("submitBtn").textContent = isLoginMode ? "Login" : "Sign Up";
-    document.getElementById("switchBtn").textContent = isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Login";
-    document.getElementById("message").style.display = "none";
-};
-
-document.getElementById("submitBtn").onclick = async () => {
-    // 🛡️ 1. التحقق من المصيدة (Honeypot Check)
-    const trap = document.getElementById("website_url").value;
-    if (trap) {
-        console.warn("Bot detected via honeypot."); 
-        return; // إيقاف العملية بصمت
-    }
-
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const messageDiv = document.getElementById("message");
-    
-    // 2. التحقق من Recaptcha
-    const token = grecaptcha.getResponse();
-    if (!token) {
-        alert("Please complete the reCAPTCHA");
+      if (!user) {
+        window.location.href = "login.html";
         return;
-    }
+      }
 
-    // التحقق من السيرفر
-    const verify = await fetch("/api/verify-recaptcha", {
-        method: "POST", // تأكدنا من أنها POST
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ token })
-    }).then(r => r.json());
+      // قراءة البيانات فقط (الكتابة تتم في السيرفر عبر التريجر)
+      let { data: profile, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('id', user.id)
+        .single();
 
-    if (!verify.success) {
-        alert("Security check failed (Recaptcha)");
-        return;
-    }
+      if (error) {
+          console.error("Error:", error);
+          document.getElementById("loader").style.display = "none";
+          document.getElementById("content").style.display = "block";
+          document.getElementById("name").textContent = "Error loading data";
+          return;
+      }
 
-    messageDiv.style.display = "block";
-    messageDiv.textContent = "Processing...";
-    messageDiv.className = "";
+      document.getElementById("loader").style.display = "none";
+      document.getElementById("content").style.display = "block";
+      
+      document.getElementById("name").textContent = "Name: " + (profile.name || "User");
+      document.getElementById("email").textContent = "Email: " + profile.email;
+      document.getElementById("rank").textContent = "Rank: " + profile.rank.toUpperCase();
+  }
 
-    if (isLoginMode) {
-        // --- تسجيل الدخول ---
-        const { data, error } = await supabase.auth.signInWithPassword({
-            email: email,
-            password: password
-        });
+  // 2. دالة تسجيل الخروج
+  document.getElementById("logoutBtn").onclick = async () => {
+      const { error } = await supabase.auth.signOut();
+      if (!error) {
+          window.location.href = "login.html";
+      } else {
+          alert("Error signing out!");
+      }
+  };
 
-        if (error) {
-            messageDiv.textContent = error.message;
-            messageDiv.className = "error";
-        } else {
-            // التوجيه للرابط الذكي
-            window.location.href = "menu.html";
-        }
-
-    } else {
-        // --- إنشاء حساب جديد ---
-        const { data, error } = await supabase.auth.signUp({
-            email: email,
-            password: password,
-            options: {
-                emailRedirectTo: window.location.origin + "/menu.html"
-            }
-        });
-
-        if (error) {
-            messageDiv.textContent = error.message;
-            messageDiv.className = "error";
-        } else {
-            messageDiv.textContent = "Verification email sent! Please check your inbox.";
-            grecaptcha.reset(); 
-        }
-    }
-};
-
-document.getElementById("googleBtn").onclick = async () => {
-    await supabase.auth.signInWithOAuth({
-        provider: "google",
-        options: { redirectTo: window.location.origin + "/menu.html" }
-    });
-};
+  loadProfile();
 </script>
 
 </body>
