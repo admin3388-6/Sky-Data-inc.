@@ -4,27 +4,40 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Login - Sky Data</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <style>
-    body { font-family: Arial, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-    .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); width: 100%; max-width: 350px; text-align: center; }
-    input { width: 90%; padding: 10px; margin: 10px 0; border: 1px solid #ddd; border-radius: 5px; }
-    button { width: 100%; padding: 10px; border: none; border-radius: 5px; cursor: pointer; font-weight: bold; margin-top: 5px; }
+    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+    .container { background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
+    
+    h2 { margin-bottom: 20px; color: #333; }
+
+    input { width: 100%; padding: 12px 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; font-size: 14px; transition: 0.3s; }
+    input:focus { border-color: #4e54c8; outline: none; }
+
+    button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: 0.3s; }
     
     .btn-primary { background: #4e54c8; color: white; margin-top: 15px; }
-    .btn-primary:hover { background: #3f44a0; }
+    .btn-primary:hover { background: #3f44a0; transform: translateY(-2px); }
     
     /* أزرار التواصل الاجتماعي */
-    .social-btn { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; color: white; transition: 0.3s; }
+    .social-btn { color: white; margin-bottom: 10px; }
+    
     .btn-google { background: #db4437; }
     .btn-google:hover { background: #c53929; }
     
     .btn-linkedin { background: #0077b5; }
     .btn-linkedin:hover { background: #006097; }
 
-    .switch-link { margin-top: 15px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: underline; }
-    #message { margin-top: 10px; font-size: 14px; color: green; display: none; }
-    .error { color: red !important; }
+    .divider { display: flex; align-items: center; justify-content: center; margin: 20px 0; }
+    .divider hr { flex: 1; border: none; height: 1px; background: #e0e0e0; }
+    .divider span { padding: 0 10px; color: #888; font-size: 12px; font-weight: bold; }
+
+    .switch-link { margin-top: 20px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: none; }
+    .switch-link:hover { text-decoration: underline; }
+
+    #message { margin-top: 15px; font-size: 14px; color: green; display: none; padding: 10px; background: #e8f5e9; border-radius: 5px; }
+    .error { color: #d32f2f !important; background: #ffebee !important; }
     
     /* إخفاء حقل المصيدة تماماً */
     .honey-trap { opacity: 0; position: absolute; top: 0; left: 0; height: 0; width: 0; z-index: -1; }
@@ -33,24 +46,26 @@
 <body>
 
 <div class="container">
-    <h2 id="formTitle">Login</h2>
+    <h2 id="formTitle"><i class="fas fa-user-lock"></i> Login</h2>
 
     <button id="googleBtn" class="social-btn btn-google">
-        Login with Google
+        <i class="fab fa-google"></i> Continue with Google
     </button>
 
     <button id="linkedinBtn" class="social-btn btn-linkedin">
-        Login with LinkedIn
+        <i class="fab fa-linkedin"></i> Continue with LinkedIn
     </button>
 
-    <div style="display: flex; align-items: center; justify-content: center; margin: 15px 0;">
-        <hr style="flex: 1; border: none; height: 1px; background: #ddd;">
-        <span style="padding: 0 10px; color: #888; font-size: 12px;">OR EMAIL</span>
-        <hr style="flex: 1; border: none; height: 1px; background: #ddd;">
+    <div class="divider">
+        <hr><span>OR EMAIL</span><hr>
     </div>
 
-    <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="password" placeholder="Password">
+    <div style="position: relative;">
+        <input type="email" id="email" placeholder="Email Address">
+    </div>
+    <div style="position: relative;">
+        <input type="password" id="password" placeholder="Password">
+    </div>
 
     <div class="honey-trap">
         <input type="text" id="website_url" tabindex="-1" autocomplete="off">
@@ -58,9 +73,11 @@
 
     <div class="g-recaptcha" 
          data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" 
-         style="margin: 10px 0;"></div>
+         style="margin: 10px 0; display: flex; justify-content: center;"></div>
 
-    <button id="submitBtn" class="btn-primary">Login</button>
+    <button id="submitBtn" class="btn-primary">
+        <i class="fas fa-sign-in-alt" id="btnIcon"></i> <span id="btnText">Login</span>
+    </button>
     
     <div id="message"></div>
     <div class="switch-link" id="switchBtn">Don't have an account? Sign Up</div>
@@ -78,9 +95,22 @@ let isLoginMode = true;
 
 document.getElementById("switchBtn").onclick = () => {
     isLoginMode = !isLoginMode;
-    document.getElementById("formTitle").textContent = isLoginMode ? "Login" : "Create Account";
-    document.getElementById("submitBtn").textContent = isLoginMode ? "Login" : "Sign Up";
-    document.getElementById("switchBtn").textContent = isLoginMode ? "Don't have an account? Sign Up" : "Already have an account? Login";
+    const title = document.getElementById("formTitle");
+    const btnText = document.getElementById("btnText");
+    const btnIcon = document.getElementById("btnIcon");
+    const switchBtn = document.getElementById("switchBtn");
+
+    if (isLoginMode) {
+        title.innerHTML = '<i class="fas fa-user-lock"></i> Login';
+        btnText.textContent = "Login";
+        btnIcon.className = "fas fa-sign-in-alt";
+        switchBtn.textContent = "Don't have an account? Sign Up";
+    } else {
+        title.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+        btnText.textContent = "Sign Up";
+        btnIcon.className = "fas fa-user-check";
+        switchBtn.textContent = "Already have an account? Login";
+    }
     document.getElementById("message").style.display = "none";
 };
 
@@ -100,6 +130,11 @@ document.getElementById("submitBtn").onclick = async () => {
         return;
     }
 
+    // إظهار حالة التحميل
+    const btnText = document.getElementById("btnText");
+    const originalText = btnText.textContent;
+    btnText.textContent = "Processing...";
+    
     const verify = await fetch("/api/verify-recaptcha", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -108,11 +143,12 @@ document.getElementById("submitBtn").onclick = async () => {
 
     if (!verify.success) {
         alert("Security check failed");
+        btnText.textContent = originalText;
         return;
     }
 
     messageDiv.style.display = "block";
-    messageDiv.textContent = "Processing...";
+    messageDiv.textContent = "Connecting securely...";
     messageDiv.className = "";
 
     if (isLoginMode) {
@@ -123,6 +159,7 @@ document.getElementById("submitBtn").onclick = async () => {
         if (error) {
             messageDiv.textContent = error.message;
             messageDiv.className = "error";
+            btnText.textContent = originalText;
         } else {
             window.location.href = "menu.html";
         }
@@ -137,9 +174,11 @@ document.getElementById("submitBtn").onclick = async () => {
         if (error) {
             messageDiv.textContent = error.message;
             messageDiv.className = "error";
+            btnText.textContent = originalText;
         } else {
-            messageDiv.textContent = "Verification email sent!";
+            messageDiv.textContent = "Verification email sent! Check your inbox.";
             grecaptcha.reset(); 
+            btnText.textContent = originalText;
         }
     }
 };
@@ -152,10 +191,10 @@ document.getElementById("googleBtn").onclick = async () => {
     });
 };
 
-// --- تسجيل الدخول عبر LinkedIn (جديد) ---
+// --- تسجيل الدخول عبر LinkedIn (التصحيح: OIDC) ---
 document.getElementById("linkedinBtn").onclick = async () => {
     await supabase.auth.signInWithOAuth({
-        provider: "linkedin",
+        provider: "linkedin_oidc", // ✅ تم التصحيح ليتوافق مع النسخة الجديدة
         options: { redirectTo: window.location.origin + "/menu.html" }
     });
 };
