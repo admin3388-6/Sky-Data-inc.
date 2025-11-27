@@ -4,18 +4,93 @@
   <meta charset="UTF-8">
   <title>Sky Data Menu</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
   <style>
-      body { font-family: sans-serif; padding: 20px; background: #f0f2f5; }
-      .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); max-width: 400px; margin: 0 auto; }
-      button { background: #ff4b4b; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; margin-top: 10px; }
-      button:hover { background: #d43f3f; }
+      :root { --primary: #4e54c8; --bg: #f0f2f5; --text: #333; }
+      body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: var(--bg); transition: 0.3s; margin: 0; }
+      
+      /* زر الإعدادات العائم */
+      .settings-btn {
+          position: fixed; top: 20px; right: 20px;
+          background: white; width: 45px; height: 45px;
+          border-radius: 50%; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+          display: flex; align-items: center; justify-content: center;
+          cursor: pointer; z-index: 1000; transition: transform 0.3s;
+      }
+      .settings-btn:hover { transform: rotate(90deg); }
+
+      /* البطاقة الرئيسية */
+      .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); max-width: 400px; margin: 50px auto; text-align: center; }
+      
+      button.logout { background: #ff4b4b; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: bold; }
+      
+      /* نافذة اللغات (Modal) */
+      .modal-overlay {
+          display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+          background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;
+      }
+      .language-modal {
+          background: white; padding: 25px; border-radius: 15px; width: 300px;
+          animation: popIn 0.3s ease;
+      }
+      .lang-option {
+          display: flex; align-items: center; gap: 15px; padding: 15px;
+          margin: 10px 0; background: #f8f9fa; border-radius: 10px;
+          cursor: pointer; transition: 0.2s; border: 2px solid transparent;
+      }
+      .lang-option:hover { border-color: var(--primary); background: #eef2ff; }
+      .flag-icon { font-size: 24px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 4px; }
+
+      /* شريط الكوكيز (Cookie Banner) */
+      .cookie-banner {
+          position: fixed; bottom: -200px; left: 0; width: 100%;
+          background: white; padding: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+          z-index: 3000; transition: bottom 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+          display: flex; flex-direction: column; align-items: center; text-align: center;
+      }
+      .cookie-banner.show { bottom: 0; }
+      .cookie-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; justify-content: center; }
+      .btn-accept { background: var(--primary); color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+      .btn-reject { background: transparent; border: 1px solid #999; color: #555; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+      .links a { color: var(--primary); text-decoration: none; font-size: 12px; margin: 0 5px; }
+
+      @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
   </style>
 </head>
 <body>
 
+<div class="settings-btn" onclick="toggleModal()">
+    <i class="fas fa-cog fa-lg" style="color: #555;"></i>
+</div>
+
+<div class="modal-overlay" id="langModal">
+    <div class="language-modal">
+        <h3 data-i18n="settingsTitle">Language Settings</h3>
+        
+        <div class="lang-option" onclick="setLang('en')">
+            <span class="flag-icon flag-icon-us"></span>
+            <span>English (US)</span>
+        </div>
+        
+        <div class="lang-option" onclick="setLang('ar')">
+            <span class="flag-icon flag-icon-sa"></span>
+            <span>العربية (KSA)</span>
+        </div>
+        
+        <div class="lang-option" onclick="setLang('ru')">
+            <span class="flag-icon flag-icon-ru"></span>
+            <span>Русский (RU)</span>
+        </div>
+
+        <button onclick="toggleModal()" style="margin-top:10px; width:100%; padding:10px;">Close</button>
+    </div>
+</div>
+
 <div class="card">
-    <h1>User Profile</h1>
-    <div id="loader">Checking Security...</div>
+    <h1 data-i18n="title">User Profile</h1>
+    <div id="loader" data-i18n="loading">Checking Security...</div>
     
     <div id="content" style="display:none;">
         <p id="name"></p>
@@ -23,15 +98,49 @@
         <p id="rank" style="font-weight: bold; color: blue;"></p>
         
         <br>
-        <button id="logoutBtn">Logout</button>
+        <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
+    </div>
+</div>
+
+<div class="cookie-banner" id="cookieBanner">
+    <div style="max-width: 600px;">
+        <h3 data-i18n="cookieTitle">We Value Your Privacy</h3>
+        <p data-i18n="cookieText" style="font-size: 14px; color: #666;"></p>
+        <div class="links">
+            <a href="#" data-i18n="privacy">Privacy Policy</a> | 
+            <a href="#" data-i18n="terms">Terms of Service</a>
+        </div>
+        <div class="cookie-actions">
+            <button class="btn-reject" onclick="userCookieDecision('reject')" data-i18n="cookieReject">Reject Non-Essential</button>
+            <button class="btn-accept" onclick="userCookieDecision('accept')" data-i18n="cookieAccept">Accept All</button>
+        </div>
     </div>
 </div>
 
 <script type="module">
   import { supabase } from './supabase.js';
+  import { changeLanguage, initCookieSystem, handleCookieChoice } from './system.js';
 
+  // 1. تشغيل النظام (الكوكيز واللغة)
+  window.onload = () => {
+      initCookieSystem();
+  };
+
+  // دوال اللغة والكوكيز متاحة للـ HTML
+  window.setLang = (lang) => {
+      changeLanguage(lang);
+      toggleModal(); // إغلاق النافذة
+  };
+  window.toggleModal = () => {
+      const modal = document.getElementById('langModal');
+      modal.style.display = modal.style.display === 'flex' ? 'none' : 'flex';
+  };
+  window.userCookieDecision = (choice) => {
+      handleCookieChoice(choice);
+  };
+
+  // 2. منطق البيانات (Supabase)
   async function loadProfile() {
-      // 1. جلب بيانات المستخدم من الجلسة الحالية
       const { data: { user } } = await supabase.auth.getUser();
 
       if (!user) {
@@ -39,7 +148,6 @@
         return;
       }
 
-      // 2. جلب الرتبة من قاعدة البيانات
       let { data: profile } = await supabase
         .from('users')
         .select('*')
@@ -49,31 +157,24 @@
       document.getElementById("loader").style.display = "none";
       document.getElementById("content").style.display = "block";
       
-      // 3. المنطق الذكي لعرض الاسم والإيميل
-      // الإيميل نأخذه من الجلسة دائماً لأنه مضمون
       const finalEmail = user.email;
-
-      // الاسم نأخذه من الجلسة (جوجل/لينكد إن) أو من قاعدة البيانات، أو نستخدم جزء من الإيميل كحل أخير
       let finalName = user.user_metadata.full_name || user.user_metadata.name || profile?.name;
       
       if (!finalName || finalName === "User") {
-          finalName = finalEmail.split('@')[0]; // إذا لم نجد اسماً، نستخدم ما قبل @
+          finalName = finalEmail.split('@')[0];
       }
 
       const finalRank = profile?.rank || "free";
 
-      document.getElementById("name").textContent = "Name: " + finalName;
-      document.getElementById("email").textContent = "Email: " + finalEmail;
-      document.getElementById("rank").textContent = "Rank: " + finalRank.toUpperCase();
+      // هنا لا نستخدم data-i18n لأن هذه قيم متغيرة
+      document.getElementById("name").innerHTML = `<b>Name:</b> ${finalName}`;
+      document.getElementById("email").innerHTML = `<b>Email:</b> ${finalEmail}`;
+      document.getElementById("rank").innerHTML = `<b>Rank:</b> ${finalRank.toUpperCase()}`;
   }
 
   document.getElementById("logoutBtn").onclick = async () => {
       const { error } = await supabase.auth.signOut();
-      if (!error) {
-          window.location.href = "login.html";
-      } else {
-          alert("Error signing out!");
-      }
+      if (!error) { window.location.href = "login.html"; }
   };
 
   loadProfile();
