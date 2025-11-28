@@ -1,154 +1,199 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Login - Sky Data</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://www.google.com/recaptcha/api.js" async defer></script>
-<style>
-    body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-    .container { 
-        background: white; padding: 40px; border-radius: 20px; 
-        box-shadow: 0 10px 40px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; 
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sky Data</title>
     
-    h2 { margin-bottom: 25px; color: #333; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     
-    input { 
-        width: 100%; padding: 14px 15px; margin: 8px 0; border: 1px solid #eee; border-radius: 10px; 
-        box-sizing: border-box; background: #fafafa; transition: 0.3s; 
-    }
-    input:focus { background: white; border-color: #4e54c8; }
-    
-    button { 
-        width: 100%; padding: 14px; border: none; border-radius: 10px; cursor: pointer; 
-        font-weight: 600; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px;
-    }
-    
-    .btn-primary { background: #4e54c8; color: white; margin-top: 20px; }
-    .btn-primary:hover { background: #3f44a0; }
-    
-    .social-btn { color: white; margin-bottom: 12px; font-size: 14px; }
-    .btn-google { background: #db4437; }
-    .btn-linkedin { background: #0077b5; }
-    
-    .divider { display: flex; align-items: center; justify-content: center; margin: 25px 0; }
-    .divider hr { flex: 1; border: none; height: 1px; background: #e0e0e0; }
-    .divider span { padding: 0 10px; color: #999; font-size: 12px; font-weight: 600; }
+    <style>
+        :root {
+            --bg-dark: #0a0a12;
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --primary: #4e54c8;
+            --accent: #00d2ff;
+            --text: #ffffff;
+            --text-muted: #8b9bb4;
+        }
 
-    .switch-link { margin-top: 25px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: none; font-weight: 500; }
-    .switch-link:hover { text-decoration: underline; }
-    
-    .honey-trap { opacity: 0; position: absolute; z-index: -1; width: 0; height: 0; }
-    #message { display: none; margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 14px; }
-    .error { background: #ffebee; color: #c62828; }
-</style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text);
+            height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            overflow: hidden;
+        }
+
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+
+        .login-card {
+            background: rgba(10, 10, 18, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            padding: 50px;
+            border-radius: 24px;
+            width: 90%; max-width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.8s ease forwards;
+        }
+
+        .login-card h2 {
+            font-size: 2rem; margin-bottom: 30px;
+            background: linear-gradient(to right, #fff, #b3b3b3);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        }
+
+        .social-btn {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex; align-items: center; justify-content: center; gap: 12px;
+            transition: 0.3s;
+            color: white;
+            position: relative; overflow: hidden;
+        }
+
+        .social-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        .social-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+        .btn-google { background: #db4437; }
+        .btn-linkedin { background: #0077b5; }
+        /* زر GitHub الجديد */
+        .btn-github { background: #24292e; } 
+        .btn-github:hover { background: #000; }
+
+        .secure-badge {
+            margin-top: 30px;
+            font-size: 12px;
+            color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+            opacity: 0.7;
+        }
+
+        .g-recaptcha { margin: 20px 0; display: flex; justify-content: center; }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
 
-<div class="container">
-    <h2 id="formTitle" data-i18n="loginTitle"><i class="fas fa-user-shield"></i> Login</h2>
-    
-    <button id="googleBtn" class="social-btn btn-google" data-i18n="googleBtn"><i class="fab fa-google"></i> Continue with Google</button>
-    <button id="linkedinBtn" class="social-btn btn-linkedin" data-i18n="linkedinBtn"><i class="fab fa-linkedin"></i> Continue with LinkedIn</button>
-    
-    <div class="divider"><hr><span data-i18n="orEmail">OR EMAIL</span><hr></div>
+    <canvas id="canvas-bg"></canvas>
 
-    <div id="nameField" style="display:none;">
-        <input type="text" id="fullName" data-i18n="namePlace" placeholder="Full Name">
+    <div class="login-card">
+        <div style="font-size: 40px; color: var(--accent); margin-bottom: 20px;">
+            <i class="fas fa-fingerprint"></i>
+        </div>
+        <h2 data-i18n="loginTitle">Secure Login</h2>
+
+        <div class="g-recaptcha" data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" data-theme="dark"></div>
+
+        <button id="googleBtn" class="social-btn btn-google">
+            <i class="fab fa-google"></i> <span data-i18n="googleBtn">Continue with Google</span>
+        </button>
+
+        <button id="linkedinBtn" class="social-btn btn-linkedin">
+            <i class="fab fa-linkedin"></i> <span data-i18n="linkedinBtn">Continue with LinkedIn</span>
+        </button>
+
+        <button id="githubBtn" class="social-btn btn-github">
+            <i class="fab fa-github"></i> <span data-i18n="githubBtn">Continue with GitHub</span>
+        </button>
+
+        <div class="secure-badge">
+            <i class="fas fa-shield-alt"></i> <span data-i18n="secureNote">Authenticated via OAuth 2.0</span>
+        </div>
     </div>
-    <input type="email" id="email" data-i18n="emailPlace" placeholder="Email Address">
-    <input type="password" id="password" data-i18n="passPlace" placeholder="Password">
+
+    <script type="module" src="./system.js"></script>
     
-    <div class="honey-trap"><input type="text" id="website_url"></div>
+    <script type="module">
+        import { supabase } from "./supabase.js";
 
-    <div class="g-recaptcha" data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" style="margin: 15px 0; display: flex; justify-content: center;"></div>
+        // التحقق من الكابتشا قبل السماح بالضغط
+        // ملاحظة: لتبسيط تجربة المستخدم، سنسمح بالضغط ولكن نتحقق داخل الدالة
+        
+        async function handleLogin(provider) {
+            const token = grecaptcha.getResponse();
+            if (!token) {
+                alert("Please verify you are human first!");
+                return;
+            }
 
-    <button id="submitBtn" class="btn-primary">
-        <i class="fas fa-sign-in-alt" id="btnIcon"></i> <span id="btnText" data-i18n="loginBtn">Login</span>
-    </button>
-    
-    <div id="message"></div>
-    <div class="switch-link" id="switchBtn" data-i18n="noAccount">Don't have an account? Sign Up</div>
-</div>
+            // التحقق من السيرفر (اختياري هنا لأن OAuth آمن، لكنك طلبت حماية قصوى)
+            const verify = await fetch("/api/verify-recaptcha", { 
+                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) 
+            }).then(r => r.json());
 
-<script type="module">
-import { supabase } from "./supabase.js";
-import './system.js'; 
+            if (!verify.success) {
+                alert("Security check failed. Please refresh.");
+                return;
+            }
 
-if (window.console) console.log("%cSTOP!", "color: red; font-size: 50px; font-weight: bold;");
+            // التوجيه
+            const { error } = await supabase.auth.signInWithOAuth({
+                provider: provider,
+                options: { redirectTo: window.location.origin + "/menu.html" }
+            });
 
-let isLoginMode = true; 
+            if (error) alert(error.message);
+        }
 
-// منطق التبديل + تحديث الترجمة فوراً
-document.getElementById("switchBtn").onclick = () => {
-    isLoginMode = !isLoginMode;
-    const title = document.getElementById("formTitle");
-    const btnText = document.getElementById("btnText");
-    const btnIcon = document.getElementById("btnIcon");
-    const switchBtn = document.getElementById("switchBtn");
-    const nameField = document.getElementById("nameField");
-    
-    if (isLoginMode) {
-        // نغير مفاتيح الترجمة (Keys) وليس النص مباشرة
-        title.setAttribute('data-i18n', 'loginTitle');
-        btnText.setAttribute('data-i18n', 'loginBtn');
-        switchBtn.setAttribute('data-i18n', 'noAccount');
-        btnIcon.className = "fas fa-sign-in-alt";
-        nameField.style.display = "none";
-    } else {
-        title.setAttribute('data-i18n', 'signupTitle');
-        btnText.setAttribute('data-i18n', 'signupBtn');
-        switchBtn.setAttribute('data-i18n', 'haveAccount');
-        btnIcon.className = "fas fa-user-plus";
-        nameField.style.display = "block";
-    }
-    
-    // إعادة استدعاء دالة الترجمة لتطبيق النصوص الجديدة فوراً
-    const currentLang = localStorage.getItem('skydata_lang') || 'en';
-    window.changeLanguage(currentLang);
-    
-    document.getElementById("message").style.display = "none";
-};
+        document.getElementById("googleBtn").onclick = () => handleLogin("google");
+        
+        // تأكد من استخدام linkedin_oidc كما اتفقنا سابقاً
+        document.getElementById("linkedinBtn").onclick = () => handleLogin("linkedin_oidc");
+        
+        // GitHub
+        document.getElementById("githubBtn").onclick = () => handleLogin("github");
 
-document.getElementById("submitBtn").onclick = async () => {
-    if (document.getElementById("website_url").value) return; // Honeypot
-    
-    const email = document.getElementById("email").value;
-    const password = document.getElementById("password").value;
-    const fullName = document.getElementById("fullName").value;
-    const msg = document.getElementById("message");
-    
-    const token = grecaptcha.getResponse();
-    if (!token) { alert("Captcha required"); return; }
-    
-    const verify = await fetch("/api/verify-recaptcha", { 
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) 
-    }).then(r => r.json());
+        // --- Canvas Animation (نسخنا الكود من Index لتوحيد الشكل) ---
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height;
+        let particles = [];
 
-    if (!verify.success) { alert("Security Check Failed"); return; }
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize);
+        resize();
 
-    msg.style.display = 'block'; msg.textContent = "Processing..."; msg.className = "";
+        class Particle {
+            constructor() {
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2;
+            }
+            update() {
+                this.x += this.vx; this.y += this.vy;
+                if (this.x < 0 || this.x > width) this.vx *= -1;
+                if (this.y < 0 || this.y > height) this.vy *= -1;
+            }
+            draw() {
+                ctx.fillStyle = 'rgba(140, 155, 255, 0.3)';
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+            }
+        }
+        for (let i = 0; i < 60; i++) particles.push(new Particle()); // عدد أقل قليلاً لصفحة الدخول
 
-    if (isLoginMode) {
-        const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if (error) { msg.textContent = error.message; msg.className = "error"; }
-        else { window.location.href = "menu.html"; }
-    } else {
-        if (!fullName) { msg.textContent = "Name required"; msg.className = "error"; return; }
-        const { error } = await supabase.auth.signUp({ 
-            email, password, options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin + "/menu.html" } 
-        });
-        if (error) { msg.textContent = error.message; msg.className = "error"; }
-        else { msg.textContent = "Verification email sent!"; grecaptcha.reset(); }
-    }
-};
-
-document.getElementById("googleBtn").onclick = async () => await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/menu.html" } });
-document.getElementById("linkedinBtn").onclick = async () => await supabase.auth.signInWithOAuth({ provider: "linkedin_oidc", options: { redirectTo: window.location.origin + "/menu.html" } });
-</script>
-
+        function animate() {
+            ctx.clearRect(0, 0, width, height);
+            particles.forEach(p => { p.update(); p.draw(); });
+            requestAnimationFrame(animate);
+        }
+        animate();
+    </script>
 </body>
 </html>

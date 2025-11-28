@@ -1,5 +1,5 @@
 // ==========================================
-// 1. Global Styles (تصميم زجاجي ثابت + إصلاحات الموبايل)
+// 1. Global Styles (تصميم موحد)
 // ==========================================
 const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Outfit:wght@300;500;700&display=swap');
@@ -13,21 +13,14 @@ const styles = `
     }
     
     * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
-    
-    /* منع الانزلاق الجانبي المزعج */
-    html, body {
-        width: 100%;
-        overflow-x: hidden;
-        margin: 0; padding: 0;
-    }
+    html, body { width: 100%; overflow-x: hidden; margin: 0; padding: 0; }
 
-    /* الخطوط */
     body { font-family: 'Outfit', sans-serif; }
     body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
 
-    /* زر الإعدادات (ثابت ومحمي من الاختفاء) */
+    /* زر الإعدادات */
     .settings-btn { 
-        position: fixed; top: 20px; right: 20px; 
+        position: fixed; top: 25px; right: 25px; 
         background: var(--glass-dark); backdrop-filter: blur(15px);
         width: 45px; height: 45px; border-radius: 50%; 
         box-shadow: 0 0 15px rgba(0,0,0,0.3); 
@@ -38,7 +31,7 @@ const styles = `
     .settings-btn i { color: var(--text-white); font-size: 20px; }
     .settings-btn:hover { transform: rotate(90deg); border-color: var(--accent); }
 
-    /* نافذة اللغات (متجاوبة مع النصوص الطويلة) */
+    /* نافذة اللغات */
     .modal-overlay { 
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(5px); 
@@ -46,10 +39,8 @@ const styles = `
     }
     .language-modal { 
         background: #0a0a12; padding: 25px; border-radius: 20px; 
-        width: 100%; max-width: 350px; /* حد أقصى للعرض */
-        animation: popIn 0.3s ease; text-align: center; 
-        border: 1px solid var(--border-light);
-        box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+        width: 100%; max-width: 350px; text-align: center; 
+        border: 1px solid var(--border-light); box-shadow: 0 20px 50px rgba(0,0,0,0.6);
     }
     .lang-option { 
         display: flex; align-items: center; gap: 15px; padding: 12px; margin: 10px 0; 
@@ -57,20 +48,18 @@ const styles = `
         transition: 0.2s; border: 1px solid transparent; color: white;
     }
     .lang-option:hover { border-color: var(--primary); background: rgba(78, 84, 200, 0.15); }
-    .lang-option span { 
-        font-size: 15px; text-align: left; 
-        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; /* قص النص الطويل */
-    }
+    .lang-option span { font-size: 15px; }
 
-    /* بانر الكوكيز */
+    /* بانر الكوكيز - يظهر فقط عند الحاجة */
     .cookie-banner { 
         position: fixed; bottom: -400px; left: 0; width: 100%; 
         background: rgba(10, 10, 18, 0.98); backdrop-filter: blur(20px); 
         padding: 20px; box-shadow: 0 -10px 30px rgba(0,0,0,0.4); z-index: 99997; 
         transition: bottom 0.5s ease; text-align: center; 
-        border-top: 2px solid var(--primary); color: white;
+        border-top: 2px solid var(--primary); color: white; display: none; /* مخفي افتراضياً */
     }
-    .cookie-banner.show { bottom: 0; }
+    .cookie-banner.visible { display: flex; bottom: 0; } /* كلاس للإظهار */
+    
     .cookie-actions { display: flex; gap: 10px; margin-top: 15px; justify-content: center; flex-wrap: wrap; }
     .btn-accept { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; }
     .btn-reject { background: transparent; border: 1px solid #555; color: #aaa; padding: 10px 25px; border-radius: 50px; cursor: pointer; }
@@ -99,25 +88,18 @@ function injectUI() {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
         modal.id = 'langModal';
-        // إغلاق عند النقر خارج النافذة
         modal.onclick = (e) => { if(e.target === modal) window.toggleLangModal(); };
         modal.innerHTML = `
             <div class="language-modal">
                 <h3 data-i18n="settingsTitle" style="color:white; margin-bottom:20px;">Language</h3>
-                <div class="lang-option" onclick="window.changeLanguage('en')">
-                    <span class="flag-icon flag-icon-us"></span><span>English (US)</span>
-                </div>
-                <div class="lang-option" onclick="window.changeLanguage('ar')">
-                    <span class="flag-icon flag-icon-sa"></span><span>العربية (KSA)</span>
-                </div>
-                <div class="lang-option" onclick="window.changeLanguage('ru')">
-                    <span class="flag-icon flag-icon-ru"></span><span>Русский (RU)</span>
-                </div>
+                <div class="lang-option" onclick="window.changeLanguage('en')"><span class="flag-icon flag-icon-us"></span><span>English (US)</span></div>
+                <div class="lang-option" onclick="window.changeLanguage('ar')"><span class="flag-icon flag-icon-sa"></span><span>العربية (KSA)</span></div>
+                <div class="lang-option" onclick="window.changeLanguage('ru')"><span class="flag-icon flag-icon-ru"></span><span>Русский (RU)</span></div>
                 <button onclick="window.toggleLangModal()" style="margin-top:15px; width:100%; padding:10px; border:none; background:#333; color:white; border-radius:8px; cursor:pointer;">Close</button>
             </div>`;
         document.body.appendChild(modal);
     }
-    // 3. الكوكيز
+    // 3. الكوكيز (يتم إنشاؤه ولكن لا يظهر إلا بالأمر)
     if (!document.getElementById('cookieBanner')) {
         const banner = document.createElement('div');
         banner.className = 'cookie-banner';
@@ -141,7 +123,7 @@ window.toggleLangModal = function() {
 };
 
 // ==========================================
-// 3. Translation Dictionary
+// 3. Translation
 // ==========================================
 const translations = {
     en: {
@@ -150,13 +132,10 @@ const translations = {
         heroTitle: "NEXT GEN DIGITAL SOLUTIONS", heroDesc: "Advanced Web Tools and AI Services.", heroBtn: "Access Console",
         statUptime: "Uptime", statUsers: "Users", statSecure: "AES-256",
         servicesTitle: "Professional Services",
-        cardWebTitle: "Web Tools", cardWebDesc: "Converters and analyzers.",
-        cardAITitle: "AI Solutions", cardAIDesc: "Image generation and automation.",
-        cardDevTitle: "Manual Dev", cardDevDesc: "Custom Apps and Bots.",
-        cardSecTitle: "Security", cardSecDesc: "DDoS and XSS Protection.",
-        cardBotTitle: "Discord Bots", cardBotDesc: "Music and moderation bots.",
-        cardFastTitle: "Performance", cardFastDesc: "Global CDN Speed.",
-        footerRights: "© 2025 Sky Data Inc."
+        // Login Page
+        loginTitle: "Secure Login", 
+        googleBtn: "Continue with Google", linkedinBtn: "Continue with LinkedIn", githubBtn: "Continue with GitHub",
+        secureNote: "Authenticated via OAuth 2.0"
     },
     ar: {
         settingsTitle: "إعدادات اللغة", cookieTitle: "الخصوصية", cookieText: "نستخدم ملفات تعريف الارتباط لتحسين الأداء.", cookieAccept: "موافقة", cookieReject: "رفض",
@@ -164,27 +143,19 @@ const translations = {
         heroTitle: "حلول رقمية متطورة", heroDesc: "أدوات ويب وذكاء اصطناعي وتشفير عالي.", heroBtn: "دخول المنصة",
         statUptime: "تشغيل", statUsers: "مستخدم", statSecure: "تشفير",
         servicesTitle: "خدماتنا",
-        cardWebTitle: "أدوات الويب", cardWebDesc: "تحويل صيغ وتحليل.",
-        cardAITitle: "حلول الذكاء", cardAIDesc: "توليد صور ونصوص.",
-        cardDevTitle: "برمجة خاصة", cardDevDesc: "تطبيقات وبوتات.",
-        cardSecTitle: "حماية", cardSecDesc: "حماية ضد الهجمات.",
-        cardBotTitle: "بوتات ديسكورد", cardBotDesc: "بوتات إدارة وموسيقى.",
-        cardFastTitle: "سرعة فائقة", cardFastDesc: "استجابة فورية.",
-        footerRights: "© 2025 Sky Data Inc."
+        loginTitle: "تسجيل دخول آمن",
+        googleBtn: "المتابعة بحساب جوجل", linkedinBtn: "المتابعة بحساب لينكد إن", githubBtn: "المتابعة بحساب غيت هاب",
+        secureNote: "مصادقة آمنة عبر OAuth 2.0"
     },
     ru: {
-        settingsTitle: "Настройки языка", cookieTitle: "Конфиденциальность", cookieText: "Мы используем файлы cookie.", cookieAccept: "Принять", cookieReject: "Отклонить",
-        navHome: "Главная", navDash: "Панель", navTools: "Инструменты", navAI: "AI Сервисы", navDev: "Разработка", navSec: "Защита", navSet: "Настройки",
-        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Веб-инструменты и AI модели.", heroBtn: "Консоль",
+        settingsTitle: "Настройки", cookieTitle: "Конфиденциальность", cookieText: "Мы используем файлы cookie.", cookieAccept: "Принять", cookieReject: "Отклонить",
+        navHome: "Главная", navDash: "Панель", navTools: "Инструменты", navAI: "AI", navDev: "Разработка", navSec: "Защита", navSet: "Настройки",
+        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Веб-инструменты и AI.", heroBtn: "Консоль",
         statUptime: "Аптайм", statUsers: "Юзеры", statSecure: "AES-256",
         servicesTitle: "Услуги",
-        cardWebTitle: "Веб-тулзы", cardWebDesc: "Конвертеры и анализ.",
-        cardAITitle: "AI Решения", cardAIDesc: "Генерация и авто.",
-        cardDevTitle: "Разработка", cardDevDesc: "Веб-аппы и боты.",
-        cardSecTitle: "Защита", cardSecDesc: "От DDoS и XSS.",
-        cardBotTitle: "Discord Боты", cardBotDesc: "Музыка и модерация.",
-        cardFastTitle: "Скорость", cardFastDesc: "Глобальный CDN.",
-        footerRights: "© 2025 Sky Data Inc."
+        loginTitle: "Вход",
+        googleBtn: "Войти через Google", linkedinBtn: "Войти через LinkedIn", githubBtn: "Войти через GitHub",
+        secureNote: "Авторизация OAuth 2.0"
     }
 };
 
@@ -193,11 +164,14 @@ window.changeLanguage = function(lang) {
     document.body.dir = lang === 'ar' ? "rtl" : "ltr";
     
     const dict = translations[lang];
+    // دمج قاموس الصفحة الحالية مع القاموس العام إذا وجد
+    const mergedDict = { ...dict, ...(window.pageTranslations ? window.pageTranslations[lang] : {}) };
+
     document.querySelectorAll('[data-i18n]').forEach(el => {
         const key = el.getAttribute('data-i18n');
-        if (dict[key]) {
-            if (el.tagName === 'INPUT') el.placeholder = dict[key];
-            else el.innerText = dict[key];
+        if (mergedDict[key]) {
+            if (el.tagName === 'INPUT') el.placeholder = mergedDict[key];
+            else el.innerText = mergedDict[key];
         }
     });
     
@@ -205,13 +179,34 @@ window.changeLanguage = function(lang) {
     if(modal) modal.style.display = 'none';
 };
 
+// ==========================================
+// 4. Cookie Logic (Fix)
+// ==========================================
 window.handleCookieChoice = function(choice) {
-    document.getElementById('cookieBanner').classList.remove('show');
+    const banner = document.getElementById('cookieBanner');
+    banner.classList.remove('visible'); // إخفاء
+    setTimeout(() => { banner.style.display = 'none'; }, 500); // إزالة نهائية
     localStorage.setItem('skydata_cookie_consent', choice === 'accept' ? 'accepted' : 'rejected');
 };
 
+function checkCookieStatus() {
+    const consent = localStorage.getItem('skydata_cookie_consent');
+    const banner = document.getElementById('cookieBanner');
+    
+    if (consent) {
+        // إذا كان هناك قرار سابق (سواء قبول أو رفض)، لا تظهر البانر أبداً
+        if (banner) banner.style.display = 'none';
+    } else {
+        // إذا لم يكن هناك قرار، أظهره بعد قليل
+        if (banner) {
+            banner.style.display = 'flex'; // تجهيز للعرض
+            setTimeout(() => { banner.classList.add('visible'); }, 1500);
+        }
+    }
+}
+
 // ==========================================
-// 4. OneSignal
+// 5. OneSignal
 // ==========================================
 function initNotifications() {
     const script = document.createElement('script');
@@ -226,27 +221,21 @@ function initNotifications() {
             notifyButton: { enable: false },
             allowLocalhostAsSecureOrigin: true,
         });
-        const permission = OneSignal.Notifications.permission;
-        if (permission === 'default') {
-            setTimeout(() => { OneSignal.Notifications.requestPermission(); }, 4000);
-        }
     });
 }
 
 // ==========================================
-// 5. Init
+// 6. Init
 // ==========================================
 (function init() {
     window.addEventListener('DOMContentLoaded', () => {
         injectUI();
         const savedLang = localStorage.getItem('skydata_lang') || 'en';
         window.changeLanguage(savedLang);
-        if (!localStorage.getItem('skydata_cookie_consent')) {
-            setTimeout(() => {
-                const banner = document.getElementById('cookieBanner');
-                if(banner) banner.classList.add('show');
-            }, 1500);
-        }
+        
+        // التحقق من الكوكيز
+        checkCookieStatus();
+        
         initNotifications();
     });
 })();
