@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sky Data | Future Digital Solutions</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
@@ -26,48 +27,78 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text);
-            overflow-x: hidden;
+            overflow-x: hidden; /* لمنع الانزلاق العرضي بسبب الروسية */
         }
 
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
-        /* Sidebar */
+        /* --- Sidebar & Overlay System --- */
+        
+        /* طبقة الإغلاق (تظهر فقط في الموبايل عند فتح القائمة) */
+        .sidebar-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 999;
+            display: none; opacity: 0; transition: 0.3s;
+            backdrop-filter: blur(3px);
+        }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+
         .sidebar {
             position: fixed; left: 0; top: 0; height: 100vh; width: 80px;
-            background: rgba(10, 10, 18, 0.8); backdrop-filter: blur(20px);
+            background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px);
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column; align-items: center; padding: 30px 0;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            z-index: 1000; overflow: hidden;
+            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+            z-index: 1000; overflow: hidden; white-space: nowrap; /* منع النص من النزول لسطرين */
         }
-        .sidebar:hover { width: 260px; align-items: flex-start; padding-left: 25px; }
+        
+        /* عند تمرير الماوس (للكومبيوتر) أو إضافة كلاس open (للموبايل) */
+        .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
         
         .logo-icon { 
             font-size: 28px; color: var(--accent); margin-bottom: 50px; 
             filter: drop-shadow(0 0 10px var(--accent)); align-self: center; 
+            transition: 0.3s;
         }
+        .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
         
         .nav-item {
             display: flex; align-items: center; gap: 20px;
             color: var(--text-muted); text-decoration: none;
-            padding: 15px 10px; margin: 5px 0; width: 100%;
-            transition: 0.3s; border-radius: 12px; white-space: nowrap;
+            padding: 15px 12px; margin: 5px 0; width: 100%;
+            transition: 0.3s; border-radius: 12px;
         }
-        .nav-item span { opacity: 0; transition: 0.2s; transform: translateX(-10px); }
-        .sidebar:hover .nav-item span { opacity: 1; transform: translateX(0); }
-        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); }
+        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
+        
+        /* إصلاح قلتش النص: النص مخفي تماماً حتى تفتح القائمة */
+        .nav-item span { 
+            opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; 
+            pointer-events: none; /* لمنع النقر عليه وهو مخفي */
+        }
+        
+        /* إظهار النص عند الفتح */
+        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { 
+            opacity: 1; transform: translateX(0); 
+            pointer-events: auto; 
+        }
+
+        .nav-item:hover, .nav-item.active { 
+            color: var(--text); background: var(--glass); 
+            border: 1px solid var(--border);
+            box-shadow: 0 0 15px rgba(78, 84, 200, 0.2);
+        }
         .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
+        /* --- Main Content --- */
         .main-content { margin-left: 80px; padding: 0; transition: 0.4s; }
 
-        /* Hero */
         .hero {
             height: 100vh; display: flex; align-items: center; justify-content: center;
             flex-direction: column; text-align: center; padding: 20px;
             background: radial-gradient(circle at 50% 50%, rgba(78, 84, 200, 0.15), transparent 60%);
         }
         .hero h1 {
-            font-size: 5rem; line-height: 1.1; margin-bottom: 20px;
+            font-size: 4rem; line-height: 1.1; margin-bottom: 20px;
             background: linear-gradient(to right, #fff, #b3b3b3);
             -webkit-background-clip: text; -webkit-text-fill-color: transparent;
             text-shadow: 0 10px 30px rgba(0,0,0,0.5);
@@ -91,10 +122,9 @@
             background: rgba(255,255,255,0.2); transform: rotate(45deg); animation: shine 3s infinite;
         }
 
-        /* Services */
         .section-title { font-size: 2.5rem; margin-bottom: 50px; text-align: center; }
-        .services { padding: 100px 50px; }
-        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
+        .services { padding: 100px 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
 
         .card {
             background: var(--glass); border: 1px solid var(--border);
@@ -120,13 +150,20 @@
         footer { padding: 50px; text-align: center; border-top: 1px solid var(--border); margin-top: 100px; color: var(--text-muted); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
-        
+
+        /* Responsive Mobile */
         @media (max-width: 768px) {
-            .sidebar { width: 0; padding: 0; }
-            .sidebar.open { width: 250px; padding: 20px; }
+            .sidebar { width: 0; padding: 0; border: none; }
+            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
             .main-content { margin-left: 0; }
-            .hero h1 { font-size: 3rem; }
-            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; color: white; }
+            .hero h1 { font-size: 2.5rem; }
+            /* زر القائمة الموبايل */
+            .toggle-menu { 
+                display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; 
+                font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); 
+                padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px);
+                border: 1px solid var(--border);
+            }
         }
         @media (min-width: 769px) { .toggle-menu { display: none; } }
     </style>
@@ -134,11 +171,14 @@
 <body>
 
     <canvas id="canvas-bg"></canvas>
-    <div class="toggle-menu" onclick="document.querySelector('.sidebar').classList.toggle('open')">
+
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <div class="toggle-menu" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </div>
 
-    <nav class="sidebar">
+    <nav class="sidebar" id="mySidebar">
         <div class="logo-icon"><i class="fas fa-infinity"></i></div>
         
         <a href="#" class="nav-item active">
@@ -159,7 +199,9 @@
         <a href="#security" class="nav-item">
             <i class="fas fa-shield-alt"></i> <span data-i18n="navSec">Security</span>
         </a>
+        
         <div style="flex-grow: 1;"></div>
+        
         <a href="#" class="nav-item">
             <i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span>
         </a>
@@ -168,7 +210,7 @@
     <div class="main-content">
         <section class="hero">
             <h1 data-i18n="heroTitle">NEXT GEN<br>DIGITAL SOLUTIONS</h1>
-            <p data-i18n="heroDesc">Advanced Web Tools, Custom AI Models, and Professional Development Services. Secured by Military-Grade Encryption.</p>
+            <p data-i18n="heroDesc">Advanced Web Tools, Custom AI Models, and Professional Development Services.</p>
             <a href="login.html" class="cta-btn"><span data-i18n="heroBtn">Access Console</span> <i class="fas fa-arrow-right" style="margin-left: 10px;"></i></a>
         </section>
 
@@ -190,44 +232,18 @@
         <section class="services" id="tools">
             <h2 class="section-title" data-i18n="servicesTitle">Professional Services</h2>
             <div class="grid">
-                <div class="card">
-                    <i class="fas fa-magic"></i>
-                    <h3 data-i18n="cardWebTitle">Web Tools</h3>
-                    <p data-i18n="cardWebDesc">Advanced format converters, code minifiers, and SEO analyzers. Free for Pro members.</p>
-                </div>
-                <div class="card" id="ai">
-                    <i class="fas fa-robot"></i>
-                    <h3 data-i18n="cardAITitle">AI Solutions</h3>
-                    <p data-i18n="cardAIDesc">Image generation, text analysis, and automation powered by cutting-edge neural networks.</p>
-                </div>
-                <div class="card" id="dev">
-                    <i class="fas fa-laptop-code"></i>
-                    <h3 data-i18n="cardDevTitle">Manual Dev</h3>
-                    <p data-i18n="cardDevDesc">Hire us to build custom Web Apps, Discord Bots, and scripts. Tailored to your needs.</p>
-                </div>
-                <div class="card" id="security" style="border-color: rgba(0, 210, 255, 0.3);">
-                    <i class="fas fa-lock" style="color: #00d2ff;"></i>
-                    <h3 data-i18n="cardSecTitle">Iron-Clad Security</h3>
-                    <p data-i18n="cardSecDesc">Protected against DDoS, SQL Injection, and XSS. We prioritize your privacy above all.</p>
-                </div>
-                <div class="card">
-                    <i class="fab fa-discord"></i>
-                    <h3 data-i18n="cardBotTitle">Discord Bots</h3>
-                    <p data-i18n="cardBotDesc">Custom bots with music, moderation, and economy systems. Hosted 24/7 on our servers.</p>
-                </div>
-                <div class="card">
-                    <i class="fas fa-rocket"></i>
-                    <h3 data-i18n="cardFastTitle">Fast Performance</h3>
-                    <p data-i18n="cardFastDesc">Optimized for speed. Our servers respond in milliseconds using global CDN networks.</p>
-                </div>
+                <div class="card"><i class="fas fa-magic"></i><h3 data-i18n="cardWebTitle">Web Tools</h3><p data-i18n="cardWebDesc">Converters and analyzers.</p></div>
+                <div class="card" id="ai"><i class="fas fa-robot"></i><h3 data-i18n="cardAITitle">AI Solutions</h3><p data-i18n="cardAIDesc">Image generation and automation.</p></div>
+                <div class="card" id="dev"><i class="fas fa-laptop-code"></i><h3 data-i18n="cardDevTitle">Manual Dev</h3><p data-i18n="cardDevDesc">Custom Apps and Bots.</p></div>
+                <div class="card" id="security" style="border-color: rgba(0, 210, 255, 0.3);"><i class="fas fa-lock" style="color: #00d2ff;"></i><h3 data-i18n="cardSecTitle">Iron-Clad Security</h3><p data-i18n="cardSecDesc">Protected against DDoS.</p></div>
+                <div class="card"><i class="fab fa-discord"></i><h3 data-i18n="cardBotTitle">Discord Bots</h3><p data-i18n="cardBotDesc">Custom bots.</p></div>
+                <div class="card"><i class="fas fa-rocket"></i><h3 data-i18n="cardFastTitle">Fast Performance</h3><p data-i18n="cardFastDesc">Global CDN Speed.</p></div>
             </div>
         </section>
 
         <footer>
-            <p data-i18n="footerRights">&copy; 2025 Sky Data Inc. All Rights Reserved.</p>
-            <p style="font-size: 12px; margin-top: 10px; opacity: 0.5;" data-i18n="footerSec">
-                <i class="fas fa-shield-alt"></i> Secured Connection &bull; End-to-End Encrypted
-            </p>
+            <p data-i18n="footerRights">&copy; 2025 Sky Data Inc.</p>
+            <p style="font-size: 12px; margin-top: 10px; opacity: 0.5;" data-i18n="footerSec">Secured Connection</p>
         </footer>
 
     </div>
@@ -235,57 +251,54 @@
     <script type="module" src="./system.js"></script>
 
     <script>
+        // دوال التحكم في القائمة (للموبايل فقط)
+        function toggleSidebar() {
+            document.getElementById('mySidebar').classList.toggle('open');
+            document.querySelector('.sidebar-overlay').classList.toggle('active');
+        }
+
+        function closeSidebar() {
+            document.getElementById('mySidebar').classList.remove('open');
+            document.querySelector('.sidebar-overlay').classList.remove('active');
+        }
+
+        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height;
         let particles = [];
 
-        function resize() {
-            width = canvas.width = window.innerWidth;
-            height = canvas.height = window.innerHeight;
-        }
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize);
         resize();
 
         class Particle {
             constructor() {
-                this.x = Math.random() * width;
-                this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5;
-                this.vy = (Math.random() - 0.5) * 0.5;
-                this.size = Math.random() * 2;
+                this.x = Math.random() * width; this.y = Math.random() * height;
+                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2;
             }
             update() {
-                this.x += this.vx;
-                this.y += this.vy;
+                this.x += this.vx; this.y += this.vy;
                 if (this.x < 0 || this.x > width) this.vx *= -1;
                 if (this.y < 0 || this.y > height) this.vy *= -1;
             }
             draw() {
                 ctx.fillStyle = 'rgba(140, 155, 255, 0.5)';
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-
-        for (let i = 0; i < 100; i++) particles.push(new Particle());
+        for (let i = 0; i < 80; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
             particles.forEach((p, index) => {
-                p.update();
-                p.draw();
+                p.update(); p.draw();
                 for (let j = index + 1; j < particles.length; j++) {
                     const p2 = particles[j];
                     const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
                     if (dist < 100) {
                         ctx.strokeStyle = `rgba(140, 155, 255, ${0.1 - dist/1000})`;
-                        ctx.lineWidth = 0.5;
-                        ctx.beginPath();
-                        ctx.moveTo(p.x, p.y);
-                        ctx.lineTo(p2.x, p2.y);
-                        ctx.stroke();
+                        ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
                     }
                 }
             });
