@@ -4,11 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sky Data | Future Digital Solutions</title>
-    <meta name="description" content="Advanced Web Tools, AI Services, and Professional Development.">
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -30,13 +29,9 @@
             overflow-x: hidden;
         }
 
-        /* --- خلفية الجزيئات المتحركة --- */
-        #canvas-bg {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            z-index: -1; opacity: 0.6;
-        }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
-        /* --- القائمة الجانبية الاحترافية --- */
+        /* Sidebar */
         .sidebar {
             position: fixed; left: 0; top: 0; height: 100vh; width: 80px;
             background: rgba(10, 10, 18, 0.8); backdrop-filter: blur(20px);
@@ -49,8 +44,7 @@
         
         .logo-icon { 
             font-size: 28px; color: var(--accent); margin-bottom: 50px; 
-            filter: drop-shadow(0 0 10px var(--accent));
-            align-self: center; /* يبقى في المنتصف دائماً */
+            filter: drop-shadow(0 0 10px var(--accent)); align-self: center; 
         }
         
         .nav-item {
@@ -59,26 +53,19 @@
             padding: 15px 10px; margin: 5px 0; width: 100%;
             transition: 0.3s; border-radius: 12px; white-space: nowrap;
         }
-        .nav-item i { font-size: 20px; min-width: 30px; text-align: center; transition: 0.3s; }
         .nav-item span { opacity: 0; transition: 0.2s; transform: translateX(-10px); }
         .sidebar:hover .nav-item span { opacity: 1; transform: translateX(0); }
-        
-        .nav-item:hover, .nav-item.active { 
-            color: var(--text); background: var(--glass); 
-            border: 1px solid var(--border);
-        }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); }
         .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
-        /* --- المحتوى الرئيسي --- */
         .main-content { margin-left: 80px; padding: 0; transition: 0.4s; }
 
-        /* --- Hero Section --- */
+        /* Hero */
         .hero {
             height: 100vh; display: flex; align-items: center; justify-content: center;
             flex-direction: column; text-align: center; padding: 20px;
             background: radial-gradient(circle at 50% 50%, rgba(78, 84, 200, 0.15), transparent 60%);
         }
-
         .hero h1 {
             font-size: 5rem; line-height: 1.1; margin-bottom: 20px;
             background: linear-gradient(to right, #fff, #b3b3b3);
@@ -86,12 +73,10 @@
             text-shadow: 0 10px 30px rgba(0,0,0,0.5);
             animation: slideUp 1s ease forwards;
         }
-        
         .hero p {
             font-size: 1.2rem; color: var(--text-muted); max-width: 600px;
             margin-bottom: 40px; animation: slideUp 1.2s ease forwards;
         }
-
         .cta-btn {
             padding: 16px 40px; font-size: 18px; font-weight: bold;
             background: linear-gradient(135deg, var(--primary), var(--accent));
@@ -103,18 +88,13 @@
         .cta-btn:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 210, 255, 0.5); }
         .cta-btn::after {
             content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: rgba(255,255,255,0.2); transform: rotate(45deg);
-            animation: shine 3s infinite;
+            background: rgba(255,255,255,0.2); transform: rotate(45deg); animation: shine 3s infinite;
         }
 
-        /* --- شبكة الخدمات (Bento Grid) --- */
+        /* Services */
         .section-title { font-size: 2.5rem; margin-bottom: 50px; text-align: center; }
         .services { padding: 100px 50px; }
-        
-        .grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px; max-width: 1200px; margin: 0 auto;
-        }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
 
         .card {
             background: var(--glass); border: 1px solid var(--border);
@@ -128,37 +108,25 @@
             opacity: 0; transition: 0.4s;
         }
         .card:hover::before { opacity: 1; }
-
         .card i { font-size: 40px; color: var(--accent); margin-bottom: 20px; }
         .card h3 { font-size: 1.5rem; margin-bottom: 15px; }
         .card p { color: var(--text-muted); line-height: 1.6; }
 
-        /* --- إحصائيات --- */
-        .stats {
-            display: flex; justify-content: center; gap: 50px; flex-wrap: wrap;
-            padding: 50px; background: rgba(255,255,255,0.02); margin-top: 50px;
-        }
+        .stats { display: flex; justify-content: center; gap: 50px; flex-wrap: wrap; padding: 50px; background: rgba(255,255,255,0.02); margin-top: 50px; }
         .stat-item { text-align: center; }
         .stat-num { font-size: 3rem; font-weight: 900; color: var(--accent); display: block; }
         .stat-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
 
-        /* --- الفوتر --- */
-        footer {
-            padding: 50px; text-align: center; border-top: 1px solid var(--border);
-            margin-top: 100px; color: var(--text-muted);
-        }
-
-        /* Animations */
+        footer { padding: 50px; text-align: center; border-top: 1px solid var(--border); margin-top: 100px; color: var(--text-muted); }
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
-
-        /* موبايل */
+        
         @media (max-width: 768px) {
             .sidebar { width: 0; padding: 0; }
             .sidebar.open { width: 250px; padding: 20px; }
             .main-content { margin-left: 0; }
             .hero h1 { font-size: 3rem; }
-            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; }
+            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.5); padding: 10px; border-radius: 8px; color: white; }
         }
         @media (min-width: 769px) { .toggle-menu { display: none; } }
     </style>
@@ -166,7 +134,6 @@
 <body>
 
     <canvas id="canvas-bg"></canvas>
-
     <div class="toggle-menu" onclick="document.querySelector('.sidebar').classList.toggle('open')">
         <i class="fas fa-bars"></i>
     </div>
@@ -175,93 +142,90 @@
         <div class="logo-icon"><i class="fas fa-infinity"></i></div>
         
         <a href="#" class="nav-item active">
-            <i class="fas fa-home"></i> <span>Home</span>
+            <i class="fas fa-home"></i> <span data-i18n="navHome">Home</span>
         </a>
         <a href="login.html" class="nav-item">
-            <i class="fas fa-user-astronaut"></i> <span>Dashboard</span>
+            <i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span>
         </a>
         <a href="#tools" class="nav-item">
-            <i class="fas fa-tools"></i> <span>Web Tools</span>
+            <i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span>
         </a>
         <a href="#ai" class="nav-item">
-            <i class="fas fa-brain"></i> <span>AI Services</span>
+            <i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span>
         </a>
         <a href="#dev" class="nav-item">
-            <i class="fas fa-code"></i> <span>Dev Services</span>
+            <i class="fas fa-code"></i> <span data-i18n="navDev">Dev Services</span>
         </a>
         <a href="#security" class="nav-item">
-            <i class="fas fa-shield-alt"></i> <span>Security</span>
+            <i class="fas fa-shield-alt"></i> <span data-i18n="navSec">Security</span>
         </a>
-        
         <div style="flex-grow: 1;"></div>
-        
         <a href="#" class="nav-item">
-            <i class="fas fa-cog"></i> <span>Settings</span>
+            <i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span>
         </a>
     </nav>
 
     <div class="main-content">
-        
         <section class="hero">
-            <h1>NEXT GEN<br>DIGITAL SOLUTIONS</h1>
-            <p>Advanced Web Tools, Custom AI Models, and Professional Development Services. Secured by Military-Grade Encryption.</p>
-            <a href="login.html" class="cta-btn">Access Console <i class="fas fa-arrow-right" style="margin-left: 10px;"></i></a>
+            <h1 data-i18n="heroTitle">NEXT GEN<br>DIGITAL SOLUTIONS</h1>
+            <p data-i18n="heroDesc">Advanced Web Tools, Custom AI Models, and Professional Development Services. Secured by Military-Grade Encryption.</p>
+            <a href="login.html" class="cta-btn"><span data-i18n="heroBtn">Access Console</span> <i class="fas fa-arrow-right" style="margin-left: 10px;"></i></a>
         </section>
 
         <div class="stats">
             <div class="stat-item">
                 <span class="stat-num">99.9%</span>
-                <span class="stat-label">Uptime</span>
+                <span class="stat-label" data-i18n="statUptime">Uptime</span>
             </div>
             <div class="stat-item">
                 <span class="stat-num">10K+</span>
-                <span class="stat-label">Users</span>
+                <span class="stat-label" data-i18n="statUsers">Users</span>
             </div>
             <div class="stat-item">
                 <span class="stat-num">Secure</span>
-                <span class="stat-label">AES-256</span>
+                <span class="stat-label" data-i18n="statSecure">AES-256</span>
             </div>
         </div>
 
         <section class="services" id="tools">
-            <h2 class="section-title">Professional Services</h2>
+            <h2 class="section-title" data-i18n="servicesTitle">Professional Services</h2>
             <div class="grid">
                 <div class="card">
                     <i class="fas fa-magic"></i>
-                    <h3>Web Tools</h3>
-                    <p>Advanced format converters, code minifiers, and SEO analyzers. Free for Pro members.</p>
+                    <h3 data-i18n="cardWebTitle">Web Tools</h3>
+                    <p data-i18n="cardWebDesc">Advanced format converters, code minifiers, and SEO analyzers. Free for Pro members.</p>
                 </div>
                 <div class="card" id="ai">
                     <i class="fas fa-robot"></i>
-                    <h3>AI Solutions</h3>
-                    <p>Image generation, text analysis, and automation powered by cutting-edge neural networks.</p>
+                    <h3 data-i18n="cardAITitle">AI Solutions</h3>
+                    <p data-i18n="cardAIDesc">Image generation, text analysis, and automation powered by cutting-edge neural networks.</p>
                 </div>
                 <div class="card" id="dev">
                     <i class="fas fa-laptop-code"></i>
-                    <h3>Manual Dev</h3>
-                    <p>Hire us to build custom Web Apps, Discord Bots, and scripts. Tailored to your needs.</p>
+                    <h3 data-i18n="cardDevTitle">Manual Dev</h3>
+                    <p data-i18n="cardDevDesc">Hire us to build custom Web Apps, Discord Bots, and scripts. Tailored to your needs.</p>
                 </div>
                 <div class="card" id="security" style="border-color: rgba(0, 210, 255, 0.3);">
                     <i class="fas fa-lock" style="color: #00d2ff;"></i>
-                    <h3>Iron-Clad Security</h3>
-                    <p>Protected against DDoS, SQL Injection, and XSS. We prioritize your privacy above all.</p>
+                    <h3 data-i18n="cardSecTitle">Iron-Clad Security</h3>
+                    <p data-i18n="cardSecDesc">Protected against DDoS, SQL Injection, and XSS. We prioritize your privacy above all.</p>
                 </div>
                 <div class="card">
                     <i class="fab fa-discord"></i>
-                    <h3>Discord Bots</h3>
-                    <p>Custom bots with music, moderation, and economy systems. Hosted 24/7 on our servers.</p>
+                    <h3 data-i18n="cardBotTitle">Discord Bots</h3>
+                    <p data-i18n="cardBotDesc">Custom bots with music, moderation, and economy systems. Hosted 24/7 on our servers.</p>
                 </div>
                 <div class="card">
                     <i class="fas fa-rocket"></i>
-                    <h3>Fast Performance</h3>
-                    <p>Optimized for speed. Our servers respond in milliseconds using global CDN networks.</p>
+                    <h3 data-i18n="cardFastTitle">Fast Performance</h3>
+                    <p data-i18n="cardFastDesc">Optimized for speed. Our servers respond in milliseconds using global CDN networks.</p>
                 </div>
             </div>
         </section>
 
         <footer>
-            <p>&copy; 2025 Sky Data Inc. All Rights Reserved.</p>
-            <p style="font-size: 12px; margin-top: 10px; opacity: 0.5;">
+            <p data-i18n="footerRights">&copy; 2025 Sky Data Inc. All Rights Reserved.</p>
+            <p style="font-size: 12px; margin-top: 10px; opacity: 0.5;" data-i18n="footerSec">
                 <i class="fas fa-shield-alt"></i> Secured Connection &bull; End-to-End Encrypted
             </p>
         </footer>
@@ -312,7 +276,6 @@
             particles.forEach((p, index) => {
                 p.update();
                 p.draw();
-                // توصيل الخطوط بين النقاط القريبة
                 for (let j = index + 1; j < particles.length; j++) {
                     const p2 = particles[j];
                     const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
