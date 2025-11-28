@@ -27,14 +27,12 @@
         body {
             background-color: var(--bg-dark);
             color: var(--text);
-            overflow-x: hidden; /* لمنع الانزلاق العرضي بسبب الروسية */
+            overflow-x: hidden;
         }
 
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
         /* --- Sidebar & Overlay System --- */
-        
-        /* طبقة الإغلاق (تظهر فقط في الموبايل عند فتح القائمة) */
         .sidebar-overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 999;
@@ -49,10 +47,9 @@
             border-right: 1px solid var(--border);
             display: flex; flex-direction: column; align-items: center; padding: 30px 0;
             transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 1000; overflow: hidden; white-space: nowrap; /* منع النص من النزول لسطرين */
+            z-index: 1000; overflow: hidden; white-space: nowrap;
         }
         
-        /* عند تمرير الماوس (للكومبيوتر) أو إضافة كلاس open (للموبايل) */
         .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
         
         .logo-icon { 
@@ -70,13 +67,11 @@
         }
         .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
         
-        /* إصلاح قلتش النص: النص مخفي تماماً حتى تفتح القائمة */
         .nav-item span { 
             opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; 
-            pointer-events: none; /* لمنع النقر عليه وهو مخفي */
+            pointer-events: none;
         }
         
-        /* إظهار النص عند الفتح */
         .sidebar:hover .nav-item span, .sidebar.open .nav-item span { 
             opacity: 1; transform: translateX(0); 
             pointer-events: auto; 
@@ -148,6 +143,18 @@
         .stat-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
 
         footer { padding: 50px; text-align: center; border-top: 1px solid var(--border); margin-top: 100px; color: var(--text-muted); }
+
+        /* كود التحقق الخاص بـ OneSignal */
+        .verification-code {
+            margin-top: 25px;
+            display: inline-block;
+            padding: 8px 20px;
+            border: 1px dashed var(--border);
+            border-radius: 50px;
+            font-size: 13px;
+            background: rgba(255,255,255,0.03);
+        }
+        
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
 
@@ -157,7 +164,6 @@
             .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
             .main-content { margin-left: 0; }
             .hero h1 { font-size: 2.5rem; }
-            /* زر القائمة الموبايل */
             .toggle-menu { 
                 display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; 
                 font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); 
@@ -244,6 +250,11 @@
         <footer>
             <p data-i18n="footerRights">&copy; 2025 Sky Data Inc.</p>
             <p style="font-size: 12px; margin-top: 10px; opacity: 0.5;" data-i18n="footerSec">Secured Connection</p>
+            
+            <div class="verification-code">
+                <span style="opacity:0.7">OneSignal Verification:</span> 
+                <span style="color: var(--accent); font-weight: bold; margin-left: 5px;">OS7K3L</span>
+            </div>
         </footer>
 
     </div>
@@ -251,7 +262,6 @@
     <script type="module" src="./system.js"></script>
 
     <script>
-        // دوال التحكم في القائمة (للموبايل فقط)
         function toggleSidebar() {
             document.getElementById('mySidebar').classList.toggle('open');
             document.querySelector('.sidebar-overlay').classList.toggle('active');
@@ -262,7 +272,6 @@
             document.querySelector('.sidebar-overlay').classList.remove('active');
         }
 
-        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height;
