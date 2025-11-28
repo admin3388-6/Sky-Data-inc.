@@ -8,89 +8,147 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 <style>
-    body { font-family: 'Segoe UI', sans-serif; display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
-    .container { background: white; padding: 35px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 360px; text-align: center; }
-    /* باقي ستايلات الفورم هنا نفس السابق */
-    input { width: 100%; padding: 12px 15px; margin: 8px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-    button { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 8px; }
-    .btn-primary { background: #4e54c8; color: white; margin-top: 15px; }
-    .social-btn { color: white; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    body { display: flex; justify-content: center; align-items: center; height: 100vh; background: #f0f2f5; margin: 0; }
+    .container { 
+        background: white; padding: 40px; border-radius: 20px; 
+        box-shadow: 0 10px 40px rgba(0,0,0,0.05); width: 90%; max-width: 400px; text-align: center; 
+    }
+    
+    h2 { margin-bottom: 25px; color: #333; font-weight: 600; display: flex; align-items: center; justify-content: center; gap: 10px; }
+    
+    input { 
+        width: 100%; padding: 14px 15px; margin: 8px 0; border: 1px solid #eee; border-radius: 10px; 
+        box-sizing: border-box; background: #fafafa; transition: 0.3s; 
+    }
+    input:focus { background: white; border-color: #4e54c8; }
+    
+    button { 
+        width: 100%; padding: 14px; border: none; border-radius: 10px; cursor: pointer; 
+        font-weight: 600; margin-top: 10px; display: flex; align-items: center; justify-content: center; gap: 10px;
+    }
+    
+    .btn-primary { background: #4e54c8; color: white; margin-top: 20px; }
+    .btn-primary:hover { background: #3f44a0; }
+    
+    .social-btn { color: white; margin-bottom: 12px; font-size: 14px; }
     .btn-google { background: #db4437; }
     .btn-linkedin { background: #0077b5; }
-    .honey-trap { opacity: 0; position: absolute; z-index: -1; }
-    #message { display: none; color: green; margin-top: 10px; } .error { color: red !important; }
+    
+    .divider { display: flex; align-items: center; justify-content: center; margin: 25px 0; }
+    .divider hr { flex: 1; border: none; height: 1px; background: #e0e0e0; }
+    .divider span { padding: 0 10px; color: #999; font-size: 12px; font-weight: 600; }
+
+    .switch-link { margin-top: 25px; font-size: 14px; color: #4e54c8; cursor: pointer; text-decoration: none; font-weight: 500; }
+    .switch-link:hover { text-decoration: underline; }
+    
+    .honey-trap { opacity: 0; position: absolute; z-index: -1; width: 0; height: 0; }
+    #message { display: none; margin-top: 15px; padding: 10px; border-radius: 8px; font-size: 14px; }
+    .error { background: #ffebee; color: #c62828; }
 </style>
 </head>
 <body>
 
 <div class="container">
-    <h2 id="formTitle"><i class="fas fa-user-lock"></i> Login</h2>
+    <h2 id="formTitle" data-i18n="loginTitle"><i class="fas fa-user-shield"></i> Login</h2>
     
-    <button id="googleBtn" class="social-btn btn-google"><i class="fab fa-google"></i> Google</button>
-    <button id="linkedinBtn" class="social-btn btn-linkedin"><i class="fab fa-linkedin"></i> LinkedIn</button>
+    <button id="googleBtn" class="social-btn btn-google" data-i18n="googleBtn"><i class="fab fa-google"></i> Continue with Google</button>
+    <button id="linkedinBtn" class="social-btn btn-linkedin" data-i18n="linkedinBtn"><i class="fab fa-linkedin"></i> Continue with LinkedIn</button>
     
-    <div style="margin: 20px 0; border-top: 1px solid #eee; position: relative;"><span style="background: white; padding: 0 10px; position: relative; top: -10px; color: #888; font-size: 12px;">OR EMAIL</span></div>
+    <div class="divider"><hr><span data-i18n="orEmail">OR EMAIL</span><hr></div>
 
-    <div id="nameField" style="display:none;"><input type="text" id="fullName" placeholder="Full Name"></div>
-    <input type="email" id="email" placeholder="Email Address">
-    <input type="password" id="password" placeholder="Password">
+    <div id="nameField" style="display:none;">
+        <input type="text" id="fullName" data-i18n="namePlace" placeholder="Full Name">
+    </div>
+    <input type="email" id="email" data-i18n="emailPlace" placeholder="Email Address">
+    <input type="password" id="password" data-i18n="passPlace" placeholder="Password">
+    
     <div class="honey-trap"><input type="text" id="website_url"></div>
 
-    <div class="g-recaptcha" data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" style="margin: 10px 0; display: flex; justify-content: center;"></div>
+    <div class="g-recaptcha" data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" style="margin: 15px 0; display: flex; justify-content: center;"></div>
 
-    <button id="submitBtn" class="btn-primary"><i class="fas fa-sign-in-alt"></i> <span id="btnText">Login</span></button>
+    <button id="submitBtn" class="btn-primary">
+        <i class="fas fa-sign-in-alt" id="btnIcon"></i> <span id="btnText" data-i18n="loginBtn">Login</span>
+    </button>
+    
     <div id="message"></div>
-    <div style="margin-top: 20px; color: #4e54c8; cursor: pointer; font-size: 14px;" id="switchBtn">Don't have an account? Sign Up</div>
+    <div class="switch-link" id="switchBtn" data-i18n="noAccount">Don't have an account? Sign Up</div>
 </div>
 
 <script type="module">
 import { supabase } from "./supabase.js";
-import './system.js'; // استدعاء النظام الذكي
+import './system.js'; 
 
-// منطق الدخول (نفس الكود السابق للتعامل مع Supabase)
-let isLoginMode = true;
+if (window.console) console.log("%cSTOP!", "color: red; font-size: 50px; font-weight: bold;");
+
+let isLoginMode = true; 
+
+// منطق التبديل + تحديث الترجمة فوراً
 document.getElementById("switchBtn").onclick = () => {
     isLoginMode = !isLoginMode;
     const title = document.getElementById("formTitle");
     const btnText = document.getElementById("btnText");
+    const btnIcon = document.getElementById("btnIcon");
+    const switchBtn = document.getElementById("switchBtn");
     const nameField = document.getElementById("nameField");
-    if(isLoginMode) {
-        title.innerHTML = '<i class="fas fa-user-lock"></i> Login'; btnText.textContent = "Login"; nameField.style.display = "none";
-        document.getElementById("switchBtn").textContent = "Don't have an account? Sign Up";
+    
+    if (isLoginMode) {
+        // نغير مفاتيح الترجمة (Keys) وليس النص مباشرة
+        title.setAttribute('data-i18n', 'loginTitle');
+        btnText.setAttribute('data-i18n', 'loginBtn');
+        switchBtn.setAttribute('data-i18n', 'noAccount');
+        btnIcon.className = "fas fa-sign-in-alt";
+        nameField.style.display = "none";
     } else {
-        title.innerHTML = '<i class="fas fa-user-plus"></i> Create Account'; btnText.textContent = "Sign Up"; nameField.style.display = "block";
-        document.getElementById("switchBtn").textContent = "Already have an account? Login";
+        title.setAttribute('data-i18n', 'signupTitle');
+        btnText.setAttribute('data-i18n', 'signupBtn');
+        switchBtn.setAttribute('data-i18n', 'haveAccount');
+        btnIcon.className = "fas fa-user-plus";
+        nameField.style.display = "block";
     }
+    
+    // إعادة استدعاء دالة الترجمة لتطبيق النصوص الجديدة فوراً
+    const currentLang = localStorage.getItem('skydata_lang') || 'en';
+    window.changeLanguage(currentLang);
+    
+    document.getElementById("message").style.display = "none";
 };
 
 document.getElementById("submitBtn").onclick = async () => {
-    if(document.getElementById("website_url").value) return;
+    if (document.getElementById("website_url").value) return; // Honeypot
+    
     const email = document.getElementById("email").value;
     const password = document.getElementById("password").value;
     const fullName = document.getElementById("fullName").value;
-    const token = grecaptcha.getResponse();
-    
-    if(!token) { alert("Captcha Required"); return; }
-    
-    const verify = await fetch("/api/verify-recaptcha", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) }).then(r=>r.json());
-    if(!verify.success) { alert("Security Fail"); return; }
-
     const msg = document.getElementById("message");
+    
+    const token = grecaptcha.getResponse();
+    if (!token) { alert("Captcha required"); return; }
+    
+    const verify = await fetch("/api/verify-recaptcha", { 
+        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) 
+    }).then(r => r.json());
+
+    if (!verify.success) { alert("Security Check Failed"); return; }
+
     msg.style.display = 'block'; msg.textContent = "Processing..."; msg.className = "";
 
-    if(isLoginMode) {
+    if (isLoginMode) {
         const { error } = await supabase.auth.signInWithPassword({ email, password });
-        if(error) { msg.textContent = error.message; msg.className = "error"; }
-        else window.location.href = "menu.html";
+        if (error) { msg.textContent = error.message; msg.className = "error"; }
+        else { window.location.href = "menu.html"; }
     } else {
-        if(!fullName) { msg.textContent = "Name Required"; msg.className = "error"; return; }
-        const { error } = await supabase.auth.signUp({ email, password, options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin + "/menu.html" } });
-        if(error) { msg.textContent = error.message; msg.className = "error"; }
-        else { msg.textContent = "Check your email!"; grecaptcha.reset(); }
+        if (!fullName) { msg.textContent = "Name required"; msg.className = "error"; return; }
+        const { error } = await supabase.auth.signUp({ 
+            email, password, options: { data: { full_name: fullName }, emailRedirectTo: window.location.origin + "/menu.html" } 
+        });
+        if (error) { msg.textContent = error.message; msg.className = "error"; }
+        else { msg.textContent = "Verification email sent!"; grecaptcha.reset(); }
     }
 };
+
 document.getElementById("googleBtn").onclick = async () => await supabase.auth.signInWithOAuth({ provider: "google", options: { redirectTo: window.location.origin + "/menu.html" } });
 document.getElementById("linkedinBtn").onclick = async () => await supabase.auth.signInWithOAuth({ provider: "linkedin_oidc", options: { redirectTo: window.location.origin + "/menu.html" } });
 </script>
+
 </body>
 </html>

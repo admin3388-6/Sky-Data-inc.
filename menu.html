@@ -7,34 +7,69 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-      body { font-family: 'Segoe UI', sans-serif; padding: 20px; background: #f0f2f5; margin: 0; }
-      .card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 5px 20px rgba(0,0,0,0.05); max-width: 400px; margin: 80px auto 0; text-align: center; }
-      button.logout { background: #ff4b4b; color: white; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; width: 100%; margin-top: 20px; font-weight: bold; }
+      body { background: #f0f2f5; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; }
+      
+      .card { 
+          background: white; padding: 40px; border-radius: 20px; 
+          box-shadow: 0 10px 40px rgba(0,0,0,0.05); width: 100%; max-width: 450px; 
+          text-align: center; margin-top: 80px; position: relative; height: fit-content;
+      }
+      
+      h1 { color: #333; margin-bottom: 30px; }
+      
+      .info-row { 
+          background: #f9f9f9; padding: 15px; margin: 15px 0; border-radius: 12px; 
+          text-align: left; border-inline-start: 4px solid #4e54c8; /* يدعم العربي والإنجليزي تلقائياً */
+      }
+      .info-row b { color: #555; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; opacity: 0.7; }
+      .info-row span { color: #333; font-weight: 600; font-size: 18px; }
+
+      button.logout { 
+          background: #ff4b4b; color: white; border: none; padding: 15px 30px; 
+          border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; 
+          font-weight: bold; font-size: 16px; transition: 0.3s; 
+          box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2);
+      }
+      button.logout:hover { background: #d43f3f; transform: translateY(-2px); }
   </style>
 </head>
 <body>
 
 <div class="card">
-    <h1 data-i18n="title">User Profile</h1>
-    <div id="loader" data-i18n="loading">Checking Security...</div>
+    <h1 data-i18n="profileTitle">User Profile</h1>
+    
+    <div id="loader" style="color: #666;" data-i18n="loading">Checking Security...</div>
+    
     <div id="content" style="display:none;">
-        <p id="name"></p>
-        <p id="email"></p>
-        <p id="rank" style="font-weight: bold; color: blue;"></p>
-        <br>
+        <div class="info-row">
+            <b data-i18n="nameLabel">NAME</b>
+            <span id="name"></span>
+        </div>
+        
+        <div class="info-row">
+            <b data-i18n="emailLabel">EMAIL</b>
+            <span id="email"></span>
+        </div>
+        
+        <div class="info-row" style="border-inline-start-color: #00c853;">
+            <b data-i18n="rankLabel">RANK</b>
+            <span id="rank" style="color: #00c853;"></span>
+        </div>
+        
         <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
     </div>
 </div>
 
 <script type="module">
   import { supabase } from './supabase.js';
-  import './system.js'; // استدعاء النظام الذكي فقط
+  import './system.js'; 
 
   async function loadProfile() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { window.location.href = "login.html"; return; }
 
       let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
+      
       document.getElementById("loader").style.display = "none";
       document.getElementById("content").style.display = "block";
       
@@ -43,9 +78,14 @@
       if (!finalName || finalName === "User") finalName = finalEmail.split('@')[0];
       const finalRank = profile?.rank || "free";
 
-      document.getElementById("name").innerHTML = `<b>Name:</b> ${finalName}`;
-      document.getElementById("email").innerHTML = `<b>Email:</b> ${finalEmail}`;
-      document.getElementById("rank").innerHTML = `<b>Rank:</b> ${finalRank.toUpperCase()}`;
+      document.getElementById("name").textContent = finalName;
+      document.getElementById("email").textContent = finalEmail;
+      
+      const rankElement = document.getElementById("rank");
+      rankElement.innerHTML = finalRank.toUpperCase();
+      if (finalRank === 'pro') {
+          rankElement.innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
+      }
   }
 
   document.getElementById("logoutBtn").onclick = async () => {
