@@ -10,7 +10,8 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
+    
+    <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <style>
         :root {
@@ -54,38 +55,31 @@
         }
 
         .social-btn {
-            width: 100%;
-            padding: 15px;
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: pointer;
+            width: 100%; padding: 15px; margin-bottom: 15px;
+            border: none; border-radius: 12px;
+            font-weight: 600; font-size: 16px;
+            cursor: not-allowed; /* معطل افتراضياً */
             display: flex; align-items: center; justify-content: center; gap: 12px;
-            transition: 0.3s;
-            color: white;
+            transition: 0.3s; color: white; opacity: 0.5;
             position: relative; overflow: hidden;
         }
 
-        .social-btn:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-        .social-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        /* ستايل عند التفعيل */
+        .social-btn.active { cursor: pointer; opacity: 1; }
+        .social-btn.active:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
 
         .btn-google { background: #db4437; }
         .btn-linkedin { background: #0077b5; }
-        /* زر GitHub الجديد */
         .btn-github { background: #24292e; } 
         .btn-github:hover { background: #000; }
 
         .secure-badge {
-            margin-top: 30px;
-            font-size: 12px;
-            color: var(--text-muted);
-            display: flex; align-items: center; justify-content: center; gap: 8px;
-            opacity: 0.7;
+            margin-top: 30px; font-size: 12px; color: var(--text-muted);
+            display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.7;
         }
 
-        .g-recaptcha { margin: 20px 0; display: flex; justify-content: center; }
+        /* حاوية الكابتشا */
+        .captcha-container { margin: 25px 0; display: flex; justify-content: center; min-height: 65px; }
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
@@ -100,17 +94,23 @@
         </div>
         <h2 data-i18n="loginTitle">Secure Login</h2>
 
-        <div class="g-recaptcha" data-sitekey="6LewCRQsAAAAAHwUjEmPiZTCbOwz8g4vwovMMHaB" data-theme="dark"></div>
+        <div class="captcha-container">
+            <div class="cf-turnstile" 
+                 data-sitekey="0x4AAAAAACDn9I1izJuNt20l" 
+                 data-theme="dark"
+                 data-callback="onTurnstileSuccess"
+                 data-error-callback="onTurnstileError"></div>
+        </div>
 
-        <button id="googleBtn" class="social-btn btn-google">
+        <button id="googleBtn" class="social-btn btn-google" disabled>
             <i class="fab fa-google"></i> <span data-i18n="googleBtn">Continue with Google</span>
         </button>
 
-        <button id="linkedinBtn" class="social-btn btn-linkedin">
+        <button id="linkedinBtn" class="social-btn btn-linkedin" disabled>
             <i class="fab fa-linkedin"></i> <span data-i18n="linkedinBtn">Continue with LinkedIn</span>
         </button>
 
-        <button id="githubBtn" class="social-btn btn-github">
+        <button id="githubBtn" class="social-btn btn-github" disabled>
             <i class="fab fa-github"></i> <span data-i18n="githubBtn">Continue with GitHub</span>
         </button>
 
@@ -124,27 +124,46 @@
     <script type="module">
         import { supabase } from "./supabase.js";
 
-        // التحقق من الكابتشا قبل السماح بالضغط
-        // ملاحظة: لتبسيط تجربة المستخدم، سنسمح بالضغط ولكن نتحقق داخل الدالة
-        
+        let turnstileToken = null;
+
+        // دالة النجاح: تعمل تلقائياً عندما يتحقق كلاودفلير من المستخدم
+        window.onTurnstileSuccess = function(token) {
+            console.log("Turnstile Success");
+            turnstileToken = token;
+            
+            // تفعيل الأزرار وتغيير شكلها
+            const buttons = document.querySelectorAll('.social-btn');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.add('active');
+            });
+        };
+
+        // دالة الخطأ
+        window.onTurnstileError = function() {
+            alert("Security check failed. Please refresh.");
+        };
+
         async function handleLogin(provider) {
-            const token = grecaptcha.getResponse();
-            if (!token) {
-                alert("Please verify you are human first!");
+            if (!turnstileToken) {
+                alert("Please wait for security check...");
                 return;
             }
 
-            // التحقق من السيرفر (اختياري هنا لأن OAuth آمن، لكنك طلبت حماية قصوى)
-            const verify = await fetch("/api/verify-recaptcha", { 
-                method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token }) 
+            // التحقق النهائي من السيرفر
+            const verify = await fetch("/api/verify-turnstile", { 
+                method: "POST", 
+                headers: { "Content-Type": "application/json" }, 
+                body: JSON.stringify({ token: turnstileToken }) 
             }).then(r => r.json());
 
             if (!verify.success) {
-                alert("Security check failed. Please refresh.");
+                alert("Security verification failed. Refreshing...");
+                if(window.turnstile) turnstile.reset();
                 return;
             }
 
-            // التوجيه
+            // التوجيه للدخول
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: provider,
                 options: { redirectTo: window.location.origin + "/menu.html" }
@@ -154,14 +173,10 @@
         }
 
         document.getElementById("googleBtn").onclick = () => handleLogin("google");
-        
-        // تأكد من استخدام linkedin_oidc كما اتفقنا سابقاً
         document.getElementById("linkedinBtn").onclick = () => handleLogin("linkedin_oidc");
-        
-        // GitHub
         document.getElementById("githubBtn").onclick = () => handleLogin("github");
 
-        // --- Canvas Animation (نسخنا الكود من Index لتوحيد الشكل) ---
+        // --- Canvas Animation ---
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -186,7 +201,7 @@
                 ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
-        for (let i = 0; i < 60; i++) particles.push(new Particle()); // عدد أقل قليلاً لصفحة الدخول
+        for (let i = 0; i < 60; i++) particles.push(new Particle());
 
         function animate() {
             ctx.clearRect(0, 0, width, height);
