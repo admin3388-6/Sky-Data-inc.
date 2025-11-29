@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sky Data | Future Digital Solutions</title>
+    <title>Dashboard - Sky Data</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
@@ -11,95 +11,158 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* ... انسخ نفس ستايل الملف السابق ... */
-        /* إضافة ستايل لرسالة الترحيب بالمستخدم */
-        .user-welcome {
-            font-size: 16px; color: var(--accent); margin-bottom: 10px;
-            font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
-            display: none; /* مخفي افتراضياً */
-            animation: slideUp 0.5s ease forwards;
+        /* نفس ستايل الاندكس لضمان التناسق */
+        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+
+        /* Sidebar (Same as Index) */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
+        .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
+        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
+        .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
+        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
+        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
+        .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
+        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
+        .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
+
+        .main-content { margin-left: 80px; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* Dashboard Card */
+        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 500px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; }
+        h1 { color: white; margin-bottom: 30px; font-weight: 300; }
+        
+        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; }
+        .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+        .info-row span { color: white; font-weight: 600; font-size: 16px; }
+        
+        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
+        button.logout:hover { background: #d43f3f; transform: translateY(-2px); }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 0; padding: 0; border: none; }
+            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
+            .main-content { margin-left: 0; }
+            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
         }
+        @media (min-width: 769px) { .toggle-menu { display: none; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
     <canvas id="canvas-bg"></canvas>
     <div class="sidebar-overlay" onclick="closeSidebar()"></div>
-    <div class="toggle-menu" onclick="toggleSidebar()">
-        <i class="fas fa-bars"></i>
-    </div>
+    <div class="toggle-menu" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
 
     <nav class="sidebar" id="mySidebar">
         <div class="logo-icon"><i class="fas fa-infinity"></i></div>
-        <a href="#" class="nav-item active"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
-        <a href="login.html" class="nav-item" id="navDashLink"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
-        <a href="#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
+        <a href="#" class="nav-item active"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
+        <a href="index.html#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
+        <a href="index.html#ai" class="nav-item"><i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span></a>
+        <a href="index.html#dev" class="nav-item"><i class="fas fa-code"></i> <span data-i18n="navDev">Dev Services</span></a>
+        <a href="index.html#security" class="nav-item"><i class="fas fa-shield-alt"></i> <span data-i18n="navSec">Security</span></a>
         <div style="flex-grow: 1;"></div>
         <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
     </nav>
 
     <div class="main-content">
-        <section class="hero">
-            <div id="userWelcomeMsg" class="user-welcome"></div>
+        <div class="card">
+            <h1 data-i18n="profileTitle">User Profile</h1>
             
-            <h1 data-i18n="heroTitle">NEXT GEN<br>DIGITAL SOLUTIONS</h1>
-            <p data-i18n="heroDesc">Advanced Web Tools, Custom AI Models, and Professional Development Services.</p>
+            <div id="loader" style="color: #666;" data-i18n="loading">Loading...</div>
             
-            <a href="login.html" id="heroBtn" class="cta-btn">
-                <span id="heroBtnText" data-i18n="heroBtnLogin">Access Console</span> 
-                <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
-            </a>
-        </section>
-
-        <div class="stats">...</div>
-        <section class="services">...</section>
-        <footer>...</footer>
+            <div id="content" style="display:none;">
+                <div class="info-row">
+                    <div>
+                        <b data-i18n="nameLabel">NAME</b>
+                        <span id="name"></span>
+                    </div>
+                    <i class="fas fa-user" style="color:var(--primary); opacity:0.5;"></i>
+                </div>
+                
+                <div class="info-row">
+                    <div>
+                        <b data-i18n="emailLabel">EMAIL</b>
+                        <span id="email"></span>
+                    </div>
+                    <i class="fas fa-envelope" style="color:var(--primary); opacity:0.5;"></i>
+                </div>
+                
+                <div class="info-row" style="border-inline-start-color: #00c853;">
+                    <div>
+                        <b data-i18n="rankLabel">RANK</b>
+                        <span id="rank" style="color: #00c853;"></span>
+                    </div>
+                    <i class="fas fa-star" style="color:#00c853; opacity:0.5;"></i>
+                </div>
+                
+                <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
+            </div>
+        </div>
     </div>
 
     <script type="module" src="./system.js"></script>
 
     <script type="module">
-        import { supabase } from "./supabase.js";
+        import { supabase } from './supabase.js';
 
-        // التحقق من حالة المستخدم
-        async function checkAuthState() {
-            const { data: { session } } = await supabase.auth.getSession();
+        // Sidebar logic
+        window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
+        window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
+
+        // Animation logic
+        const canvas = document.getElementById('canvas-bg');
+        const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle {
+            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
+            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
+            draw() { ctx.fillStyle='rgba(140,155,255,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+        }
+        for(let i=0;i<60;i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        animate();
+
+        // Profile Logic
+        async function loadProfile() {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { window.location.replace("login.html"); return; } // Blocker
+
+            let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
             
-            if (session) {
-                console.log("User is logged in ✅");
-                const userEmail = session.user.email;
-                const userName = session.user.user_metadata.full_name || userEmail.split('@')[0];
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("content").style.display = "block";
+            
+            const finalEmail = user.email;
+            let finalName = user.user_metadata.full_name || user.user_metadata.name || profile?.name;
+            if (!finalName || finalName === "User") finalName = finalEmail.split('@')[0];
+            const finalRank = profile?.rank || "free";
 
-                // 1. تغيير الزر الرئيسي
-                const heroBtn = document.getElementById('heroBtn');
-                const heroBtnText = document.getElementById('heroBtnText');
-                
-                heroBtn.href = "menu.html"; // توجيه مباشر للوحة التحكم
-                // نغير مفتاح الترجمة ليظهر النص المناسب (Go to Dashboard)
-                heroBtnText.setAttribute('data-i18n', 'heroBtnDash');
-                
-                // 2. تغيير رابط القائمة الجانبية
-                document.getElementById('navDashLink').href = "menu.html";
-
-                // 3. إظهار رسالة ترحيب
-                const welcomeDiv = document.getElementById('userWelcomeMsg');
-                welcomeDiv.style.display = "block";
-                // نستخدم InnerHTML لدمج النص المترجم مع الاسم
-                // ملاحظة: الترجمة هنا تحتاج تحديث يدوي لأن الاسم متغير
-                // لكن سنعتمد على الإنجليزية كقاعدة أو نستخدم دالة ترجمة بسيطة
-                const savedLang = localStorage.getItem('skydata_lang') || 'en';
-                const welcomeText = savedLang === 'ar' ? 'أهلاً بك، ' : (savedLang === 'ru' ? 'С возвращением, ' : 'Welcome back, ');
-                welcomeDiv.textContent = welcomeText + userName;
-                
-                // تحديث النصوص مرة أخرى لضمان تطبيق الترجمة الجديدة على الزر
-                if(window.changeLanguage) window.changeLanguage(savedLang);
+            document.getElementById("name").textContent = finalName;
+            document.getElementById("email").textContent = finalEmail;
+            
+            const rankElement = document.getElementById("rank");
+            rankElement.innerHTML = finalRank.toUpperCase();
+            if (finalRank === 'pro') {
+                rankElement.innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
             }
         }
 
-        checkAuthState();
-
-        // Canvas Animation
-        // ... (نفس كود الأنيميشن السابق) ...
+        document.getElementById("logoutBtn").onclick = async () => {
+            const { error } = await supabase.auth.signOut();
+            if (!error) window.location.replace("login.html"); // Replace history
+        };
+        loadProfile();
     </script>
+
 </body>
 </html>

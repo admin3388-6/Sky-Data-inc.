@@ -1,5 +1,5 @@
 // ==========================================
-// 1. Global Styles (تصميم زجاجي مظلم)
+// 1. Global Styles (تصميم موحد)
 // ==========================================
 const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Outfit:wght@300;500;700&display=swap');
@@ -7,7 +7,7 @@ const styles = `
     :root { 
         --primary: #4e54c8; 
         --accent: #00d2ff;
-        --glass-dark: rgba(15, 15, 25, 0.9);
+        --glass-dark: rgba(15, 15, 25, 0.95);
         --border-light: rgba(255, 255, 255, 0.1);
         --text-white: #ffffff;
     }
@@ -147,65 +147,68 @@ const translations = {
     en: {
         settingsTitle: "Language Settings", cookieTitle: "Privacy Protocol", cookieText: "We utilize advanced cookies to optimize system performance.", cookieAccept: "Accept Protocol", cookieReject: "Deny", privacy: "Privacy Policy", terms: "Terms of Service",
         navHome: "Home", navDash: "Dashboard", navTools: "Web Tools", navAI: "AI Services", navDev: "Dev Services", navSec: "Security", navSet: "Settings",
-        heroTitle: "NEXT GEN DIGITAL SOLUTIONS", heroDesc: "Advanced Web Tools, Custom AI Models, and Professional Development Services.", 
-        
-        // 👇 نصوص الأزرار المتغيرة (login vs dashboard)
-        heroBtnLogin: "Access Console", 
-        heroBtnDash: "Go to Dashboard", 
-        
+        heroTitle: "NEXT GEN DIGITAL SOLUTIONS", heroDesc: "Advanced Web Tools, Custom AI Models, and Professional Development Services. Secured by Military-Grade Encryption.", 
+        heroBtnLogin: "Access Console", heroBtnDash: "Go to Dashboard", 
         statUptime: "Uptime", statUsers: "Active Users", statSecure: "Encryption",
         servicesTitle: "Professional Services",
-        cardWebTitle: "Web Tools", cardWebDesc: "Advanced format converters and analyzers.",
-        cardAITitle: "AI Solutions", cardAIDesc: "Image generation and automation.",
-        cardDevTitle: "Manual Dev", cardDevDesc: "Custom Apps and Bots.",
-        cardSecTitle: "Iron-Clad Security", cardSecDesc: "Protected against DDoS.",
-        cardBotTitle: "Discord Bots", cardBotDesc: "Custom bots with moderation.",
-        cardFastTitle: "Fast Performance", cardFastDesc: "Optimized for speed via Global CDN.",
-        loginTitle: "Secure Login", googleBtn: "Continue with Google", linkedinBtn: "Continue with LinkedIn", githubBtn: "Continue with GitHub", secureNote: "Authenticated via OAuth 2.0",
+        cardWebTitle: "Web Tools", cardWebDesc: "Advanced format converters, code minifiers, and SEO analyzers.",
+        cardAITitle: "AI Solutions", cardAIDesc: "Image generation, text analysis, and automation powered by neural networks.",
+        cardDevTitle: "Manual Dev", cardDevDesc: "Hire us to build custom Web Apps, Discord Bots, and scripts.",
+        cardSecTitle: "Iron-Clad Security", cardSecDesc: "Protected against DDoS, SQL Injection, and XSS.",
+        cardBotTitle: "Discord Bots", cardBotDesc: "Custom bots with music, moderation, and economy systems.",
+        cardFastTitle: "Fast Performance", cardFastDesc: "Optimized for speed. Responding in milliseconds via Global CDN.",
+        
+        // Login Specific
+        googleBtn: "Continue with Google", linkedinBtn: "Continue with LinkedIn", githubBtn: "Continue with GitHub",
+        termsText: "I agree to the Terms of Service and Privacy Policy",
+        supportBtn: "Need Help?",
+        
         profileTitle: "User Profile", loading: "Loading Profile...", nameLabel: "NAME", emailLabel: "EMAIL", rankLabel: "RANK", logout: "Logout System",
         footerRights: "© 2025 Sky Data Inc. All Rights Reserved.", footerSec: "Secured Connection • End-to-End Encrypted"
     },
     ar: {
-        settingsTitle: "إعدادات اللغة", cookieTitle: "بروتوكول الخصوصية", cookieText: "نستخدم ملفات تعريف الارتباط لتحسين أداء النظام.", cookieAccept: "قبول البروتوكول", cookieReject: "رفض", privacy: "سياسة الخصوصية", terms: "شروط الخدمة",
+        settingsTitle: "إعدادات اللغة", cookieTitle: "بروتوكول الخصوصية", cookieText: "نستخدم ملفات تعريف الارتباط المتقدمة لتحسين أداء النظام وضمان الأمان.", cookieAccept: "قبول البروتوكول", cookieReject: "رفض", privacy: "سياسة الخصوصية", terms: "شروط الخدمة",
         navHome: "الرئيسية", navDash: "لوحة التحكم", navTools: "أدوات الويب", navAI: "خدمات الذكاء", navDev: "خدمات التطوير", navSec: "الحماية والأمان", navSet: "الإعدادات",
-        heroTitle: "حلول رقمية من الجيل القادم", heroDesc: "أدوات ويب متقدمة، نماذج ذكاء اصطناعي مخصصة، وخدمات تطوير احترافية.", 
-        
-        // 👇 نصوص الأزرار المتغيرة
-        heroBtnLogin: "دخول المنصة",
-        heroBtnDash: "الذهاب للوحة التحكم",
-        
+        heroTitle: "حلول رقمية من الجيل القادم", heroDesc: "أدوات ويب متقدمة، نماذج ذكاء اصطناعي مخصصة، وخدمات تطوير احترافية. مؤمنة بتشفير عسكري.", 
+        heroBtnLogin: "دخول المنصة", heroBtnDash: "الذهاب للوحة التحكم",
         statUptime: "وقت التشغيل", statUsers: "مستخدم نشط", statSecure: "تشفير عالي",
         servicesTitle: "خدماتنا الاحترافية",
-        cardWebTitle: "أدوات الويب", cardWebDesc: "محولات صيغ متقدمة وتحليل.",
-        cardAITitle: "حلول الذكاء", cardAIDesc: "توليد الصور وتحليل النصوص.",
-        cardDevTitle: "تطوير يدوي", cardDevDesc: "تطبيقات ويب وبوتات.",
-        cardSecTitle: "حماية فولاذية", cardSecDesc: "حماية ضد DDoS والهجمات.",
-        cardBotTitle: "بوتات ديسكورد", cardBotDesc: "بوتات مخصصة للإدارة.",
-        cardFastTitle: "أداء فائق السرعة", cardFastDesc: "استجابة فورية عبر CDN عالمي.",
-        loginTitle: "تسجيل دخول آمن", googleBtn: "المتابعة باستخدام جوجل", linkedinBtn: "المتابعة باستخدام لينكد إن", githubBtn: "المتابعة باستخدام غيت هاب", secureNote: "مصادقة آمنة عبر بروتوكول OAuth 2.0",
+        cardWebTitle: "أدوات الويب", cardWebDesc: "محولات صيغ متقدمة، ضغط الأكواد، وتحليل SEO للمحترفين.",
+        cardAITitle: "حلول الذكاء", cardAIDesc: "توليد الصور، تحليل النصوص، والأتمتة المدعومة بالشبكات العصبية.",
+        cardDevTitle: "تطوير يدوي", cardDevDesc: "وظفنا لبناء تطبيقات ويب مخصصة، بوتات ديسكورد، وسكربتات.",
+        cardSecTitle: "حماية فولاذية", cardSecDesc: "حماية ضد DDoS، حقن SQL، وثغرات XSS. خصوصيتك أولويتنا.",
+        cardBotTitle: "بوتات ديسكورد", cardBotDesc: "بوتات مخصصة مع أنظمة الموسيقى، الإدارة، والاقتصاد.",
+        cardFastTitle: "أداء فائق السرعة", cardFastDesc: "محسن للسرعة. استجابة في أجزاء من الثانية عبر CDN عالمي.",
+        
+        // Login Specific
+        googleBtn: "المتابعة باستخدام جوجل", linkedinBtn: "المتابعة باستخدام لينكد إن", githubBtn: "المتابعة باستخدام غيت هاب",
+        termsText: "أوافق على شروط الخدمة وسياسة الخصوصية",
+        supportBtn: "تحتاج مساعدة؟",
+        
         profileTitle: "الملف الشخصي", loading: "جاري تحميل البيانات...", nameLabel: "الاسم المسجل", emailLabel: "البريد الإلكتروني", rankLabel: "الرتبة الحالية", logout: "تسجيل الخروج",
         footerRights: "© 2025 Sky Data Inc. جميع الحقوق محفوظة.", footerSec: "اتصال آمن • مشفر من الطرف للطرف"
     },
     ru: {
-        settingsTitle: "Настройки языка", cookieTitle: "Протокол конфиденциальности", cookieText: "Мы используем файлы cookie.", cookieAccept: "Принять", cookieReject: "Отклонить", privacy: "Политика конфиденциальности", terms: "Условия использования",
+        settingsTitle: "Настройки языка", cookieTitle: "Протокол конфиденциальности", cookieText: "Мы используем передовые файлы cookie для оптимизации производительности системы и обеспечения безопасности.", cookieAccept: "Принять", cookieReject: "Отклонить", privacy: "Политика конфиденциальности", terms: "Условия использования",
         navHome: "Главная", navDash: "Панель", navTools: "Веб-инструменты", navAI: "AI Сервисы", navDev: "Разработка", navSec: "Безопасность", navSet: "Настройки",
-        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Передовые веб-инструменты и AI модели.", 
+        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ НОВОГО ПОКОЛЕНИЯ", heroDesc: "Передовые веб-инструменты, пользовательские AI модели и профессиональная разработка. Защищено военным шифрованием.", 
+        heroBtnLogin: "Войти", heroBtnDash: "В панель управления",
+        statUptime: "Аптайм", statUsers: "Активные пользователи", statSecure: "Шифрование",
+        servicesTitle: "Профессиональные услуги",
+        cardWebTitle: "Веб-инструменты", cardWebDesc: "Конвертеры форматов, минификация кода и SEO анализ.",
+        cardAITitle: "AI Решения", cardAIDesc: "Генерация изображений, анализ текста и автоматизация на нейросетях.",
+        cardDevTitle: "Ручная разработка", cardDevDesc: "Создание кастомных веб-приложений, ботов Discord и скриптов.",
+        cardSecTitle: "Железная защита", cardSecDesc: "Защита от DDoS, SQL Injection и XSS. Конфиденциальность превыше всего.",
+        cardBotTitle: "Discord Боты", cardBotDesc: "Кастомные боты с системами музыки, модерации и экономики.",
+        cardFastTitle: "Быстрая скорость", cardFastDesc: "Оптимизировано для скорости. Глобальный CDN.",
         
-        // 👇 نصوص الأزرار المتغيرة
-        heroBtnLogin: "Войти",
-        heroBtnDash: "В панель управления",
+        // Login Specific
+        googleBtn: "Войти через Google", linkedinBtn: "Войти через LinkedIn", githubBtn: "Войти через GitHub",
+        termsText: "Я согласен с Условиями и Политикой",
+        supportBtn: "Нужна помощь?",
         
-        statUptime: "Аптайм", statUsers: "Юзеры", statSecure: "Шифрование",
-        servicesTitle: "Услуги",
-        cardWebTitle: "Веб-инструменты", cardWebDesc: "Конвертеры и анализ.",
-        cardAITitle: "AI Решения", cardAIDesc: "Генерация и авто.",
-        cardDevTitle: "Разработка", cardDevDesc: "Веб-аппы и боты.",
-        cardSecTitle: "Защита", cardSecDesc: "От DDoS и XSS.",
-        cardBotTitle: "Discord Боты", cardBotDesc: "Музыка и модерация.",
-        cardFastTitle: "Скорость", cardFastDesc: "Глобальный CDN.",
-        loginTitle: "Вход", googleBtn: "Войти через Google", linkedinBtn: "Войти через LinkedIn", githubBtn: "Войти через GitHub", secureNote: "OAuth 2.0",
-        profileTitle: "Профиль", loading: "Загрузка...", nameLabel: "ИМЯ", emailLabel: "EMAIL", rankLabel: "РАНГ", logout: "Выйти",
-        footerRights: "© 2025 Sky Data Inc.", footerSec: "Безопасное соединение"
+        profileTitle: "Профиль пользователя", loading: "Загрузка профиля...", nameLabel: "ИМЯ", emailLabel: "EMAIL", rankLabel: "РАНГ", logout: "Выйти из системы",
+        footerRights: "© 2025 Sky Data Inc. Все права защищены.", footerSec: "Безопасное соединение • Сквозное шифрование"
     }
 };
 
