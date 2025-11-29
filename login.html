@@ -3,160 +3,53 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Sky Data</title>
-    
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    <title>Login</title>
+    <script type="module">import { supabase } from "./supabase.js"; async function c(){const{data:{session}}=await supabase.auth.getSession();if(session)window.location.replace("menu.html");}c();</script>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
-    
     <style>
-        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        body { background-color: var(--bg-color); color: var(--text-main); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
         
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
-
-        .login-card {
-            background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border);
-            padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: slideUp 0.8s ease forwards;
-        }
-
-        .fingerprint-icon { font-size: 50px; color: var(--accent); margin-bottom: 25px; filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.3)); }
-
-        .social-btn {
-            width: 100%; height: 55px; margin-bottom: 15px; border: none; border-radius: 12px;
-            font-weight: 600; font-size: 16px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px;
-            transition: 0.3s; color: white; opacity: 0.4; position: relative; overflow: hidden; white-space: nowrap; filter: grayscale(1);
-        }
+        .login-card { background: var(--card-bg); backdrop-filter: blur(20px); border: 1px solid var(--card-border); padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: var(--shadow); }
+        .fingerprint { font-size: 50px; color: var(--accent); margin-bottom: 25px; }
+        h2 { color: var(--text-main); margin-bottom: 20px; }
+        
+        .social-btn { width: 100%; height: 55px; margin-bottom: 15px; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px; color: white; opacity: 0.5; filter: grayscale(1); transition: 0.3s; }
         .social-btn.active { cursor: pointer; opacity: 1; filter: none; }
-        .social-btn.active:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-
-        .btn-google { background: #db4437; } .btn-linkedin { background: #0077b5; } .btn-github { background: #24292e; } .btn-github:hover { background: #000; }
-
-        .captcha-container { margin: 20px 0; display: flex; justify-content: center; min-height: 65px; }
-
-        /* Terms Checkbox */
-        .terms-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); }
-        .terms-container input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
-        .terms-container a { color: var(--accent); text-decoration: none; }
-
-        /* Support Button */
-        .support-btn { position: absolute; top: 20px; left: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
-        .support-btn:hover { color: var(--text); }
-
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
-
-    <script>
-        window.cfToken = null;
-        window.isTermsChecked = false;
-
-        function checkStatus() {
-            const buttons = document.querySelectorAll('.social-btn');
-            if (window.cfToken && window.isTermsChecked) {
-                buttons.forEach(btn => { btn.disabled = false; btn.classList.add('active'); });
-            } else {
-                buttons.forEach(btn => { btn.disabled = true; btn.classList.remove('active'); });
-            }
-        }
-
-        function onTurnstileSuccess(token) {
-            console.log("Verified ✅");
-            window.cfToken = token;
-            checkStatus();
-        }
+        .btn-google { background: #db4437; } .btn-linkedin { background: #0077b5; } .btn-github { background: #24292e; }
         
-        function onTermsToggle(checkbox) {
-            window.isTermsChecked = checkbox.checked;
-            checkStatus();
-        }
+        .terms { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); }
+        .captcha { margin: 20px 0; display: flex; justify-content: center; }
+    </style>
+    <script>
+        window.cfToken=null;window.isTerms=false;
+        function check(){const b=document.querySelectorAll('.social-btn');if(window.cfToken&&window.isTerms)b.forEach(x=>{x.disabled=false;x.classList.add('active')});else b.forEach(x=>{x.disabled=true;x.classList.remove('active')});}
+        function onSuccess(t){window.cfToken=t;check();}
+        function onTerms(c){window.isTerms=c.checked;check();}
     </script>
 </head>
 <body>
-
     <canvas id="canvas-bg"></canvas>
-
-    <a href="support.html" class="support-btn"><i class="fas fa-life-ring"></i> <span data-i18n="supportBtn">Need Help?</span></a>
-
     <div class="login-card">
-        <div class="fingerprint-icon"><i class="fas fa-fingerprint"></i></div>
-
-        <div class="terms-container">
-            <input type="checkbox" id="termsCheck" onchange="onTermsToggle(this)">
-            <label for="termsCheck" data-i18n="termsText">I agree to Terms & Privacy</label>
-        </div>
-
-        <div class="captcha-container">
-            <div class="cf-turnstile" data-sitekey="0x4AAAAAACDn9I1izJuNt20l" data-theme="dark" data-callback="onTurnstileSuccess"></div>
-        </div>
-
-        <button id="googleBtn" class="social-btn btn-google" disabled><i class="fab fa-google"></i> <span data-i18n="googleBtn">Continue with Google</span></button>
-        <button id="linkedinBtn" class="social-btn btn-linkedin" disabled><i class="fab fa-linkedin"></i> <span data-i18n="linkedinBtn">Continue with LinkedIn</span></button>
-        <button id="githubBtn" class="social-btn btn-github" disabled><i class="fab fa-github"></i> <span data-i18n="githubBtn">Continue with GitHub</span></button>
+        <div class="fingerprint"><i class="fas fa-fingerprint"></i></div>
+        <h2 data-i18n="loginTitle">Login</h2>
+        <div class="terms"><input type="checkbox" onchange="onTerms(this)"><span data-i18n="termsText">Agree to Terms</span></div>
+        <div class="captcha"><div class="cf-turnstile" data-sitekey="0x4AAAAAACDn9I1izJuNt20l" data-callback="onSuccess"></div></div>
+        <button id="googleBtn" class="social-btn btn-google" disabled><i class="fab fa-google"></i> <span data-i18n="googleBtn">Google</span></button>
+        <button id="linkedinBtn" class="social-btn btn-linkedin" disabled><i class="fab fa-linkedin"></i> <span data-i18n="linkedinBtn">LinkedIn</span></button>
+        <button id="githubBtn" class="social-btn btn-github" disabled><i class="fab fa-github"></i> <span data-i18n="githubBtn">GitHub</span></button>
     </div>
-
     <script type="module" src="./system.js"></script>
-    
     <script type="module">
         import { supabase } from "./supabase.js";
-
-        // ✅ إصلاح الحلقة: التحقق يتم لمرة واحدة فقط وبحذر
-        async function checkSession() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                // إذا وجد جلسة، اذهب للمينيو
-                window.location.replace("menu.html");
-            }
-        }
-        // تأخير بسيط جداً للتأكد من تحميل Supabase
-        setTimeout(checkSession, 100);
-
-        async function handleLogin(provider) {
-            if (!window.cfToken || !window.isTermsChecked) { alert("Please verify you are human and agree to terms!"); return; }
-            
-            // تحقق Turnstile
-            const verify = await fetch("/api/verify-turnstile", { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ token: window.cfToken }) 
-            }).then(r => r.json());
-
-            if (!verify.success) { 
-                alert("Security fail. Refresh."); 
-                if(window.turnstile) turnstile.reset(); 
-                return; 
-            }
-            
-            // تسجيل الدخول
-            const { error } = await supabase.auth.signInWithOAuth({ 
-                provider: provider, 
-                options: { redirectTo: window.location.origin + "/menu.html" } 
-            });
-            if (error) alert(error.message);
-        }
-
-        document.getElementById("googleBtn").onclick = () => handleLogin("google");
-        document.getElementById("linkedinBtn").onclick = () => handleLogin("linkedin_oidc");
-        document.getElementById("githubBtn").onclick = () => handleLogin("github");
-
-        // Canvas Animation
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-        class Particle {
-            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
-            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
-            draw() { ctx.fillStyle='rgba(140,155,255,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-        }
-        for(let i=0;i<60;i++) particles.push(new Particle());
-        function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); }
-        animate();
+        async function login(p) { if(!window.cfToken || !window.isTerms) return; const { error } = await supabase.auth.signInWithOAuth({ provider: p, options: { redirectTo: window.location.origin + "/menu.html" } }); if(error) alert(error.message); }
+        document.getElementById('googleBtn').onclick = () => login('google');
+        document.getElementById('linkedinBtn').onclick = () => login('linkedin_oidc');
+        document.getElementById('githubBtn').onclick = () => login('github');
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h;function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}window.addEventListener('resize',r);r();
     </script>
 </body>
 </html>

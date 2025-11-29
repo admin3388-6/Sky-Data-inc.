@@ -2,55 +2,116 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sky Data</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Data</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* (نفس كود CSS الطويل الذي وضعناه في الردود السابقة - انسخه من هناك أو من menu.html لتطابق الألوان) */
-        /* اختصاراً للمساحة: استخدم نفس الـ Root Variables والتصميم */
-        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+        /* الاعتماد الكلي على system.js variables */
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
+
+        /* Sidebar Responsive */
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: var(--sidebar-bg); border-right: 1px solid var(--card-border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; z-index: 1000; transition: width 0.4s; overflow: hidden; white-space: nowrap; backdrop-filter: blur(20px); }
+        .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        .sidebar-overlay.active { display: block; }
         
-        /* ... باقي الستايل مطابق لـ menu.html ... */
-        .hero { height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; }
-        .hero h1 { font-size: 4rem; color: white; margin-bottom: 20px; }
-        .hero p { color: #aaa; margin-bottom: 40px; }
-        .cta-btn { padding: 15px 40px; background: var(--primary); color: white; border-radius: 50px; text-decoration: none; font-weight: bold; }
+        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
+        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; }
+        .nav-item:hover, .nav-item.active { color: var(--text-main); background: rgba(128,128,128,0.1); }
+        .nav-item:hover i { color: var(--accent); }
+
+        .main-content { margin-left: 80px; padding: 0; transition: 0.4s; }
+        .hero { height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px; }
+        .hero h1 { font-size: 3.5rem; margin-bottom: 20px; color: var(--text-main); }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin-bottom: 40px; }
+        .cta-btn { padding: 15px 40px; font-size: 18px; font-weight: bold; background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; border-radius: 50px; color: white; cursor: pointer; text-decoration: none; display: inline-block; box-shadow: 0 10px 20px rgba(0,0,0,0.2); }
+
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; padding: 50px 20px; max-width: 1200px; margin: 0 auto; }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 30px; border-radius: 20px; backdrop-filter: blur(10px); transition: 0.4s; cursor: pointer; }
+        .card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: var(--shadow); }
+        .card h3 { color: var(--text-main); margin: 15px 0; }
+        .card p { color: var(--text-muted); }
+        .card i { font-size: 35px; color: var(--accent); }
+
+        .stats { display: flex; justify-content: center; gap: 40px; padding: 50px; flex-wrap: wrap; }
+        .stat-num { font-size: 2.5rem; font-weight: bold; color: var(--accent); display: block; }
+        .stat-label { color: var(--text-muted); }
+
+        /* Mobile Fixes */
+        @media (max-width: 768px) {
+            .sidebar { width: 0; padding: 0; border: none; }
+            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--card-border); }
+            .main-content { margin-left: 0; }
+            .hero h1 { font-size: 2rem; }
+            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; color: var(--text-main); background: var(--card-bg); padding: 10px; border-radius: 10px; border: 1px solid var(--card-border); }
+        }
+        @media (min-width: 769px) { .toggle-menu { display: none; } }
     </style>
 </head>
 <body>
     <canvas id="canvas-bg"></canvas>
-    
-    <div class="main-content" style="margin:0; padding:0;">
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div class="toggle-menu" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+
+    <nav class="sidebar" id="mySidebar">
+        <div style="font-size:28px; color:var(--accent); margin-bottom:50px;"><i class="fas fa-infinity"></i></div>
+        <a href="#" class="nav-item active"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
+        <a href="login.html" class="nav-item" id="navDashLink"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
+        <a href="#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
+        <div style="flex-grow: 1;"></div>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
+    </nav>
+
+    <div class="main-content">
         <section class="hero">
+            <div id="welcomeMsg" style="display:none; color:var(--accent); font-weight:bold; margin-bottom:15px;"></div>
             <h1 data-i18n="heroTitle">SKY DATA</h1>
-            <p data-i18n="heroDesc">Future Digital Solutions</p>
-            <a href="login.html" id="heroBtn" class="cta-btn"><span id="heroBtnText" data-i18n="heroBtnLogin">Login</span></a>
+            <p data-i18n="heroDesc">Future Solutions.</p>
+            <a href="login.html" id="heroBtn" class="cta-btn"><span id="heroBtnText" data-i18n="heroBtnLogin">Access</span></a>
         </section>
+
+        <div class="stats">
+            <div><span class="stat-num">99%</span><span class="stat-label" data-i18n="statUptime">Uptime</span></div>
+            <div><span class="stat-num">10K</span><span class="stat-label" data-i18n="statUsers">Users</span></div>
+        </div>
+
+        <div class="grid" id="tools">
+            <div class="card" onclick="window.navigateTo('tools.html')">
+                <i class="fas fa-magic"></i><h3 data-i18n="cardWebTitle">Web Tools</h3><p data-i18n="cardWebDesc">Tools.</p>
+            </div>
+            <div class="card"><i class="fas fa-robot"></i><h3 data-i18n="cardAITitle">AI</h3><p data-i18n="cardAIDesc">Gen.</p></div>
+            <div class="card"><i class="fas fa-shield-alt"></i><h3 data-i18n="cardSecTitle">Security</h3><p data-i18n="cardSecDesc">DDoS.</p></div>
+        </div>
     </div>
 
     <script type="module" src="./system.js"></script>
     <script type="module">
         import { supabase } from "./supabase.js";
         
-        // Canvas Logic
-        const canvas = document.getElementById('canvas-bg'); const ctx = canvas.getContext('2d');
-        let width, height; function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-        function animate() { ctx.clearRect(0,0,width,height); requestAnimationFrame(animate); } animate();
+        window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
+        window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
-        // Auth Logic
+        const c = document.getElementById('canvas-bg'), x = c.getContext('2d');
+        let w, h; function r() { w = c.width = window.innerWidth; h = c.height = window.innerHeight; }
+        window.addEventListener('resize', r); r();
+        function a() { x.clearRect(0,0,w,h); requestAnimationFrame(a); } a(); // Simple clear for performance
+
         async function check() {
             const { data: { session } } = await supabase.auth.getSession();
             if(session) {
                 const btn = document.getElementById('heroBtn');
-                btn.href = "menu.html";
+                btn.onclick = (e) => { e.preventDefault(); window.navigateTo('menu.html'); };
                 document.getElementById('heroBtnText').setAttribute('data-i18n', 'heroBtnDash');
+                document.getElementById('welcomeMsg').style.display = 'block';
+                document.getElementById('welcomeMsg').innerText = "Welcome back, " + (session.user.user_metadata.full_name || "User");
+                
+                const lang = localStorage.getItem('skydata_lang') || 'en';
+                if(window.changeLanguage) window.changeLanguage(lang);
             }
         }
         check();
