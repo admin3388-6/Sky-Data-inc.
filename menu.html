@@ -1,54 +1,60 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Dashboard - Sky Data</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-      /* نفس ستايل الاندكس لضمان التناسق التام */
-      :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
-      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-      body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
-      #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sky Data</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* نفس تصميم الـ Index لضمان التناسق التام */
+        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
-      /* Sidebar (Same as Index) */
-      .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
-      .sidebar-overlay.active { display: block; opacity: 1; }
-      .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
-      .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
-      .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
-      .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
-      .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
-      .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
-      .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
-      .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
-      .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
-      .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
+        /* Sidebar System */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
+        .sidebar-overlay.active { display: block; opacity: 1; }
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
+        .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
+        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
+        .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
+        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
+        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
+        .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
+        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
+        .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
-      .main-content { margin-left: 80px; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-      
-      /* Dashboard Card */
-      .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 500px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; }
-      h1 { color: white; margin-bottom: 30px; font-weight: 300; }
-      
-      .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; }
-      .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
-      .info-row span { color: white; font-weight: 600; font-size: 16px; }
-      
-      button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
-      button.logout:hover { background: #d43f3f; transform: translateY(-2px); }
+        .main-content { margin-left: 80px; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        /* Dashboard Card */
+        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 500px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; }
+        h1 { color: white; margin-bottom: 30px; font-weight: 300; font-size: 2rem; }
+        
+        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
+        .info-row:hover { background: rgba(255,255,255,0.06); transform: translateX(5px); }
+        .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 1px; }
+        .info-row span { color: white; font-weight: 600; font-size: 16px; }
+        
+        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
+        button.logout:hover { background: #d43f3f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.3); }
 
-      @media (max-width: 768px) {
-          .sidebar { width: 0; padding: 0; border: none; }
-          .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
-          .main-content { margin-left: 0; }
-          .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
-      }
-      @media (min-width: 769px) { .toggle-menu { display: none; } }
-      @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-  </style>
+        @media (max-width: 768px) {
+            .sidebar { width: 0; padding: 0; border: none; }
+            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
+            .main-content { margin-left: 0; }
+            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
+        }
+        @media (min-width: 769px) { .toggle-menu { display: none; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
 </head>
 <body>
 
@@ -60,6 +66,7 @@
         <div class="logo-icon"><i class="fas fa-infinity"></i></div>
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
         <a href="#" class="nav-item active"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
+        
         <a href="index.html#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
         <a href="index.html#ai" class="nav-item"><i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span></a>
         <a href="index.html#dev" class="nav-item"><i class="fas fa-code"></i> <span data-i18n="navDev">Dev Services</span></a>
@@ -80,7 +87,7 @@
                         <b data-i18n="nameLabel">NAME</b>
                         <span id="name"></span>
                     </div>
-                    <i class="fas fa-user" style="color:var(--primary); opacity:0.5;"></i>
+                    <i class="fas fa-user" style="color:var(--primary); opacity:0.7;"></i>
                 </div>
                 
                 <div class="info-row">
@@ -88,7 +95,7 @@
                         <b data-i18n="emailLabel">EMAIL</b>
                         <span id="email"></span>
                     </div>
-                    <i class="fas fa-envelope" style="color:var(--primary); opacity:0.5;"></i>
+                    <i class="fas fa-envelope" style="color:var(--primary); opacity:0.7;"></i>
                 </div>
                 
                 <div class="info-row" style="border-inline-start-color: #00c853;">
@@ -96,7 +103,7 @@
                         <b data-i18n="rankLabel">RANK</b>
                         <span id="rank" style="color: #00c853;"></span>
                     </div>
-                    <i class="fas fa-star" style="color:#00c853; opacity:0.5;"></i>
+                    <i class="fas fa-star" style="color:#00c853; opacity:0.7;"></i>
                 </div>
                 
                 <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
@@ -107,29 +114,28 @@
     <script type="module" src="./system.js"></script>
 
     <script type="module">
-  import { supabase } from './supabase.js';
-  import './system.js'; 
+        import { supabase } from './supabase.js';
 
-  // ✅ كود جديد: تنظيف سجل التاريخ لمنع العودة لصفحة جوجل
-  window.onload = function() {
-      // نستبدل الحالة الحالية بنفس الصفحة، مما يقطع سلسلة العودة لجوجل
-      if (window.history && window.history.pushState) {
-          window.history.pushState('forward', null, './menu.html');
-          window.onpopstate = function () {
-              // إذا ضغط عودة، نرسله للصفحة الرئيسية (اندكس) بدلاً من جوجل
-              window.location.replace('index.html');
-          };
-      }
-  };
+        // ✅ حل مشكلة زر العودة (History Replacement)
+        // هذا الكود يجبر المتصفح على البقاء هنا أو العودة لـ index عند الضغط على "رجوع"
+        // ولا يسمح له أبداً بالعودة لصفحات جوجل أو الـ login
+        window.onload = function() {
+            if (window.history && window.history.pushState) {
+                // نضيف حالة وهمية للتاريخ
+                window.history.pushState('forward', null, window.location.href);
+                
+                window.onpopstate = function () {
+                    // إذا ضغط المستخدم "عودة"، نرسله للصفحة الرئيسية بدلاً من الخلف
+                    window.location.replace('index.html');
+                };
+            }
+        };
 
-  async function loadProfile() {
-      // ... (نفس الكود السابق) ...
-
-        // Sidebar logic
+        // Sidebar Logic
         window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
         window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
-        // Animation logic
+        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
@@ -144,11 +150,13 @@
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // Profile Logic
+        // Data Loading Logic
         async function loadProfile() {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { window.location.replace("login.html"); return; } // Blocker & Redirect
+            // Blocker: إذا لم يكن مسجلاً، اذهب للدخول
+            if (!user) { window.location.replace("login.html"); return; }
 
+            // جلب البيانات
             let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
             
             document.getElementById("loader").style.display = "none";
@@ -169,11 +177,13 @@
             }
         }
 
+        // Logout Logic
         document.getElementById("logoutBtn").onclick = async () => {
             const { error } = await supabase.auth.signOut();
-            // استبدال الصفحة بـ login حتى لا يمكن العودة للداشبورد بزر الرجوع
-            if (!error) window.location.replace("login.html"); 
+            // عند الخروج، استخدم replace لمسح الذاكرة ومنع العودة للداشبورد
+            if (!error) window.location.replace("login.html");
         };
+        
         loadProfile();
     </script>
 
