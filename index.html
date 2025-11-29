@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sky Data | Future Digital Solutions</title>
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
@@ -11,12 +12,12 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
+        /* (انسخ نفس الـ CSS من الرد السابق، فهو مثالي) */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
-        /* Sidebar */
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
         .sidebar-overlay.active { display: block; opacity: 1; }
         .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
@@ -30,7 +31,6 @@
         .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
         .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
-        /* Main Content */
         .main-content { margin-left: 80px; padding: 0; transition: 0.4s; }
         .hero { height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px; background: radial-gradient(circle at 50% 50%, rgba(78, 84, 200, 0.15), transparent 60%); }
         .hero h1 { font-size: 4rem; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(to right, #fff, #b3b3b3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 1s ease forwards; }
@@ -42,7 +42,9 @@
         .section-title { font-size: 2.5rem; margin-bottom: 50px; text-align: center; }
         .services { padding: 100px 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
-        .card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 24px; position: relative; overflow: hidden; transition: 0.4s; backdrop-filter: blur(10px); }
+        
+        /* تحديث البطاقة لتكون قابلة للنقر */
+        .card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 24px; position: relative; overflow: hidden; transition: 0.4s; backdrop-filter: blur(10px); cursor: pointer; }
         .card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); }
         .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); opacity: 0; transition: 0.4s; }
         .card:hover::before { opacity: 1; }
@@ -113,7 +115,12 @@
         <section class="services" id="tools">
             <h2 class="section-title" data-i18n="servicesTitle">Professional Services</h2>
             <div class="grid">
-                <div class="card"><i class="fas fa-magic"></i><h3 data-i18n="cardWebTitle">Web Tools</h3><p data-i18n="cardWebDesc">Converters and analyzers.</p></div>
+                <div class="card" onclick="window.navigateTo('tools.html')">
+                    <i class="fas fa-magic"></i>
+                    <h3 data-i18n="cardWebTitle">Web Tools</h3>
+                    <p data-i18n="cardWebDesc">Converters and analyzers.</p>
+                </div>
+                
                 <div class="card" id="ai"><i class="fas fa-robot"></i><h3 data-i18n="cardAITitle">AI Solutions</h3><p data-i18n="cardAIDesc">Image generation and automation.</p></div>
                 <div class="card" id="dev"><i class="fas fa-laptop-code"></i><h3 data-i18n="cardDevTitle">Manual Dev</h3><p data-i18n="cardDevDesc">Custom Apps and Bots.</p></div>
                 <div class="card" id="security" style="border-color: rgba(0, 210, 255, 0.3);"><i class="fas fa-lock" style="color: #00d2ff;"></i><h3 data-i18n="cardSecTitle">Iron-Clad Security</h3><p data-i18n="cardSecDesc">Protected against DDoS.</p></div>
@@ -158,10 +165,10 @@
                 const heroBtn = document.getElementById('heroBtn');
                 const heroBtnText = document.getElementById('heroBtnText');
                 
-                heroBtn.href = "menu.html"; 
+                heroBtn.onclick = (e) => { e.preventDefault(); window.navigateTo('menu.html'); };
                 heroBtnText.setAttribute('data-i18n', 'heroBtnDash');
                 
-                document.getElementById('navDashLink').href = "menu.html";
+                document.getElementById('navDashLink').onclick = (e) => { e.preventDefault(); window.navigateTo('menu.html'); };
 
                 const welcomeDiv = document.getElementById('welcomeMsg');
                 welcomeDiv.style.display = "block";

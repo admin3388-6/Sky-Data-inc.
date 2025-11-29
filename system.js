@@ -1,5 +1,5 @@
 // ==========================================
-// 1. Global Styles (تصميم موحد)
+// 1. Global Styles (تصميم موحد + لودر التحميل)
 // ==========================================
 const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Outfit:wght@300;500;700&display=swap');
@@ -17,6 +17,27 @@ const styles = `
     
     body { font-family: 'Outfit', sans-serif; }
     body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
+
+    /* --- Loader System (الجديد) --- */
+    .global-loader {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(10px);
+        z-index: 999999; display: none; /* مخفي افتراضياً */
+        justify-content: center; align-items: center; flex-direction: column;
+        transition: opacity 0.3s;
+    }
+    .spinner {
+        width: 60px; height: 60px;
+        border: 4px solid rgba(255, 255, 255, 0.1);
+        border-left-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        box-shadow: 0 0 15px rgba(0, 210, 255, 0.2);
+    }
+    .loading-text { margin-top: 15px; color: white; font-size: 14px; letter-spacing: 2px; animation: pulse 1.5s infinite; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
     /* زر الإعدادات */
     .settings-btn { 
@@ -92,6 +113,19 @@ document.head.appendChild(styleSheet);
 // 2. UI Injection
 // ==========================================
 function injectUI() {
+    // 1. Loader (حقن شاشة التحميل)
+    if (!document.getElementById('globalLoader')) {
+        const loader = document.createElement('div');
+        loader.className = 'global-loader';
+        loader.id = 'globalLoader';
+        loader.innerHTML = `
+            <div class="spinner"></div>
+            <div class="loading-text">PROCESSING</div>
+        `;
+        document.body.appendChild(loader);
+    }
+
+    // 2. Settings Button
     if (!document.querySelector('.settings-btn')) {
         const btn = document.createElement('div');
         btn.className = 'settings-btn';
@@ -99,6 +133,7 @@ function injectUI() {
         btn.onclick = window.toggleLangModal;
         document.body.appendChild(btn);
     }
+    // 3. Language Modal
     if (!document.getElementById('langModal')) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
@@ -114,6 +149,7 @@ function injectUI() {
             </div>`;
         document.body.appendChild(modal);
     }
+    // 4. Cookie Banner
     if (!document.getElementById('cookieBanner')) {
         const banner = document.createElement('div');
         banner.className = 'cookie-banner';
@@ -135,13 +171,30 @@ function injectUI() {
     }
 }
 
+// ==========================================
+// 3. Navigation System (وظيفة الانتقال باللودر)
+// ==========================================
+window.navigateTo = function(url) {
+    const loader = document.getElementById('globalLoader');
+    if (loader) {
+        loader.style.display = 'flex'; // إظهار اللودر
+        
+        // انتظار 0.8 ثانية ثم الانتقال (لإعطاء شعور بالتحميل)
+        setTimeout(() => {
+            window.location.href = url;
+        }, 800);
+    } else {
+        window.location.href = url;
+    }
+};
+
 window.toggleLangModal = function() {
     const modal = document.getElementById('langModal');
     if(modal) modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex';
 };
 
 // ==========================================
-// 3. Translation Dictionary
+// 4. Translation Dictionary
 // ==========================================
 const translations = {
     en: {
@@ -157,12 +210,8 @@ const translations = {
         cardSecTitle: "Iron-Clad Security", cardSecDesc: "Protected against DDoS, SQL Injection, and XSS.",
         cardBotTitle: "Discord Bots", cardBotDesc: "Custom bots with music, moderation, and economy systems.",
         cardFastTitle: "Fast Performance", cardFastDesc: "Optimized for speed. Responding in milliseconds via Global CDN.",
-        
-        // Login Specific
-        googleBtn: "Continue with Google", linkedinBtn: "Continue with LinkedIn", githubBtn: "Continue with GitHub",
-        termsText: "I agree to the Terms of Service and Privacy Policy",
-        supportBtn: "Need Help?",
-        
+        loginTitle: "Secure Login", googleBtn: "Continue with Google", linkedinBtn: "Continue with LinkedIn", githubBtn: "Continue with GitHub", secureNote: "Authenticated via OAuth 2.0",
+        termsText: "I agree to the Terms of Service and Privacy Policy", supportBtn: "Need Help?",
         profileTitle: "User Profile", loading: "Loading Profile...", nameLabel: "NAME", emailLabel: "EMAIL", rankLabel: "RANK", logout: "Logout System",
         footerRights: "© 2025 Sky Data Inc. All Rights Reserved.", footerSec: "Secured Connection • End-to-End Encrypted"
     },
@@ -179,12 +228,8 @@ const translations = {
         cardSecTitle: "حماية فولاذية", cardSecDesc: "حماية ضد DDoS، حقن SQL، وثغرات XSS. خصوصيتك أولويتنا.",
         cardBotTitle: "بوتات ديسكورد", cardBotDesc: "بوتات مخصصة مع أنظمة الموسيقى، الإدارة، والاقتصاد.",
         cardFastTitle: "أداء فائق السرعة", cardFastDesc: "محسن للسرعة. استجابة في أجزاء من الثانية عبر CDN عالمي.",
-        
-        // Login Specific
-        googleBtn: "المتابعة باستخدام جوجل", linkedinBtn: "المتابعة باستخدام لينكد إن", githubBtn: "المتابعة باستخدام غيت هاب",
-        termsText: "أوافق على شروط الخدمة وسياسة الخصوصية",
-        supportBtn: "تحتاج مساعدة؟",
-        
+        loginTitle: "تسجيل دخول آمن", googleBtn: "المتابعة باستخدام جوجل", linkedinBtn: "المتابعة باستخدام لينكد إن", githubBtn: "المتابعة باستخدام غيت هاب", secureNote: "مصادقة آمنة عبر بروتوكول OAuth 2.0",
+        termsText: "أوافق على شروط الخدمة وسياسة الخصوصية", supportBtn: "تحتاج مساعدة؟",
         profileTitle: "الملف الشخصي", loading: "جاري تحميل البيانات...", nameLabel: "الاسم المسجل", emailLabel: "البريد الإلكتروني", rankLabel: "الرتبة الحالية", logout: "تسجيل الخروج",
         footerRights: "© 2025 Sky Data Inc. جميع الحقوق محفوظة.", footerSec: "اتصال آمن • مشفر من الطرف للطرف"
     },
@@ -201,12 +246,8 @@ const translations = {
         cardSecTitle: "Железная защита", cardSecDesc: "Защита от DDoS, SQL Injection и XSS. Конфиденциальность превыше всего.",
         cardBotTitle: "Discord Боты", cardBotDesc: "Кастомные боты с системами музыки, модерации и экономики.",
         cardFastTitle: "Быстрая скорость", cardFastDesc: "Оптимизировано для скорости. Глобальный CDN.",
-        
-        // Login Specific
-        googleBtn: "Войти через Google", linkedinBtn: "Войти через LinkedIn", githubBtn: "Войти через GitHub",
-        termsText: "Я согласен с Условиями и Политикой",
-        supportBtn: "Нужна помощь?",
-        
+        loginTitle: "Безопасный вход", googleBtn: "Войти через Google", linkedinBtn: "Войти через LinkedIn", githubBtn: "Войти через GitHub", secureNote: "Авторизация через OAuth 2.0",
+        termsText: "Я согласен с Условиями и Политикой", supportBtn: "Нужна помощь?",
         profileTitle: "Профиль пользователя", loading: "Загрузка профиля...", nameLabel: "ИМЯ", emailLabel: "EMAIL", rankLabel: "РАНГ", logout: "Выйти из системы",
         footerRights: "© 2025 Sky Data Inc. Все права защищены.", footerSec: "Безопасное соединение • Сквозное шифрование"
     }
@@ -229,6 +270,9 @@ window.changeLanguage = function(lang) {
     if(modal) modal.style.display = 'none';
 };
 
+// ==========================================
+// 5. Cookie Logic
+// ==========================================
 window.handleCookieChoice = function(choice) {
     const banner = document.getElementById('cookieBanner');
     banner.classList.remove('visible'); 
@@ -243,6 +287,9 @@ function checkCookieStatus() {
     else { if (banner) { banner.style.display = 'flex'; setTimeout(() => { banner.classList.add('visible'); }, 1500); } }
 }
 
+// ==========================================
+// 6. Init
+// ==========================================
 function initNotifications() {
     const script = document.createElement('script');
     script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
