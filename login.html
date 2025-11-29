@@ -55,13 +55,18 @@
         }
 
         .social-btn {
-            width: 100%; padding: 15px; margin-bottom: 15px;
-            border: none; border-radius: 12px;
-            font-weight: 600; font-size: 16px;
+            width: 100%;
+            height: 55px; /* ✅ تثبيت الارتفاع لتوحيد الحجم */
+            margin-bottom: 15px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
             cursor: not-allowed; /* معطل افتراضياً */
             display: flex; align-items: center; justify-content: center; gap: 12px;
             transition: 0.3s; color: white; opacity: 0.5;
             position: relative; overflow: hidden;
+            white-space: nowrap; /* ✅ منع النص من الالتفاف لسطرين */
         }
 
         /* ستايل عند التفعيل */
@@ -83,6 +88,30 @@
 
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
+
+    <script>
+        // متغير عالمي لحفظ التوكن
+        window.cfToken = null;
+
+        // دالة النجاح التي يستدعيها Cloudflare
+        function onTurnstileSuccess(token) {
+            console.log("Turnstile Verified ✅");
+            window.cfToken = token; // حفظ التوكن
+            
+            // تفعيل جميع الأزرار
+            const buttons = document.querySelectorAll('.social-btn');
+            buttons.forEach(btn => {
+                btn.disabled = false;
+                btn.classList.add('active');
+                btn.style.filter = "none";
+            });
+        }
+
+        // دالة الخطأ
+        function onTurnstileError() {
+            alert("Verification failed. Please refresh.");
+        }
+    </script>
 </head>
 <body>
 
@@ -124,29 +153,10 @@
     <script type="module">
         import { supabase } from "./supabase.js";
 
-        let turnstileToken = null;
-
-        // دالة النجاح: تعمل تلقائياً عندما يتحقق كلاودفلير من المستخدم
-        window.onTurnstileSuccess = function(token) {
-            console.log("Turnstile Success");
-            turnstileToken = token;
-            
-            // تفعيل الأزرار وتغيير شكلها
-            const buttons = document.querySelectorAll('.social-btn');
-            buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.classList.add('active');
-            });
-        };
-
-        // دالة الخطأ
-        window.onTurnstileError = function() {
-            alert("Security check failed. Please refresh.");
-        };
-
         async function handleLogin(provider) {
-            if (!turnstileToken) {
-                alert("Please wait for security check...");
+            // التحقق من التوكن العالمي الذي حفظناه في السكربت العادي بالأعلى
+            if (!window.cfToken) {
+                alert("Please verify you are human first!");
                 return;
             }
 
@@ -154,11 +164,11 @@
             const verify = await fetch("/api/verify-turnstile", { 
                 method: "POST", 
                 headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ token: turnstileToken }) 
+                body: JSON.stringify({ token: window.cfToken }) 
             }).then(r => r.json());
 
             if (!verify.success) {
-                alert("Security verification failed. Refreshing...");
+                alert("Security verification failed. Please refresh.");
                 if(window.turnstile) turnstile.reset();
                 return;
             }
