@@ -5,28 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sky Data</title>
     
-    <style> body { display: none; } </style>
     <script type="module">
         import { supabase } from "./supabase.js";
-        
-        async function checkAndRedirect() {
+        async function checkSession() {
             const { data: { session } } = await supabase.auth.getSession();
             if (session) {
-                // إذا مسجل -> استبدل الرابط فوراً (لا تعد للخلف أبداً)
+                // استبدال التاريخ الحالي بصفحة المينيو لكي لا يعود المستخدم لهنا
                 window.location.replace("menu.html");
             } else {
-                // غير مسجل -> أظهر الصفحة الآن
+                // إظهار الصفحة فقط إذا لم يكن مسجلاً
                 document.body.style.display = "flex";
             }
         }
-
-        // تشغيل التحقق عند التحميل
-        checkAndRedirect();
-
-        // 🔥 حماية إضافية ضد زر العودة (BFCache)
-        window.addEventListener('pageshow', (event) => {
-            if (event.persisted) checkAndRedirect();
-        });
+        checkSession();
+        
+        // منع العودة لهذه الصفحة بعد تسجيل الخروج والعودة
+        window.history.pushState(null, null, window.location.href);
+        window.onpopstate = function () {
+            window.history.go(1);
+        };
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,10 +34,10 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <style>
-        /* (نفس الستايلات السابقة تماماً) */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; justify-content: center; align-items: center; overflow: hidden; position: relative; } /* مسحنا display flex من هنا لأننا نتحكم به بالجافاسكربت */
+        /* إخفاء الصفحة افتراضياً حتى انتهاء التحقق */
+        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; justify-content: center; align-items: center; overflow: hidden; position: relative; display: none; }
         
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
         .login-card { background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: slideUp 0.8s ease forwards; }
@@ -101,13 +98,19 @@
 
         async function handleLogin(provider) {
             if (!window.cfToken || !window.isTermsChecked) { alert("Please verify you are human and agree to terms!"); return; }
+            
             const verify = await fetch("/api/verify-turnstile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: window.cfToken }) }).then(r => r.json());
+            
             if (!verify.success) { alert("Security fail. Refresh."); if(window.turnstile) turnstile.reset(); return; }
             
-            // التوجيه مع redirectTo
+            // 🛑 هنا الحل: استخدام skipBrowserRedirect للتحكم في التدفق (قد لا تعمل مع كل المزودين، لذا نعتمد على replaceState)
+            // والأهم هو redirectTo الصحيح
             const { error } = await supabase.auth.signInWithOAuth({ 
                 provider: provider, 
-                options: { redirectTo: window.location.origin + "/menu.html" } 
+                options: { 
+                    redirectTo: window.location.origin + "/menu.html",
+                    skipBrowserRedirect: false // نتركها false لتتم العملية
+                } 
             });
             if (error) alert(error.message);
         }
