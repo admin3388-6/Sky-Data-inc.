@@ -1,5 +1,5 @@
 // ==========================================
-// 1. Global Styles (تصميم زجاجي مظلم - Dark Glass UI)
+// 1. Global Styles (تصميم زجاجي مظلم)
 // ==========================================
 const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Outfit:wght@300;500;700&display=swap');
@@ -13,14 +13,12 @@ const styles = `
     }
     
     * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; }
-    
     html, body { width: 100%; overflow-x: hidden; margin: 0; padding: 0; }
     
-    /* الخطوط: Outfit للإنجليزي، Cairo للعربي */
     body { font-family: 'Outfit', sans-serif; }
     body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
 
-    /* زر الإعدادات (ثابت) */
+    /* زر الإعدادات */
     .settings-btn { 
         position: fixed; top: 25px; right: 25px; 
         background: var(--glass-dark); backdrop-filter: blur(15px);
@@ -34,7 +32,7 @@ const styles = `
     .settings-btn:hover { transform: rotate(90deg); border-color: var(--accent); }
     .settings-btn:hover i { color: var(--accent); }
     
-    /* نافذة اللغات (Dark Modal) */
+    /* نافذة اللغات */
     .modal-overlay { 
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: rgba(0,0,0,0.7); z-index: 99998; backdrop-filter: blur(5px); 
@@ -63,7 +61,7 @@ const styles = `
     }
     .close-btn:hover { background: var(--accent); color: black; }
     
-    /* بانر الكوكيز (Dark Glass) */
+    /* بانر الكوكيز */
     .cookie-banner { 
         position: fixed; bottom: -400px; left: 0; width: 100%; 
         background: rgba(10, 10, 18, 0.98); backdrop-filter: blur(20px); 
@@ -94,7 +92,6 @@ document.head.appendChild(styleSheet);
 // 2. UI Injection
 // ==========================================
 function injectUI() {
-    // 1. زر الإعدادات
     if (!document.querySelector('.settings-btn')) {
         const btn = document.createElement('div');
         btn.className = 'settings-btn';
@@ -102,7 +99,6 @@ function injectUI() {
         btn.onclick = window.toggleLangModal;
         document.body.appendChild(btn);
     }
-    // 2. نافذة اللغات
     if (!document.getElementById('langModal')) {
         const modal = document.createElement('div');
         modal.className = 'modal-overlay';
@@ -111,20 +107,13 @@ function injectUI() {
         modal.innerHTML = `
             <div class="language-modal">
                 <h3 data-i18n="settingsTitle">Language</h3>
-                <div class="lang-option" onclick="window.changeLanguage('en')">
-                    <span class="flag-icon flag-icon-us"></span><span>English (US)</span>
-                </div>
-                <div class="lang-option" onclick="window.changeLanguage('ar')">
-                    <span class="flag-icon flag-icon-sa"></span><span>العربية (KSA)</span>
-                </div>
-                <div class="lang-option" onclick="window.changeLanguage('ru')">
-                    <span class="flag-icon flag-icon-ru"></span><span>Русский (RU)</span>
-                </div>
+                <div class="lang-option" onclick="window.changeLanguage('en')"><span class="flag-icon flag-icon-us"></span><span>English (US)</span></div>
+                <div class="lang-option" onclick="window.changeLanguage('ar')"><span class="flag-icon flag-icon-sa"></span><span>العربية (KSA)</span></div>
+                <div class="lang-option" onclick="window.changeLanguage('ru')"><span class="flag-icon flag-icon-ru"></span><span>Русский (RU)</span></div>
                 <button class="close-btn" onclick="window.toggleLangModal()">Close</button>
             </div>`;
         document.body.appendChild(modal);
     }
-    // 3. الكوكيز
     if (!document.getElementById('cookieBanner')) {
         const banner = document.createElement('div');
         banner.className = 'cookie-banner';
@@ -152,197 +141,71 @@ window.toggleLangModal = function() {
 };
 
 // ==========================================
-// 3. Full Translation Dictionary (الترجمة الكاملة)
+// 3. Translation Dictionary
 // ==========================================
 const translations = {
     en: {
-        // Settings & Cookie
-        settingsTitle: "Language Settings", 
-        cookieTitle: "Privacy Protocol", 
-        cookieText: "We utilize advanced cookies to optimize system performance and ensure security.", 
-        cookieAccept: "Accept Protocol", 
-        cookieReject: "Deny", 
-        privacy: "Privacy Policy", 
-        terms: "Terms of Service",
+        settingsTitle: "Language Settings", cookieTitle: "Privacy Protocol", cookieText: "We utilize advanced cookies to optimize system performance.", cookieAccept: "Accept Protocol", cookieReject: "Deny", privacy: "Privacy Policy", terms: "Terms of Service",
+        navHome: "Home", navDash: "Dashboard", navTools: "Web Tools", navAI: "AI Services", navDev: "Dev Services", navSec: "Security", navSet: "Settings",
+        heroTitle: "NEXT GEN DIGITAL SOLUTIONS", heroDesc: "Advanced Web Tools, Custom AI Models, and Professional Development Services.", 
         
-        // Navigation
-        navHome: "Home", 
-        navDash: "Dashboard", 
-        navTools: "Web Tools", 
-        navAI: "AI Services", 
-        navDev: "Dev Services", 
-        navSec: "Security", 
-        navSet: "Settings",
+        // 👇 نصوص الأزرار المتغيرة (login vs dashboard)
+        heroBtnLogin: "Access Console", 
+        heroBtnDash: "Go to Dashboard", 
         
-        // Hero Section
-        heroTitle: "NEXT GEN DIGITAL SOLUTIONS", 
-        heroDesc: "Advanced Web Tools, Custom AI Models, and Professional Development Services. Secured by Military-Grade Encryption.", 
-        heroBtn: "Access Console",
-        
-        // Stats
-        statUptime: "Uptime", 
-        statUsers: "Active Users", 
-        statSecure: "Encryption",
-        
-        // Services
+        statUptime: "Uptime", statUsers: "Active Users", statSecure: "Encryption",
         servicesTitle: "Professional Services",
-        cardWebTitle: "Web Tools", 
-        cardWebDesc: "Advanced format converters, code minifiers, and SEO analyzers.",
-        cardAITitle: "AI Solutions", 
-        cardAIDesc: "Image generation, text analysis, and automation powered by neural networks.",
-        cardDevTitle: "Manual Dev", 
-        cardDevDesc: "Hire us to build custom Web Apps, Discord Bots, and scripts.",
-        cardSecTitle: "Iron-Clad Security", 
-        cardSecDesc: "Protected against DDoS, SQL Injection, and XSS.",
-        cardBotTitle: "Discord Bots", 
-        cardBotDesc: "Custom bots with music, moderation, and economy systems.",
-        cardFastTitle: "Fast Performance", 
-        cardFastDesc: "Optimized for speed. Responding in milliseconds via Global CDN.",
-        
-        // Login Page
-        loginTitle: "Secure Login",
-        googleBtn: "Continue with Google",
-        linkedinBtn: "Continue with LinkedIn",
-        githubBtn: "Continue with GitHub",
-        secureNote: "Authenticated via OAuth 2.0",
-        
-        // Dashboard / Menu
-        profileTitle: "User Profile",
-        loading: "Loading Profile...",
-        nameLabel: "NAME",
-        emailLabel: "EMAIL",
-        rankLabel: "RANK",
-        logout: "Logout System",
-        
-        // Footer
-        footerRights: "© 2025 Sky Data Inc. All Rights Reserved.",
-        footerSec: "Secured Connection • End-to-End Encrypted"
+        cardWebTitle: "Web Tools", cardWebDesc: "Advanced format converters and analyzers.",
+        cardAITitle: "AI Solutions", cardAIDesc: "Image generation and automation.",
+        cardDevTitle: "Manual Dev", cardDevDesc: "Custom Apps and Bots.",
+        cardSecTitle: "Iron-Clad Security", cardSecDesc: "Protected against DDoS.",
+        cardBotTitle: "Discord Bots", cardBotDesc: "Custom bots with moderation.",
+        cardFastTitle: "Fast Performance", cardFastDesc: "Optimized for speed via Global CDN.",
+        loginTitle: "Secure Login", googleBtn: "Continue with Google", linkedinBtn: "Continue with LinkedIn", githubBtn: "Continue with GitHub", secureNote: "Authenticated via OAuth 2.0",
+        profileTitle: "User Profile", loading: "Loading Profile...", nameLabel: "NAME", emailLabel: "EMAIL", rankLabel: "RANK", logout: "Logout System",
+        footerRights: "© 2025 Sky Data Inc. All Rights Reserved.", footerSec: "Secured Connection • End-to-End Encrypted"
     },
     ar: {
-        // إعدادات وكوكيز
-        settingsTitle: "إعدادات اللغة", 
-        cookieTitle: "بروتوكول الخصوصية", 
-        cookieText: "نستخدم ملفات تعريف الارتباط المتقدمة لتحسين أداء النظام وضمان الأمان.", 
-        cookieAccept: "قبول البروتوكول", 
-        cookieReject: "رفض", 
-        privacy: "سياسة الخصوصية", 
-        terms: "شروط الخدمة",
+        settingsTitle: "إعدادات اللغة", cookieTitle: "بروتوكول الخصوصية", cookieText: "نستخدم ملفات تعريف الارتباط لتحسين أداء النظام.", cookieAccept: "قبول البروتوكول", cookieReject: "رفض", privacy: "سياسة الخصوصية", terms: "شروط الخدمة",
+        navHome: "الرئيسية", navDash: "لوحة التحكم", navTools: "أدوات الويب", navAI: "خدمات الذكاء", navDev: "خدمات التطوير", navSec: "الحماية والأمان", navSet: "الإعدادات",
+        heroTitle: "حلول رقمية من الجيل القادم", heroDesc: "أدوات ويب متقدمة، نماذج ذكاء اصطناعي مخصصة، وخدمات تطوير احترافية.", 
         
-        // القائمة الجانبية
-        navHome: "الرئيسية", 
-        navDash: "لوحة التحكم", 
-        navTools: "أدوات الويب", 
-        navAI: "خدمات الذكاء", 
-        navDev: "خدمات التطوير", 
-        navSec: "الحماية والأمان", 
-        navSet: "الإعدادات",
+        // 👇 نصوص الأزرار المتغيرة
+        heroBtnLogin: "دخول المنصة",
+        heroBtnDash: "الذهاب للوحة التحكم",
         
-        // واجهة الهيرو
-        heroTitle: "حلول رقمية من الجيل القادم", 
-        heroDesc: "أدوات ويب متقدمة، نماذج ذكاء اصطناعي مخصصة، وخدمات تطوير احترافية. مؤمنة بتشفير عسكري.", 
-        heroBtn: "الدخول للمنصة",
-        
-        // الإحصائيات
-        statUptime: "وقت التشغيل", 
-        statUsers: "مستخدم نشط", 
-        statSecure: "تشفير عالي",
-        
-        // الخدمات
+        statUptime: "وقت التشغيل", statUsers: "مستخدم نشط", statSecure: "تشفير عالي",
         servicesTitle: "خدماتنا الاحترافية",
-        cardWebTitle: "أدوات الويب", 
-        cardWebDesc: "محولات صيغ متقدمة، ضغط الأكواد، وتحليل SEO للمحترفين.",
-        cardAITitle: "حلول الذكاء", 
-        cardAIDesc: "توليد الصور، تحليل النصوص، والأتمتة المدعومة بالشبكات العصبية.",
-        cardDevTitle: "تطوير يدوي", 
-        cardDevDesc: "وظفنا لبناء تطبيقات ويب مخصصة، بوتات ديسكورد، وسكربتات.",
-        cardSecTitle: "حماية فولاذية", 
-        cardSecDesc: "حماية ضد DDoS، حقن SQL، وثغرات XSS. خصوصيتك أولويتنا.",
-        cardBotTitle: "بوتات ديسكورد", 
-        cardBotDesc: "بوتات مخصصة مع أنظمة الموسيقى، الإدارة، والاقتصاد.",
-        cardFastTitle: "أداء فائق السرعة", 
-        cardFastDesc: "محسن للسرعة. استجابة في أجزاء من الثانية عبر CDN عالمي.",
-        
-        // صفحة الدخول
-        loginTitle: "تسجيل دخول آمن",
-        googleBtn: "المتابعة باستخدام جوجل",
-        linkedinBtn: "المتابعة باستخدام لينكد إن",
-        githubBtn: "المتابعة باستخدام غيت هاب",
-        secureNote: "مصادقة آمنة عبر بروتوكول OAuth 2.0",
-        
-        // لوحة التحكم
-        profileTitle: "الملف الشخصي",
-        loading: "جاري تحميل البيانات...",
-        nameLabel: "الاسم المسجل",
-        emailLabel: "البريد الإلكتروني",
-        rankLabel: "الرتبة الحالية",
-        logout: "تسجيل الخروج",
-        
-        // التذييل
-        footerRights: "© 2025 Sky Data Inc. جميع الحقوق محفوظة.",
-        footerSec: "اتصال آمن • مشفر من الطرف للطرف"
+        cardWebTitle: "أدوات الويب", cardWebDesc: "محولات صيغ متقدمة وتحليل.",
+        cardAITitle: "حلول الذكاء", cardAIDesc: "توليد الصور وتحليل النصوص.",
+        cardDevTitle: "تطوير يدوي", cardDevDesc: "تطبيقات ويب وبوتات.",
+        cardSecTitle: "حماية فولاذية", cardSecDesc: "حماية ضد DDoS والهجمات.",
+        cardBotTitle: "بوتات ديسكورد", cardBotDesc: "بوتات مخصصة للإدارة.",
+        cardFastTitle: "أداء فائق السرعة", cardFastDesc: "استجابة فورية عبر CDN عالمي.",
+        loginTitle: "تسجيل دخول آمن", googleBtn: "المتابعة باستخدام جوجل", linkedinBtn: "المتابعة باستخدام لينكد إن", githubBtn: "المتابعة باستخدام غيت هاب", secureNote: "مصادقة آمنة عبر بروتوكول OAuth 2.0",
+        profileTitle: "الملف الشخصي", loading: "جاري تحميل البيانات...", nameLabel: "الاسم المسجل", emailLabel: "البريد الإلكتروني", rankLabel: "الرتبة الحالية", logout: "تسجيل الخروج",
+        footerRights: "© 2025 Sky Data Inc. جميع الحقوق محفوظة.", footerSec: "اتصال آمن • مشفر من الطرف للطرف"
     },
     ru: {
-        // Настройки и Cookie
-        settingsTitle: "Настройки языка", 
-        cookieTitle: "Протокол конфиденциальности", 
-        cookieText: "Мы используем передовые файлы cookie для оптимизации производительности системы и обеспечения безопасности.", 
-        cookieAccept: "Принять", 
-        cookieReject: "Отклонить", 
-        privacy: "Политика конфиденциальности", 
-        terms: "Условия использования",
+        settingsTitle: "Настройки языка", cookieTitle: "Протокол конфиденциальности", cookieText: "Мы используем файлы cookie.", cookieAccept: "Принять", cookieReject: "Отклонить", privacy: "Политика конфиденциальности", terms: "Условия использования",
+        navHome: "Главная", navDash: "Панель", navTools: "Веб-инструменты", navAI: "AI Сервисы", navDev: "Разработка", navSec: "Безопасность", navSet: "Настройки",
+        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Передовые веб-инструменты и AI модели.", 
         
-        // Навигация
-        navHome: "Главная", 
-        navDash: "Панель", 
-        navTools: "Веб-инструменты", 
-        navAI: "AI Сервисы", 
-        navDev: "Разработка", 
-        navSec: "Безопасность", 
-        navSet: "Настройки",
+        // 👇 نصوص الأزرار المتغيرة
+        heroBtnLogin: "Войти",
+        heroBtnDash: "В панель управления",
         
-        // Hero
-        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ НОВОГО ПОКОЛЕНИЯ", 
-        heroDesc: "Передовые веб-инструменты, пользовательские AI модели и профессиональная разработка. Защищено военным шифрованием.", 
-        heroBtn: "Войти в консоль",
-        
-        // Статистика
-        statUptime: "Аптайм", 
-        statUsers: "Активные пользователи", 
-        statSecure: "Шифрование",
-        
-        // Сервисы
-        servicesTitle: "Профессиональные услуги",
-        cardWebTitle: "Веб-инструменты", 
-        cardWebDesc: "Конвертеры форматов, минификация кода и SEO анализ.",
-        cardAITitle: "AI Решения", 
-        cardAIDesc: "Генерация изображений, анализ текста и автоматизация на нейросетях.",
-        cardDevTitle: "Ручная разработка", 
-        cardDevDesc: "Создание кастомных веб-приложений, ботов Discord и скриптов.",
-        cardSecTitle: "Железная защита", 
-        cardSecDesc: "Защита от DDoS, SQL Injection и XSS. Конфиденциальность превыше всего.",
-        cardBotTitle: "Discord Боты", 
-        cardBotDesc: "Кастомные боты с системами музыки, модерации и экономики.",
-        cardFastTitle: "Быстрая скорость", 
-        cardFastDesc: "Оптимизировано для скорости. Глобальный CDN.",
-        
-        // Вход
-        loginTitle: "Безопасный вход",
-        googleBtn: "Войти через Google",
-        linkedinBtn: "Войти через LinkedIn",
-        githubBtn: "Войти через GitHub",
-        secureNote: "Авторизация через OAuth 2.0",
-        
-        // Профиль
-        profileTitle: "Профиль пользователя",
-        loading: "Загрузка профиля...",
-        nameLabel: "ИМЯ",
-        emailLabel: "EMAIL",
-        rankLabel: "РАНГ",
-        logout: "Выйти из системы",
-        
-        // Футер
-        footerRights: "© 2025 Sky Data Inc. Все права защищены.",
-        footerSec: "Безопасное соединение • Сквозное шифрование"
+        statUptime: "Аптайм", statUsers: "Юзеры", statSecure: "Шифрование",
+        servicesTitle: "Услуги",
+        cardWebTitle: "Веб-инструменты", cardWebDesc: "Конвертеры и анализ.",
+        cardAITitle: "AI Решения", cardAIDesc: "Генерация и авто.",
+        cardDevTitle: "Разработка", cardDevDesc: "Веб-аппы и боты.",
+        cardSecTitle: "Защита", cardSecDesc: "От DDoS и XSS.",
+        cardBotTitle: "Discord Боты", cardBotDesc: "Музыка и модерация.",
+        cardFastTitle: "Скорость", cardFastDesc: "Глобальный CDN.",
+        loginTitle: "Вход", googleBtn: "Войти через Google", linkedinBtn: "Войти через LinkedIn", githubBtn: "Войти через GitHub", secureNote: "OAuth 2.0",
+        profileTitle: "Профиль", loading: "Загрузка...", nameLabel: "ИМЯ", emailLabel: "EMAIL", rankLabel: "РАНГ", logout: "Выйти",
+        footerRights: "© 2025 Sky Data Inc.", footerSec: "Безопасное соединение"
     }
 };
 
@@ -363,9 +226,6 @@ window.changeLanguage = function(lang) {
     if(modal) modal.style.display = 'none';
 };
 
-// ==========================================
-// 4. Cookie Logic (Corrected)
-// ==========================================
 window.handleCookieChoice = function(choice) {
     const banner = document.getElementById('cookieBanner');
     banner.classList.remove('visible'); 
@@ -376,35 +236,18 @@ window.handleCookieChoice = function(choice) {
 function checkCookieStatus() {
     const consent = localStorage.getItem('skydata_cookie_consent');
     const banner = document.getElementById('cookieBanner');
-    
-    if (consent) {
-        // إذا كان هناك قرار، لا تظهر البانر أبداً
-        if (banner) banner.style.display = 'none';
-    } else {
-        // إذا لم يكن هناك قرار، أظهره
-        if (banner) {
-            banner.style.display = 'flex';
-            setTimeout(() => { banner.classList.add('visible'); }, 1500);
-        }
-    }
+    if (consent) { if (banner) banner.style.display = 'none'; } 
+    else { if (banner) { banner.style.display = 'flex'; setTimeout(() => { banner.classList.add('visible'); }, 1500); } }
 }
 
-// ==========================================
-// 5. OneSignal & Init
-// ==========================================
 function initNotifications() {
     const script = document.createElement('script');
     script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
     script.defer = true;
     document.head.appendChild(script);
-
     window.OneSignalDeferred = window.OneSignalDeferred || [];
     window.OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-            appId: "201dc615-587a-4e1c-a979-8b9d80667386",
-            notifyButton: { enable: false },
-            allowLocalhostAsSecureOrigin: true,
-        });
+        await OneSignal.init({ appId: "201dc615-587a-4e1c-a979-8b9d80667386", notifyButton: { enable: false }, allowLocalhostAsSecureOrigin: true });
     });
 }
 
@@ -413,10 +256,7 @@ function initNotifications() {
         injectUI();
         const savedLang = localStorage.getItem('skydata_lang') || 'en';
         window.changeLanguage(savedLang);
-        
-        // تشغيل التحقق من الكوكيز
         checkCookieStatus();
-        
         initNotifications();
     });
 })();

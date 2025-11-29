@@ -1,99 +1,105 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Sky Data Menu</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-      body { background: #f0f2f5; margin: 0; padding: 20px; min-height: 100vh; display: flex; justify-content: center; }
-      
-      .card { 
-          background: white; padding: 40px; border-radius: 20px; 
-          box-shadow: 0 10px 40px rgba(0,0,0,0.05); width: 100%; max-width: 450px; 
-          text-align: center; margin-top: 80px; position: relative; height: fit-content;
-      }
-      
-      h1 { color: #333; margin-bottom: 30px; }
-      
-      .info-row { 
-          background: #f9f9f9; padding: 15px; margin: 15px 0; border-radius: 12px; 
-          text-align: left; border-inline-start: 4px solid #4e54c8; /* يدعم العربي والإنجليزي تلقائياً */
-      }
-      .info-row b { color: #555; display: block; font-size: 12px; text-transform: uppercase; margin-bottom: 5px; opacity: 0.7; }
-      .info-row span { color: #333; font-weight: 600; font-size: 18px; }
-
-      button.logout { 
-          background: #ff4b4b; color: white; border: none; padding: 15px 30px; 
-          border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; 
-          font-weight: bold; font-size: 16px; transition: 0.3s; 
-          box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2);
-      }
-      button.logout:hover { background: #d43f3f; transform: translateY(-2px); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sky Data | Future Digital Solutions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* ... انسخ نفس ستايل الملف السابق ... */
+        /* إضافة ستايل لرسالة الترحيب بالمستخدم */
+        .user-welcome {
+            font-size: 16px; color: var(--accent); margin-bottom: 10px;
+            font-weight: bold; text-transform: uppercase; letter-spacing: 2px;
+            display: none; /* مخفي افتراضياً */
+            animation: slideUp 0.5s ease forwards;
+        }
+    </style>
 </head>
 <body>
 
-<div class="card">
-    <h1 data-i18n="profileTitle">User Profile</h1>
-    
-    <div id="loader" style="color: #666;" data-i18n="loading">Checking Security...</div>
-    
-    <div id="content" style="display:none;">
-        <div class="info-row">
-            <b data-i18n="nameLabel">NAME</b>
-            <span id="name"></span>
-        </div>
-        
-        <div class="info-row">
-            <b data-i18n="emailLabel">EMAIL</b>
-            <span id="email"></span>
-        </div>
-        
-        <div class="info-row" style="border-inline-start-color: #00c853;">
-            <b data-i18n="rankLabel">RANK</b>
-            <span id="rank" style="color: #00c853;"></span>
-        </div>
-        
-        <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
+    <canvas id="canvas-bg"></canvas>
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div class="toggle-menu" onclick="toggleSidebar()">
+        <i class="fas fa-bars"></i>
     </div>
-</div>
 
-<script type="module">
-  import { supabase } from './supabase.js';
-  import './system.js'; 
+    <nav class="sidebar" id="mySidebar">
+        <div class="logo-icon"><i class="fas fa-infinity"></i></div>
+        <a href="#" class="nav-item active"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
+        <a href="login.html" class="nav-item" id="navDashLink"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
+        <a href="#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
+        <div style="flex-grow: 1;"></div>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
+    </nav>
 
-  async function loadProfile() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) { window.location.href = "login.html"; return; }
+    <div class="main-content">
+        <section class="hero">
+            <div id="userWelcomeMsg" class="user-welcome"></div>
+            
+            <h1 data-i18n="heroTitle">NEXT GEN<br>DIGITAL SOLUTIONS</h1>
+            <p data-i18n="heroDesc">Advanced Web Tools, Custom AI Models, and Professional Development Services.</p>
+            
+            <a href="login.html" id="heroBtn" class="cta-btn">
+                <span id="heroBtnText" data-i18n="heroBtnLogin">Access Console</span> 
+                <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+            </a>
+        </section>
 
-      let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
-      
-      document.getElementById("loader").style.display = "none";
-      document.getElementById("content").style.display = "block";
-      
-      const finalEmail = user.email;
-      let finalName = user.user_metadata.full_name || user.user_metadata.name || profile?.name;
-      if (!finalName || finalName === "User") finalName = finalEmail.split('@')[0];
-      const finalRank = profile?.rank || "free";
+        <div class="stats">...</div>
+        <section class="services">...</section>
+        <footer>...</footer>
+    </div>
 
-      document.getElementById("name").textContent = finalName;
-      document.getElementById("email").textContent = finalEmail;
-      
-      const rankElement = document.getElementById("rank");
-      rankElement.innerHTML = finalRank.toUpperCase();
-      if (finalRank === 'pro') {
-          rankElement.innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
-      }
-  }
+    <script type="module" src="./system.js"></script>
 
-  document.getElementById("logoutBtn").onclick = async () => {
-      const { error } = await supabase.auth.signOut();
-      if (!error) window.location.href = "login.html";
-  };
-  loadProfile();
-</script>
+    <script type="module">
+        import { supabase } from "./supabase.js";
 
+        // التحقق من حالة المستخدم
+        async function checkAuthState() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                console.log("User is logged in ✅");
+                const userEmail = session.user.email;
+                const userName = session.user.user_metadata.full_name || userEmail.split('@')[0];
+
+                // 1. تغيير الزر الرئيسي
+                const heroBtn = document.getElementById('heroBtn');
+                const heroBtnText = document.getElementById('heroBtnText');
+                
+                heroBtn.href = "menu.html"; // توجيه مباشر للوحة التحكم
+                // نغير مفتاح الترجمة ليظهر النص المناسب (Go to Dashboard)
+                heroBtnText.setAttribute('data-i18n', 'heroBtnDash');
+                
+                // 2. تغيير رابط القائمة الجانبية
+                document.getElementById('navDashLink').href = "menu.html";
+
+                // 3. إظهار رسالة ترحيب
+                const welcomeDiv = document.getElementById('userWelcomeMsg');
+                welcomeDiv.style.display = "block";
+                // نستخدم InnerHTML لدمج النص المترجم مع الاسم
+                // ملاحظة: الترجمة هنا تحتاج تحديث يدوي لأن الاسم متغير
+                // لكن سنعتمد على الإنجليزية كقاعدة أو نستخدم دالة ترجمة بسيطة
+                const savedLang = localStorage.getItem('skydata_lang') || 'en';
+                const welcomeText = savedLang === 'ar' ? 'أهلاً بك، ' : (savedLang === 'ru' ? 'С возвращением, ' : 'Welcome back, ');
+                welcomeDiv.textContent = welcomeText + userName;
+                
+                // تحديث النصوص مرة أخرى لضمان تطبيق الترجمة الجديدة على الزر
+                if(window.changeLanguage) window.changeLanguage(savedLang);
+            }
+        }
+
+        checkAuthState();
+
+        // Canvas Animation
+        // ... (نفس كود الأنيميشن السابق) ...
+    </script>
 </body>
 </html>

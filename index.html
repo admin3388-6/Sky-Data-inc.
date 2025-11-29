@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sky Data | Future Digital Solutions</title>
-    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
@@ -12,126 +11,40 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root {
-            --bg-dark: #0a0a12;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --primary: #4e54c8;
-            --accent: #00d2ff;
-            --text: #ffffff;
-            --text-muted: #8b9bb4;
-        }
-
+        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-        
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text);
-            overflow-x: hidden;
-        }
-
+        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
-        /* --- Sidebar & Overlay System --- */
-        .sidebar-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 999;
-            display: none; opacity: 0; transition: 0.3s;
-            backdrop-filter: blur(3px);
-        }
+        /* Sidebar */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
         .sidebar-overlay.active { display: block; opacity: 1; }
-
-        .sidebar {
-            position: fixed; left: 0; top: 0; height: 100vh; width: 80px;
-            background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px);
-            border-right: 1px solid var(--border);
-            display: flex; flex-direction: column; align-items: center; padding: 30px 0;
-            transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-            z-index: 1000; overflow: hidden; white-space: nowrap;
-        }
-        
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
         .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
-        
-        .logo-icon { 
-            font-size: 28px; color: var(--accent); margin-bottom: 50px; 
-            filter: drop-shadow(0 0 10px var(--accent)); align-self: center; 
-            transition: 0.3s;
-        }
+        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
         .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
-        
-        .nav-item {
-            display: flex; align-items: center; gap: 20px;
-            color: var(--text-muted); text-decoration: none;
-            padding: 15px 12px; margin: 5px 0; width: 100%;
-            transition: 0.3s; border-radius: 12px;
-        }
+        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
         .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
-        
-        .nav-item span { 
-            opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; 
-            pointer-events: none;
-        }
-        
-        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { 
-            opacity: 1; transform: translateX(0); 
-            pointer-events: auto; 
-        }
-
-        .nav-item:hover, .nav-item.active { 
-            color: var(--text); background: var(--glass); 
-            border: 1px solid var(--border);
-            box-shadow: 0 0 15px rgba(78, 84, 200, 0.2);
-        }
+        .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
+        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
         .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
-        /* --- Main Content --- */
+        /* Main Content */
         .main-content { margin-left: 80px; padding: 0; transition: 0.4s; }
-
-        .hero {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            flex-direction: column; text-align: center; padding: 20px;
-            background: radial-gradient(circle at 50% 50%, rgba(78, 84, 200, 0.15), transparent 60%);
-        }
-        .hero h1 {
-            font-size: 4rem; line-height: 1.1; margin-bottom: 20px;
-            background: linear-gradient(to right, #fff, #b3b3b3);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            animation: slideUp 1s ease forwards;
-        }
-        .hero p {
-            font-size: 1.2rem; color: var(--text-muted); max-width: 600px;
-            margin-bottom: 40px; animation: slideUp 1.2s ease forwards;
-        }
-        .cta-btn {
-            padding: 16px 40px; font-size: 18px; font-weight: bold;
-            background: linear-gradient(135deg, var(--primary), var(--accent));
-            border: none; border-radius: 50px; color: white; cursor: pointer;
-            box-shadow: 0 10px 30px rgba(78, 84, 200, 0.4);
-            transition: 0.4s; text-decoration: none; display: inline-block;
-            animation: slideUp 1.4s ease forwards; position: relative; overflow: hidden;
-        }
+        .hero { height: 100vh; display: flex; align-items: center; justify-content: center; flex-direction: column; text-align: center; padding: 20px; background: radial-gradient(circle at 50% 50%, rgba(78, 84, 200, 0.15), transparent 60%); }
+        .hero h1 { font-size: 4rem; line-height: 1.1; margin-bottom: 20px; background: linear-gradient(to right, #fff, #b3b3b3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; text-shadow: 0 10px 30px rgba(0,0,0,0.5); animation: slideUp 1s ease forwards; }
+        .hero p { font-size: 1.2rem; color: var(--text-muted); max-width: 600px; margin-bottom: 40px; animation: slideUp 1.2s ease forwards; }
+        .cta-btn { padding: 16px 40px; font-size: 18px; font-weight: bold; background: linear-gradient(135deg, var(--primary), var(--accent)); border: none; border-radius: 50px; color: white; cursor: pointer; box-shadow: 0 10px 30px rgba(78, 84, 200, 0.4); transition: 0.4s; text-decoration: none; display: inline-block; animation: slideUp 1.4s ease forwards; position: relative; overflow: hidden; }
         .cta-btn:hover { transform: translateY(-5px); box-shadow: 0 15px 40px rgba(0, 210, 255, 0.5); }
-        .cta-btn::after {
-            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
-            background: rgba(255,255,255,0.2); transform: rotate(45deg); animation: shine 3s infinite;
-        }
+        .cta-btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: rgba(255,255,255,0.2); transform: rotate(45deg); animation: shine 3s infinite; }
 
         .section-title { font-size: 2.5rem; margin-bottom: 50px; text-align: center; }
         .services { padding: 100px 20px; }
         .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; max-width: 1200px; margin: 0 auto; }
-
-        .card {
-            background: var(--glass); border: 1px solid var(--border);
-            padding: 40px; border-radius: 24px; position: relative; overflow: hidden;
-            transition: 0.4s; backdrop-filter: blur(10px);
-        }
+        .card { background: var(--glass); border: 1px solid var(--border); padding: 40px; border-radius: 24px; position: relative; overflow: hidden; transition: 0.4s; backdrop-filter: blur(10px); }
         .card:hover { transform: translateY(-10px); border-color: rgba(255,255,255,0.2); }
-        .card::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent);
-            opacity: 0; transition: 0.4s;
-        }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,255,255,0.1), transparent); opacity: 0; transition: 0.4s; }
         .card:hover::before { opacity: 1; }
         .card i { font-size: 40px; color: var(--accent); margin-bottom: 20px; }
         .card h3 { font-size: 1.5rem; margin-bottom: 15px; }
@@ -143,33 +56,20 @@
         .stat-label { color: var(--text-muted); text-transform: uppercase; letter-spacing: 2px; font-size: 12px; }
 
         footer { padding: 50px; text-align: center; border-top: 1px solid var(--border); margin-top: 100px; color: var(--text-muted); }
-
-        /* كود التحقق الخاص بـ OneSignal */
-        .verification-code {
-            margin-top: 25px;
-            display: inline-block;
-            padding: 8px 20px;
-            border: 1px dashed var(--border);
-            border-radius: 50px;
-            font-size: 13px;
-            background: rgba(255,255,255,0.03);
-        }
+        .verification-code { margin-top: 25px; display: inline-block; padding: 8px 20px; border: 1px dashed var(--border); border-radius: 50px; font-size: 13px; background: rgba(255,255,255,0.03); }
         
+        /* User Welcome Msg */
+        .user-welcome { display: none; font-size: 16px; color: var(--accent); margin-bottom: 15px; font-weight: bold; letter-spacing: 1px; animation: slideUp 0.5s ease forwards; }
+
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
         @keyframes shine { 0% { left: -100%; } 100% { left: 100%; } }
 
-        /* Responsive Mobile */
         @media (max-width: 768px) {
             .sidebar { width: 0; padding: 0; border: none; }
             .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
             .main-content { margin-left: 0; }
             .hero h1 { font-size: 2.5rem; }
-            .toggle-menu { 
-                display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; 
-                font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); 
-                padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px);
-                border: 1px solid var(--border);
-            }
+            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
         }
         @media (min-width: 769px) { .toggle-menu { display: none; } }
     </style>
@@ -177,62 +77,40 @@
 <body>
 
     <canvas id="canvas-bg"></canvas>
-
     <div class="sidebar-overlay" onclick="closeSidebar()"></div>
-
     <div class="toggle-menu" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </div>
 
     <nav class="sidebar" id="mySidebar">
         <div class="logo-icon"><i class="fas fa-infinity"></i></div>
-        
-        <a href="#" class="nav-item active">
-            <i class="fas fa-home"></i> <span data-i18n="navHome">Home</span>
-        </a>
-        <a href="login.html" class="nav-item">
-            <i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span>
-        </a>
-        <a href="#tools" class="nav-item">
-            <i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span>
-        </a>
-        <a href="#ai" class="nav-item">
-            <i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span>
-        </a>
-        <a href="#dev" class="nav-item">
-            <i class="fas fa-code"></i> <span data-i18n="navDev">Dev Services</span>
-        </a>
-        <a href="#security" class="nav-item">
-            <i class="fas fa-shield-alt"></i> <span data-i18n="navSec">Security</span>
-        </a>
-        
+        <a href="#" class="nav-item active"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
+        <a href="login.html" class="nav-item" id="navDashLink"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
+        <a href="#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
+        <a href="#ai" class="nav-item"><i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span></a>
+        <a href="#dev" class="nav-item"><i class="fas fa-code"></i> <span data-i18n="navDev">Dev Services</span></a>
+        <a href="#security" class="nav-item"><i class="fas fa-shield-alt"></i> <span data-i18n="navSec">Security</span></a>
         <div style="flex-grow: 1;"></div>
-        
-        <a href="#" class="nav-item">
-            <i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span>
-        </a>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
     </nav>
 
     <div class="main-content">
         <section class="hero">
+            <div id="welcomeMsg" class="user-welcome"></div>
+            
             <h1 data-i18n="heroTitle">NEXT GEN<br>DIGITAL SOLUTIONS</h1>
             <p data-i18n="heroDesc">Advanced Web Tools, Custom AI Models, and Professional Development Services.</p>
-            <a href="login.html" class="cta-btn"><span data-i18n="heroBtn">Access Console</span> <i class="fas fa-arrow-right" style="margin-left: 10px;"></i></a>
+            
+            <a href="login.html" id="heroBtn" class="cta-btn">
+                <span id="heroBtnText" data-i18n="heroBtnLogin">Access Console</span> 
+                <i class="fas fa-arrow-right" style="margin-left: 10px;"></i>
+            </a>
         </section>
 
         <div class="stats">
-            <div class="stat-item">
-                <span class="stat-num">99.9%</span>
-                <span class="stat-label" data-i18n="statUptime">Uptime</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-num">10K+</span>
-                <span class="stat-label" data-i18n="statUsers">Users</span>
-            </div>
-            <div class="stat-item">
-                <span class="stat-num">Secure</span>
-                <span class="stat-label" data-i18n="statSecure">AES-256</span>
-            </div>
+            <div class="stat-item"><span class="stat-num">99.9%</span><span class="stat-label" data-i18n="statUptime">Uptime</span></div>
+            <div class="stat-item"><span class="stat-num">10K+</span><span class="stat-label" data-i18n="statUsers">Users</span></div>
+            <div class="stat-item"><span class="stat-num">Secure</span><span class="stat-label" data-i18n="statSecure">AES-256</span></div>
         </div>
 
         <section class="services" id="tools">
@@ -250,70 +128,76 @@
         <footer>
             <p data-i18n="footerRights">&copy; 2025 Sky Data Inc.</p>
             <p style="font-size: 12px; margin-top: 10px; opacity: 0.5;" data-i18n="footerSec">Secured Connection</p>
-            
-            <div class="verification-code">
-                <span style="opacity:0.7">OneSignal Verification:</span> 
-                <span style="color: var(--accent); font-weight: bold; margin-left: 5px;">OS7K3L</span>
-            </div>
+            <div class="verification-code"><span style="opacity:0.7">OneSignal:</span> <span style="color: var(--accent); font-weight: bold; margin-left: 5px;">OS7K3L</span></div>
         </footer>
-
     </div>
 
     <script type="module" src="./system.js"></script>
 
-    <script>
-        function toggleSidebar() {
-            document.getElementById('mySidebar').classList.toggle('open');
-            document.querySelector('.sidebar-overlay').classList.toggle('active');
-        }
+    <script type="module">
+        import { supabase } from "./supabase.js";
 
-        function closeSidebar() {
-            document.getElementById('mySidebar').classList.remove('open');
-            document.querySelector('.sidebar-overlay').classList.remove('active');
-        }
+        // وظائف القائمة الجانبية
+        window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
+        window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
+        // أنيميشن الخلفية
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
+        let width, height, particles = [];
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        resize();
-
+        window.addEventListener('resize', resize); resize();
         class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-            draw() {
-                ctx.fillStyle = 'rgba(140, 155, 255, 0.5)';
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-            }
+            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
+            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
+            draw() { ctx.fillStyle='rgba(140,155,255,0.5)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
         }
-        for (let i = 0; i < 80; i++) particles.push(new Particle());
-
+        for(let i=0;i<80;i++) particles.push(new Particle());
         function animate() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach((p, index) => {
+            ctx.clearRect(0,0,width,height);
+            particles.forEach((p,i)=>{
                 p.update(); p.draw();
-                for (let j = index + 1; j < particles.length; j++) {
-                    const p2 = particles[j];
-                    const dist = Math.hypot(p.x - p2.x, p.y - p2.y);
-                    if (dist < 100) {
-                        ctx.strokeStyle = `rgba(140, 155, 255, ${0.1 - dist/1000})`;
-                        ctx.lineWidth = 0.5; ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
-                    }
+                for(let j=i+1;j<particles.length;j++){
+                    const p2=particles[j], d=Math.hypot(p.x-p2.x,p.y-p2.y);
+                    if(d<100){ ctx.strokeStyle=`rgba(140,155,255,${0.1-d/1000})`; ctx.lineWidth=0.5; ctx.beginPath(); ctx.moveTo(p.x,p.y); ctx.lineTo(p2.x,p2.y); ctx.stroke(); }
                 }
             });
             requestAnimationFrame(animate);
         }
         animate();
+
+        // 🟢 المنطق الذكي: فحص حالة المستخدم
+        async function checkAuthState() {
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (session) {
+                console.log("User Logged In ✅");
+                const userName = session.user.user_metadata.full_name || "User";
+
+                // 1. تغيير الزر الرئيسي
+                const heroBtn = document.getElementById('heroBtn');
+                const heroBtnText = document.getElementById('heroBtnText');
+                
+                heroBtn.href = "menu.html"; 
+                heroBtnText.setAttribute('data-i18n', 'heroBtnDash'); // تغيير مفتاح الترجمة
+                
+                // 2. تغيير رابط القائمة
+                document.getElementById('navDashLink').href = "menu.html";
+
+                // 3. إظهار رسالة الترحيب
+                const welcomeDiv = document.getElementById('welcomeMsg');
+                welcomeDiv.style.display = "block";
+                
+                // تحديد نص الترحيب بناءً على اللغة
+                const currentLang = localStorage.getItem('skydata_lang') || 'en';
+                const prefix = currentLang === 'ar' ? 'أهلاً بك، ' : (currentLang === 'ru' ? 'С возвращением, ' : 'Welcome back, ');
+                welcomeDiv.textContent = prefix + userName;
+
+                // تحديث الترجمات لضمان ظهور النص الجديد فوراً
+                if (window.changeLanguage) window.changeLanguage(currentLang);
+            }
+        }
+        checkAuthState();
     </script>
 </body>
 </html>

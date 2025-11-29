@@ -5,112 +5,49 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sky Data</title>
     
+    <script type="module">
+        import { supabase } from "./supabase.js";
+        async function checkSession() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                // إذا كان مسجلاً، اذهب للوحة التحكم ولا تسجل في التاريخ
+                window.location.replace("menu.html");
+            }
+        }
+        checkSession();
+    </script>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <style>
-        :root {
-            --bg-dark: #0a0a12;
-            --glass: rgba(255, 255, 255, 0.03);
-            --border: rgba(255, 255, 255, 0.08);
-            --primary: #4e54c8;
-            --accent: #00d2ff;
-            --text: #ffffff;
-            --text-muted: #8b9bb4;
-        }
-
+        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        
-        body {
-            background-color: var(--bg-dark);
-            color: var(--text);
-            height: 100vh;
-            display: flex; justify-content: center; align-items: center;
-            overflow: hidden;
-        }
-
+        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
-
-        .login-card {
-            background: rgba(10, 10, 18, 0.8);
-            backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
-            padding: 50px;
-            border-radius: 24px;
-            width: 90%; max-width: 400px;
-            text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            animation: slideUp 0.8s ease forwards;
-        }
-
-        .login-card h2 {
-            font-size: 2rem; margin-bottom: 30px;
-            background: linear-gradient(to right, #fff, #b3b3b3);
-            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
-        }
-
-        .social-btn {
-            width: 100%;
-            height: 55px; /* ✅ تثبيت الارتفاع لتوحيد الحجم */
-            margin-bottom: 15px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 16px;
-            cursor: not-allowed; /* معطل افتراضياً */
-            display: flex; align-items: center; justify-content: center; gap: 12px;
-            transition: 0.3s; color: white; opacity: 0.5;
-            position: relative; overflow: hidden;
-            white-space: nowrap; /* ✅ منع النص من الالتفاف لسطرين */
-        }
-
-        /* ستايل عند التفعيل */
+        .login-card { background: rgba(10, 10, 18, 0.8); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 50px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.8s ease forwards; }
+        .login-card h2 { font-size: 2rem; margin-bottom: 30px; background: linear-gradient(to right, #fff, #b3b3b3); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .social-btn { width: 100%; height: 55px; margin-bottom: 15px; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; color: white; opacity: 0.5; position: relative; overflow: hidden; white-space: nowrap; }
         .social-btn.active { cursor: pointer; opacity: 1; }
         .social-btn.active:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-
-        .btn-google { background: #db4437; }
-        .btn-linkedin { background: #0077b5; }
-        .btn-github { background: #24292e; } 
-        .btn-github:hover { background: #000; }
-
-        .secure-badge {
-            margin-top: 30px; font-size: 12px; color: var(--text-muted);
-            display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.7;
-        }
-
-        /* حاوية الكابتشا */
+        .btn-google { background: #db4437; } .btn-linkedin { background: #0077b5; } .btn-github { background: #24292e; } .btn-github:hover { background: #000; }
+        .secure-badge { margin-top: 30px; font-size: 12px; color: var(--text-muted); display: flex; align-items: center; justify-content: center; gap: 8px; opacity: 0.7; }
         .captcha-container { margin: 25px 0; display: flex; justify-content: center; min-height: 65px; }
-
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
     <script>
-        // متغير عالمي لحفظ التوكن
         window.cfToken = null;
-
-        // دالة النجاح التي يستدعيها Cloudflare
         function onTurnstileSuccess(token) {
-            console.log("Turnstile Verified ✅");
-            window.cfToken = token; // حفظ التوكن
-            
-            // تفعيل جميع الأزرار
-            const buttons = document.querySelectorAll('.social-btn');
-            buttons.forEach(btn => {
-                btn.disabled = false;
-                btn.classList.add('active');
-                btn.style.filter = "none";
-            });
+            console.log("Verified ✅");
+            window.cfToken = token;
+            document.querySelectorAll('.social-btn').forEach(btn => { btn.disabled = false; btn.classList.add('active'); });
         }
-
-        // دالة الخطأ
-        function onTurnstileError() {
-            alert("Verification failed. Please refresh.");
-        }
+        function onTurnstileError() { alert("Verification failed."); }
     </script>
 </head>
 <body>
@@ -118,34 +55,18 @@
     <canvas id="canvas-bg"></canvas>
 
     <div class="login-card">
-        <div style="font-size: 40px; color: var(--accent); margin-bottom: 20px;">
-            <i class="fas fa-fingerprint"></i>
-        </div>
+        <div style="font-size: 40px; color: var(--accent); margin-bottom: 20px;"><i class="fas fa-fingerprint"></i></div>
         <h2 data-i18n="loginTitle">Secure Login</h2>
 
         <div class="captcha-container">
-            <div class="cf-turnstile" 
-                 data-sitekey="0x4AAAAAACDn9I1izJuNt20l" 
-                 data-theme="dark"
-                 data-callback="onTurnstileSuccess"
-                 data-error-callback="onTurnstileError"></div>
+            <div class="cf-turnstile" data-sitekey="0x4AAAAAACDn9I1izJuNt20l" data-theme="dark" data-callback="onTurnstileSuccess" data-error-callback="onTurnstileError"></div>
         </div>
 
-        <button id="googleBtn" class="social-btn btn-google" disabled>
-            <i class="fab fa-google"></i> <span data-i18n="googleBtn">Continue with Google</span>
-        </button>
+        <button id="googleBtn" class="social-btn btn-google" disabled><i class="fab fa-google"></i> <span data-i18n="googleBtn">Continue with Google</span></button>
+        <button id="linkedinBtn" class="social-btn btn-linkedin" disabled><i class="fab fa-linkedin"></i> <span data-i18n="linkedinBtn">Continue with LinkedIn</span></button>
+        <button id="githubBtn" class="social-btn btn-github" disabled><i class="fab fa-github"></i> <span data-i18n="githubBtn">Continue with GitHub</span></button>
 
-        <button id="linkedinBtn" class="social-btn btn-linkedin" disabled>
-            <i class="fab fa-linkedin"></i> <span data-i18n="linkedinBtn">Continue with LinkedIn</span>
-        </button>
-
-        <button id="githubBtn" class="social-btn btn-github" disabled>
-            <i class="fab fa-github"></i> <span data-i18n="githubBtn">Continue with GitHub</span>
-        </button>
-
-        <div class="secure-badge">
-            <i class="fas fa-shield-alt"></i> <span data-i18n="secureNote">Authenticated via OAuth 2.0</span>
-        </div>
+        <div class="secure-badge"><i class="fas fa-shield-alt"></i> <span data-i18n="secureNote">Authenticated via OAuth 2.0</span></div>
     </div>
 
     <script type="module" src="./system.js"></script>
@@ -154,31 +75,10 @@
         import { supabase } from "./supabase.js";
 
         async function handleLogin(provider) {
-            // التحقق من التوكن العالمي الذي حفظناه في السكربت العادي بالأعلى
-            if (!window.cfToken) {
-                alert("Please verify you are human first!");
-                return;
-            }
-
-            // التحقق النهائي من السيرفر
-            const verify = await fetch("/api/verify-turnstile", { 
-                method: "POST", 
-                headers: { "Content-Type": "application/json" }, 
-                body: JSON.stringify({ token: window.cfToken }) 
-            }).then(r => r.json());
-
-            if (!verify.success) {
-                alert("Security verification failed. Please refresh.");
-                if(window.turnstile) turnstile.reset();
-                return;
-            }
-
-            // التوجيه للدخول
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: provider,
-                options: { redirectTo: window.location.origin + "/menu.html" }
-            });
-
+            if (!window.cfToken) { alert("Please verify you are human!"); return; }
+            const verify = await fetch("/api/verify-turnstile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: window.cfToken }) }).then(r => r.json());
+            if (!verify.success) { alert("Security fail. Refresh."); if(window.turnstile) turnstile.reset(); return; }
+            const { error } = await supabase.auth.signInWithOAuth({ provider: provider, options: { redirectTo: window.location.origin + "/menu.html" } });
             if (error) alert(error.message);
         }
 
@@ -186,38 +86,19 @@
         document.getElementById("linkedinBtn").onclick = () => handleLogin("linkedin_oidc");
         document.getElementById("githubBtn").onclick = () => handleLogin("github");
 
-        // --- Canvas Animation ---
+        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
-        let width, height;
-        let particles = [];
-
+        let width, height, particles = [];
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize);
-        resize();
-
+        window.addEventListener('resize', resize); resize();
         class Particle {
-            constructor() {
-                this.x = Math.random() * width; this.y = Math.random() * height;
-                this.vx = (Math.random() - 0.5) * 0.5; this.vy = (Math.random() - 0.5) * 0.5; this.size = Math.random() * 2;
-            }
-            update() {
-                this.x += this.vx; this.y += this.vy;
-                if (this.x < 0 || this.x > width) this.vx *= -1;
-                if (this.y < 0 || this.y > height) this.vy *= -1;
-            }
-            draw() {
-                ctx.fillStyle = 'rgba(140, 155, 255, 0.3)';
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
-            }
+            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
+            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
+            draw() { ctx.fillStyle='rgba(140,155,255,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
         }
-        for (let i = 0; i < 60; i++) particles.push(new Particle());
-
-        function animate() {
-            ctx.clearRect(0, 0, width, height);
-            particles.forEach(p => { p.update(); p.draw(); });
-            requestAnimationFrame(animate);
-        }
+        for(let i=0;i<60;i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{p.update();p.draw();}); requestAnimationFrame(animate); }
         animate();
     </script>
 </body>
