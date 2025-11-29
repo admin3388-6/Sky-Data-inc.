@@ -1,58 +1,54 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard - Sky Data</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <style>
-        /* نفس ستايل الاندكس لضمان التناسق */
-        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+  <meta charset="UTF-8">
+  <title>Dashboard - Sky Data</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+      /* نفس ستايل الاندكس لضمان التناسق التام */
+      :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
+      * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
+      body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
+      #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
-        /* Sidebar (Same as Index) */
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
-        .sidebar-overlay.active { display: block; opacity: 1; }
-        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
-        .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
-        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
-        .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
-        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
-        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
-        .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
-        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
-        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
-        .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
+      /* Sidebar (Same as Index) */
+      .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
+      .sidebar-overlay.active { display: block; opacity: 1; }
+      .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
+      .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
+      .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
+      .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
+      .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
+      .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
+      .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
+      .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
+      .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
+      .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
-        .main-content { margin-left: 80px; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
-        
-        /* Dashboard Card */
-        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 500px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; }
-        h1 { color: white; margin-bottom: 30px; font-weight: 300; }
-        
-        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; }
-        .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
-        .info-row span { color: white; font-weight: 600; font-size: 16px; }
-        
-        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
-        button.logout:hover { background: #d43f3f; transform: translateY(-2px); }
+      .main-content { margin-left: 80px; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+      
+      /* Dashboard Card */
+      .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); width: 100%; max-width: 500px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; }
+      h1 { color: white; margin-bottom: 30px; font-weight: 300; }
+      
+      .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; }
+      .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; }
+      .info-row span { color: white; font-weight: 600; font-size: 16px; }
+      
+      button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; cursor: pointer; width: 100%; margin-top: 30px; font-weight: bold; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
+      button.logout:hover { background: #d43f3f; transform: translateY(-2px); }
 
-        @media (max-width: 768px) {
-            .sidebar { width: 0; padding: 0; border: none; }
-            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
-            .main-content { margin-left: 0; }
-            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
-        }
-        @media (min-width: 769px) { .toggle-menu { display: none; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+      @media (max-width: 768px) {
+          .sidebar { width: 0; padding: 0; border: none; }
+          .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
+          .main-content { margin-left: 0; }
+          .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
+      }
+      @media (min-width: 769px) { .toggle-menu { display: none; } }
+      @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
 </head>
 <body>
 
@@ -135,7 +131,7 @@
         // Profile Logic
         async function loadProfile() {
             const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { window.location.replace("login.html"); return; } // Blocker
+            if (!user) { window.location.replace("login.html"); return; } // Blocker & Redirect
 
             let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
             
@@ -159,7 +155,8 @@
 
         document.getElementById("logoutBtn").onclick = async () => {
             const { error } = await supabase.auth.signOut();
-            if (!error) window.location.replace("login.html"); // Replace history
+            // استبدال الصفحة بـ login حتى لا يمكن العودة للداشبورد بزر الرجوع
+            if (!error) window.location.replace("login.html"); 
         };
         loadProfile();
     </script>

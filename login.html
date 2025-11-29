@@ -5,13 +5,28 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sky Data</title>
     
+    <style> body { display: none; } </style>
     <script type="module">
         import { supabase } from "./supabase.js";
-        async function checkSession() {
+        
+        async function checkAndRedirect() {
             const { data: { session } } = await supabase.auth.getSession();
-            if (session) window.location.replace("menu.html"); // Replace history to prevent back button loop
+            if (session) {
+                // إذا مسجل -> استبدل الرابط فوراً (لا تعد للخلف أبداً)
+                window.location.replace("menu.html");
+            } else {
+                // غير مسجل -> أظهر الصفحة الآن
+                document.body.style.display = "flex";
+            }
         }
-        checkSession();
+
+        // تشغيل التحقق عند التحميل
+        checkAndRedirect();
+
+        // 🔥 حماية إضافية ضد زر العودة (BFCache)
+        window.addEventListener('pageshow', (event) => {
+            if (event.persisted) checkAndRedirect();
+        });
     </script>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,47 +37,29 @@
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <style>
+        /* (نفس الستايلات السابقة تماماً) */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; position: relative; }
+        body { background-color: var(--bg-dark); color: var(--text); height: 100vh; justify-content: center; align-items: center; overflow: hidden; position: relative; } /* مسحنا display flex من هنا لأننا نتحكم به بالجافاسكربت */
+        
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
-
-        .login-card {
-            background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border);
-            padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: slideUp 0.8s ease forwards;
-        }
-
+        .login-card { background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: slideUp 0.8s ease forwards; }
         .fingerprint-icon { font-size: 50px; color: var(--accent); margin-bottom: 25px; filter: drop-shadow(0 0 15px rgba(0, 210, 255, 0.3)); }
-
-        .social-btn {
-            width: 100%; height: 55px; margin-bottom: 15px; border: none; border-radius: 12px;
-            font-weight: 600; font-size: 16px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px;
-            transition: 0.3s; color: white; opacity: 0.4; position: relative; overflow: hidden; white-space: nowrap; filter: grayscale(1);
-        }
+        .social-btn { width: 100%; height: 55px; margin-bottom: 15px; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px; transition: 0.3s; color: white; opacity: 0.4; position: relative; overflow: hidden; white-space: nowrap; filter: grayscale(1); }
         .social-btn.active { cursor: pointer; opacity: 1; filter: none; }
         .social-btn.active:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
-
         .btn-google { background: #db4437; } .btn-linkedin { background: #0077b5; } .btn-github { background: #24292e; } .btn-github:hover { background: #000; }
-
         .captcha-container { margin: 20px 0; display: flex; justify-content: center; min-height: 65px; }
-
-        /* Terms Checkbox */
         .terms-container { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; font-size: 13px; color: var(--text-muted); }
         .terms-container input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary); }
-        .terms-container a { color: var(--accent); text-decoration: none; }
-
-        /* Support Button */
         .support-btn { position: absolute; top: 20px; left: 20px; color: var(--text-muted); text-decoration: none; font-size: 14px; display: flex; align-items: center; gap: 5px; transition: 0.3s; }
         .support-btn:hover { color: var(--text); }
-
         @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
     <script>
         window.cfToken = null;
         window.isTermsChecked = false;
-
         function checkStatus() {
             const buttons = document.querySelectorAll('.social-btn');
             if (window.cfToken && window.isTermsChecked) {
@@ -71,23 +68,13 @@
                 buttons.forEach(btn => { btn.disabled = true; btn.classList.remove('active'); });
             }
         }
-
-        function onTurnstileSuccess(token) {
-            console.log("Verified ✅");
-            window.cfToken = token;
-            checkStatus();
-        }
-        
-        function onTermsToggle(checkbox) {
-            window.isTermsChecked = checkbox.checked;
-            checkStatus();
-        }
+        function onTurnstileSuccess(token) { window.cfToken = token; checkStatus(); }
+        function onTermsToggle(checkbox) { window.isTermsChecked = checkbox.checked; checkStatus(); }
     </script>
 </head>
 <body>
 
     <canvas id="canvas-bg"></canvas>
-
     <a href="support.html" class="support-btn"><i class="fas fa-life-ring"></i> <span data-i18n="supportBtn">Need Help?</span></a>
 
     <div class="login-card">
@@ -116,7 +103,12 @@
             if (!window.cfToken || !window.isTermsChecked) { alert("Please verify you are human and agree to terms!"); return; }
             const verify = await fetch("/api/verify-turnstile", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ token: window.cfToken }) }).then(r => r.json());
             if (!verify.success) { alert("Security fail. Refresh."); if(window.turnstile) turnstile.reset(); return; }
-            const { error } = await supabase.auth.signInWithOAuth({ provider: provider, options: { redirectTo: window.location.origin + "/menu.html" } });
+            
+            // التوجيه مع redirectTo
+            const { error } = await supabase.auth.signInWithOAuth({ 
+                provider: provider, 
+                options: { redirectTo: window.location.origin + "/menu.html" } 
+            });
             if (error) alert(error.message);
         }
 
@@ -124,6 +116,7 @@
         document.getElementById("linkedinBtn").onclick = () => handleLogin("linkedin_oidc");
         document.getElementById("githubBtn").onclick = () => handleLogin("github");
 
+        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
