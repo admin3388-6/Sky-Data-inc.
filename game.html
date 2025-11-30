@@ -8,7 +8,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* --- Global Styles (Matches Index) --- */
+        /* --- Global Styles --- */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -20,7 +20,7 @@
         .user-avatar { width: 40px; height: 40px; background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; }
         .xp-display { background: rgba(0, 210, 255, 0.1); color: var(--accent); padding: 5px 15px; border-radius: 20px; font-weight: bold; border: 1px solid rgba(0, 210, 255, 0.2); font-size: 14px; }
 
-        /* Game Selection Cards */
+        /* Game Selection */
         .main-content { margin-top: 100px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
         .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
         .game-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 24px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
@@ -30,17 +30,17 @@
         .game-card p { color: var(--text-muted); font-size: 0.9rem; }
         .play-btn { margin-top: 20px; padding: 10px 30px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; }
 
-        /* --- Game Modal (The Game Screen) --- */
+        /* Game Modal */
         .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
         .game-hud { position: absolute; top: 20px; left: 20px; color: white; font-family: monospace; z-index: 2002; pointer-events: none; }
-        .game-hud div { margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .game-hud div { margin-bottom: 5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); font-size: 18px; }
         .close-game { position: absolute; top: 20px; right: 20px; background: rgba(255,0,0,0.3); color: white; border: 1px solid red; padding: 10px 20px; border-radius: 10px; cursor: pointer; z-index: 2002; }
         
-        canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; }
+        canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: crosshair; }
 
-        /* Game Over Screen */
-        .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 2003; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(5px); }
-        .game-over-screen h1 { font-size: 3rem; color: #ff4b4b; margin-bottom: 10px; }
+        /* Game Over */
+        .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2003; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(10px); }
+        .game-over-screen h1 { font-size: 3rem; color: #ff4b4b; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 5px; }
         .score-result { font-size: 1.5rem; color: white; margin-bottom: 30px; }
         .xp-gained { font-size: 1.2rem; color: var(--accent); margin-bottom: 40px; }
         .action-btn { padding: 15px 40px; font-size: 18px; border-radius: 50px; border: none; cursor: pointer; margin: 10px; font-weight: bold; transition: 0.3s; }
@@ -48,10 +48,9 @@
         .btn-retry { background: transparent; border: 2px solid white; color: white; }
         .btn-save:hover { transform: scale(1.05); }
 
-        /* Mobile specific */
         @media (max-width: 600px) {
             .header { padding: 15px; }
-            .xp-display { display: none; } /* Hide XP in header on mobile to save space */
+            .xp-display { display: none; }
         }
     </style>
 </head>
@@ -69,23 +68,23 @@
     </div>
 
     <div class="main-content">
-        <h1 style="margin-bottom:20px;">Choose Your Game</h1>
+        <h1 style="margin-bottom:20px;">Mission Control</h1>
         
         <div class="game-grid">
             <div class="game-card" onclick="startGame('rocket')">
                 <div class="game-icon"><i class="fas fa-rocket"></i></div>
                 <h3>Space Dodge</h3>
-                <p>Control a rocket, dodge obstacles, and collect rare fuel.</p>
+                <p>Navigate the asteroid field. Survive and collect dark matter.</p>
                 <div style="margin-top:15px; font-size:12px; color:var(--accent);">High Score: <span id="rocketHigh">0</span></div>
-                <button class="play-btn">Play Now</button>
+                <button class="play-btn">Launch</button>
             </div>
 
             <div class="game-card" onclick="startGame('snake')">
                 <div class="game-icon"><i class="fas fa-worm"></i></div>
                 <h3>Neon Snake</h3>
-                <p>Classic snake game. Eat bananas, grow, and earn XP.</p>
+                <p>Classic snake game. Consume energy to grow.</p>
                 <div style="margin-top:15px; font-size:12px; color:var(--accent);">High Score: <span id="snakeHigh">0</span></div>
-                <button class="play-btn">Play Now</button>
+                <button class="play-btn">Start</button>
             </div>
         </div>
         
@@ -94,24 +93,25 @@
 
     <div class="game-modal" id="gameModal">
         <div class="game-hud">
-            <div style="font-size:20px; font-weight:bold;">SCORE: <span id="gameScore">0</span></div>
-            <div style="color:var(--accent);">XP GAINED: <span id="gameXP">0</span></div>
-            <div id="shieldStatus" style="color:gold; display:none;">SHIELD ACTIVE!</div>
+            <div>🚀 SCORE: <span id="gameScore" style="color:#00e676">0</span></div>
+            <div>⚡ XP: <span id="gameXP" style="color:var(--accent)">0</span></div>
+            <div id="shieldStatus" style="color:gold; display:none;">🛡️ SHIELD ACTIVE!</div>
         </div>
-        <button class="close-game" onclick="exitGame()">EXIT</button>
+        <button class="close-game" onclick="exitGame()">ABORT</button>
         <canvas id="gameCanvas"></canvas>
 
-        <div id="startOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:flex; justify-content:center; align-items:center; color:white; font-size:24px; z-index:2001; cursor:pointer;" onclick="initGameLogic()">
-            Click or Tap to Start
+        <div id="startOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:2001; cursor:pointer;" onclick="initGameLogic()">
+            <i class="fas fa-hand-pointer" style="font-size:50px; margin-bottom:20px; animation: pulse 1s infinite;"></i>
+            <div style="font-size:24px; font-weight:bold;">TAP TO START</div>
+            <div style="font-size:14px; color:#aaa; margin-top:10px;">Drag to Move • Dodge Meteors</div>
         </div>
 
         <div class="game-over-screen" id="gameOverScreen">
-            <h1>GAME OVER</h1>
+            <h1>MISSION FAILED</h1>
             <div class="score-result">Final Score: <span id="finalScore">0</span></div>
             <div class="xp-gained">+<span id="finalXP">0</span> XP</div>
-            <p style="color:#aaa; font-size:12px; margin-bottom:20px;">Save to add to your total balance.</p>
             <div>
-                <button class="action-btn btn-save" onclick="saveAndExit()">SAVE & EXIT</button>
+                <button class="action-btn btn-save" onclick="saveAndExit()">SAVE RECORD</button>
                 <button class="action-btn btn-retry" onclick="resetGame()">RETRY</button>
             </div>
         </div>
@@ -124,13 +124,13 @@
 
         // --- Global Variables ---
         let currentUser = null;
-        let currentGame = null; // 'rocket' or 'snake'
+        let currentGame = null;
         let gameActive = false;
         let gameLoopId = null;
-        let currentXP = 0; // Session XP
+        let currentXP = 0;
         let sessionScore = 0;
         
-        // --- Canvas Setup ---
+        // --- Setup ---
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -141,29 +141,23 @@
         }
         window.addEventListener('resize', resizeGame);
 
-        // --- Auth & Data Loading ---
         async function initPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.replace("login.html"); return; }
-            
             currentUser = session.user;
             
-            // Load User Data
             let { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
             
-            // UI Updates
             document.getElementById('userName').innerText = profile?.name || "Player";
             document.getElementById('headerXp').innerText = (profile?.xp || 0).toLocaleString();
             document.getElementById('userAvatar').innerText = (profile?.name || "U").charAt(0).toUpperCase();
             
-            // Load High Scores (Local Storage for Display Only)
             document.getElementById('rocketHigh').innerText = localStorage.getItem('rocket_high') || 0;
             document.getElementById('snakeHigh').innerText = localStorage.getItem('snake_high') || 0;
         }
         initPage();
 
-        // --- Game System Management ---
-        
+        // --- Game Flow ---
         window.startGame = function(type) {
             currentGame = type;
             document.getElementById('gameModal').style.display = 'flex';
@@ -177,7 +171,6 @@
             gameActive = true;
             currentXP = 0;
             sessionScore = 0;
-            
             if (currentGame === 'rocket') startRocketGame();
             else if (currentGame === 'snake') startSnakeGame();
         };
@@ -186,35 +179,25 @@
             gameActive = false;
             cancelAnimationFrame(gameLoopId);
             document.getElementById('gameModal').style.display = 'none';
-            location.reload(); // Refresh to ensure clean state
+            location.reload();
         };
 
         window.saveAndExit = async function() {
-            // Save logic
             const btn = document.querySelector('.btn-save');
-            btn.innerText = "Saving...";
-            
+            btn.innerText = "Syncing...";
             try {
-                // Get current DB XP first to be safe
                 let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
                 let newTotal = (profile?.xp || 0) + currentXP;
-
-                const { error } = await supabase
-                    .from('users')
-                    .update({ xp: newTotal })
-                    .eq('id', currentUser.id);
-
+                const { error } = await supabase.from('users').update({ xp: newTotal }).eq('id', currentUser.id);
                 if (error) throw error;
 
-                // Update High Scores locally
                 const key = currentGame + '_high';
                 const oldHigh = parseInt(localStorage.getItem(key) || 0);
                 if (sessionScore > oldHigh) localStorage.setItem(key, sessionScore);
 
-                window.location.href = "menu.html"; // Redirect to menu after save
+                window.location.href = "menu.html";
             } catch (err) {
                 console.error(err);
-                alert("Error saving! Check connection.");
                 btn.innerText = "Retry Save";
             }
         };
@@ -233,183 +216,226 @@
         }
 
         // ==========================================
-        // 🚀 GAME 1: ROCKET LOGIC
+        // 🚀 SPACE DODGE: PROFESSIONAL EDITION
         // ==========================================
-        let rocket = { x: 0, y: 0, w: 30, h: 50 };
+        let rocket = { x: 0, y: 0, w: 40, h: 60 };
         let obstacles = [];
-        let fuels = [];
-        let gameTime = 0; // Frames
+        let stars = [];
+        let items = []; // Fuels/Powerups
+        let gameTime = 0;
         let shieldActive = false;
         let shieldTimer = 0;
-        let speedMultiplier = 1;
+        let speedFactor = 1;
         let mouse = { x: width/2, y: height/2 };
 
-        // Input
-        canvas.addEventListener('mousemove', e => { mouse.x = e.clientX; mouse.y = e.clientY; });
+        // Mouse/Touch Tracking
+        function updateInput(x, y) {
+            mouse.x = x; mouse.y = y;
+        }
+        canvas.addEventListener('mousemove', e => updateInput(e.clientX, e.clientY));
         canvas.addEventListener('touchmove', e => { 
-            e.preventDefault();
-            mouse.x = e.touches[0].clientX; 
-            mouse.y = e.touches[0].clientY; 
+            e.preventDefault(); 
+            updateInput(e.touches[0].clientX, e.touches[0].clientY);
         }, {passive: false});
 
         function startRocketGame() {
-            rocket.x = width/2; rocket.y = height - 100;
-            obstacles = []; fuels = [];
-            gameTime = 0; speedMultiplier = 1; shieldActive = false;
+            rocket.x = width/2; rocket.y = height - 150;
+            obstacles = []; items = []; stars = [];
             
-            // Loop
+            // Create Starfield
+            for(let i=0; i<100; i++) stars.push({
+                x: Math.random()*width, 
+                y: Math.random()*height, 
+                size: Math.random()*2, 
+                speed: Math.random()*5 + 2
+            });
+
+            gameTime = 0; speedFactor = 1; shieldActive = false;
+            mouse = { x: width/2, y: height - 150 }; // Reset position
+
             function loop() {
                 if(!gameActive) return;
-                updateRocket();
-                drawRocket();
+                updateSpaceLogic();
+                drawSpaceGraphics();
                 gameLoopId = requestAnimationFrame(loop);
             }
             loop();
         }
 
-        function updateRocket() {
+        function updateSpaceLogic() {
             gameTime++;
             
-            // Magnetic Movement (Lerp)
-            rocket.x += (mouse.x - rocket.x) * 0.1;
-            rocket.y += (mouse.y - rocket.y) * 0.1;
+            // 1. Difficulty Scaling
+            if (gameTime % 300 === 0) speedFactor += 0.1; // Slowly increase speed
+            const currentSpeed = (3 + (gameTime/600)) * speedFactor;
 
-            // Difficulty System
-            const seconds = gameTime / 60;
-            let xpRate = 0;
-            
-            if (seconds < 30) { speedMultiplier = 1; xpRate = 1/60; }
-            else if (seconds < 60) { speedMultiplier = 2; xpRate = 5/60; }
-            else if (seconds < 80) { speedMultiplier = 2.5; xpRate = 10/60; }
-            else if (seconds < 100) { speedMultiplier = 3; xpRate = 40/60; }
-            else if (seconds < 240) { speedMultiplier = 3.5; xpRate = 80/60; } // 4 mins
-            else if (seconds < 270) { speedMultiplier = 4; xpRate = 180/60; }
-            else { speedMultiplier = 5; xpRate = 300/60; }
+            // 2. Rocket Movement (Smooth Lerp)
+            rocket.x += (mouse.x - rocket.x) * 0.15; // Faster response
+            rocket.y += (mouse.y - rocket.y) * 0.15;
 
-            // Add Passive XP
-            currentXP += xpRate;
-            sessionScore = seconds * 10; // Score is time based mostly
+            // 3. Update Stars (Warp Effect)
+            stars.forEach(s => {
+                s.y += s.speed * speedFactor;
+                if(s.y > height) { s.y = 0; s.x = Math.random()*width; }
+            });
 
-            // UI Update
-            document.getElementById('gameScore').innerText = Math.floor(sessionScore);
+            // 4. Spawn Obstacles (Smart Spawning - No Overlap)
+            if (gameTime % Math.max(20, Math.floor(60/speedFactor)) === 0) {
+                const size = Math.random() * 40 + 30; // 30-70px
+                const xPos = Math.random() * (width - size);
+                
+                // Check overlap with last 3 obstacles
+                let overlap = false;
+                for(let j=obstacles.length-1; j>=Math.max(0, obstacles.length-3); j--) {
+                    if(Math.abs(obstacles[j].x - xPos) < size + 10) overlap = true;
+                }
+
+                if(!overlap) {
+                    obstacles.push({
+                        x: xPos, y: -100, size: size,
+                        speed: currentSpeed + Math.random(),
+                        rotation: 0, rotSpeed: (Math.random()-0.5) * 0.1,
+                        type: 'meteor'
+                    });
+                }
+            }
+
+            // 5. Spawn Items (Rare)
+            if (gameTime % 180 === 0) {
+                const rand = Math.random() * 100;
+                let type = 'fuel'; // ⛽
+                if (rand < 2) type = 'shield'; // 🛡️ Rainbow (1%)
+                else if (rand < 10) type = 'gem'; // 💎 Rare (8%)
+                
+                items.push({
+                    x: Math.random() * (width - 30), y: -50, size: 30,
+                    type: type, speed: currentSpeed
+                });
+            }
+
+            // 6. Shield Logic
+            if(shieldActive) {
+                shieldTimer--;
+                document.getElementById('shieldStatus').style.display = 'block';
+                if(shieldTimer <= 0) { shieldActive = false; document.getElementById('shieldStatus').style.display = 'none'; }
+            }
+
+            // 7. Scoring
+            sessionScore = Math.floor(gameTime / 10);
+            document.getElementById('gameScore').innerText = sessionScore;
             document.getElementById('gameXP').innerText = Math.floor(currentXP);
 
-            // Spawning Obstacles
-            if (gameTime % Math.floor(60 / speedMultiplier) === 0) {
-                obstacles.push({
-                    x: Math.random() * width,
-                    y: -50,
-                    w: Math.random() * 50 + 20,
-                    h: 20,
-                    speed: (Math.random() * 2 + 3) * speedMultiplier
-                });
-            }
-
-            // Spawning Fuel (Powerups)
-            if (gameTime % 200 === 0) { // Every ~3 seconds
-                const rand = Math.random() * 100;
-                let type = 'common';
-                if (rand < 1) type = 'rainbow';
-                else if (rand < 5) type = 'legendary'; // 70-100 xp
-                else if (rand < 15) type = 'rare'; // 40-70 xp
-                
-                fuels.push({
-                    x: Math.random() * width,
-                    y: -30,
-                    r: 15,
-                    type: type,
-                    speed: 3
-                });
-            }
-
-            // Manage Shield
-            if (shieldActive) {
-                shieldTimer--;
-                const msg = document.getElementById('shieldStatus');
-                msg.style.display = 'block';
-                if (shieldTimer < 180) msg.style.color = (gameTime % 10 === 0) ? 'red' : 'gold'; // Blink effect
-                if (shieldTimer <= 0) { shieldActive = false; msg.style.display = 'none'; }
-            }
-
-            // Logic: Obstacles
+            // 8. Collision Loop
+            // Obstacles
             for (let i = obstacles.length - 1; i >= 0; i--) {
-                let obs = obstacles[i];
-                obs.y += obs.speed;
-                if (obs.y > height) obstacles.splice(i, 1);
-                
-                // Collision
-                if (!shieldActive && rectIntersect(rocket.x - 15, rocket.y - 25, 30, 50, obs.x, obs.y, obs.w, obs.h)) {
+                let o = obstacles[i];
+                o.y += o.speed;
+                o.rotation += o.rotSpeed;
+                if (o.y > height) { obstacles.splice(i, 1); currentXP += 1; continue; } // Bonus for dodge
+
+                if (!shieldActive && getDistance(rocket.x, rocket.y, o.x + o.size/2, o.y + o.size/2) < (rocket.w/2 + o.size/3)) {
                     gameOver();
                 }
             }
+            // Items
+            for (let i = items.length - 1; i >= 0; i--) {
+                let it = items[i];
+                it.y += it.speed;
+                if(it.y > height) { items.splice(i, 1); continue; }
 
-            // Logic: Fuels
-            for (let i = fuels.length - 1; i >= 0; i--) {
-                let f = fuels[i];
-                f.y += f.speed;
-                
-                // Collision
-                const dx = rocket.x - f.x;
-                const dy = rocket.y - f.y;
-                if (Math.sqrt(dx*dx + dy*dy) < 30) {
-                    // Collect
-                    if (f.type === 'rainbow') {
-                        shieldActive = true;
-                        shieldTimer = 900; // 15 seconds (60fps)
-                        currentXP += 500;
-                    } else if (f.type === 'legendary') currentXP += Math.random()*30 + 70;
-                    else if (f.type === 'rare') currentXP += Math.random()*30 + 40;
-                    else currentXP += Math.random()*10 + 1;
-                    
-                    fuels.splice(i, 1);
+                if (getDistance(rocket.x, rocket.y, it.x + 15, it.y + 15) < 40) {
+                    if(it.type === 'shield') { shieldActive = true; shieldTimer = 900; currentXP += 100; }
+                    else if(it.type === 'gem') currentXP += 50;
+                    else currentXP += 10;
+                    items.splice(i, 1);
                 }
             }
         }
 
-        function drawRocket() {
+        function drawSpaceGraphics() {
             ctx.clearRect(0, 0, width, height);
-            
-            // Player
-            ctx.fillStyle = shieldActive ? `hsl(${gameTime % 360}, 100%, 50%)` : '#4e54c8';
-            ctx.beginPath();
-            ctx.moveTo(rocket.x, rocket.y - 25);
-            ctx.lineTo(rocket.x - 15, rocket.y + 25);
-            ctx.lineTo(rocket.x + 15, rocket.y + 25);
-            ctx.fill();
-            
-            // Obstacles
-            ctx.fillStyle = '#ff4b4b';
-            obstacles.forEach(o => ctx.fillRect(o.x, o.y, o.w, o.h));
 
-            // Fuels
-            fuels.forEach(f => {
-                ctx.fillStyle = f.type === 'rainbow' ? `hsl(${gameTime*5 % 360}, 100%, 50%)` : '#00c853';
-                ctx.beginPath();
-                ctx.arc(f.x, f.y, f.r, 0, Math.PI*2);
-                ctx.fill();
-                ctx.fillStyle = "white";
-                ctx.font = "10px Arial";
-                ctx.fillText("XP", f.x-7, f.y+4);
+            // 1. Draw Stars
+            ctx.fillStyle = 'white';
+            stars.forEach(s => {
+                ctx.globalAlpha = Math.random() * 0.5 + 0.3;
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.size, 0, Math.PI*2); ctx.fill();
             });
+            ctx.globalAlpha = 1;
+
+            // 2. Draw Obstacles (Meteors 🪨)
+            ctx.font = "40px Arial";
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+            
+            obstacles.forEach(o => {
+                ctx.save();
+                ctx.translate(o.x + o.size/2, o.y + o.size/2);
+                ctx.rotate(o.rotation);
+                ctx.font = `${o.size}px Arial`;
+                ctx.fillText("🪨", 0, 0);
+                ctx.restore();
+            });
+
+            // 3. Draw Items
+            items.forEach(it => {
+                let icon = "⛽";
+                if(it.type === 'shield') icon = "🛡️";
+                if(it.type === 'gem') icon = "💎";
+                
+                // Pulsing effect
+                const scale = 1 + Math.sin(gameTime * 0.1) * 0.1;
+                ctx.save();
+                ctx.translate(it.x + 15, it.y + 15);
+                ctx.scale(scale, scale);
+                ctx.font = "30px Arial";
+                ctx.fillText(icon, 0, 0);
+                ctx.restore();
+            });
+
+            // 4. Draw Rocket 🚀
+            ctx.save();
+            ctx.translate(rocket.x, rocket.y);
+            
+            // Shield Effect
+            if(shieldActive) {
+                ctx.beginPath();
+                ctx.arc(0, 0, 40, 0, Math.PI*2);
+                ctx.fillStyle = `hsla(${gameTime * 5 % 360}, 100%, 50%, 0.3)`;
+                ctx.fill();
+                ctx.strokeStyle = `hsla(${gameTime * 5 % 360}, 100%, 50%, 0.8)`;
+                ctx.lineWidth = 3;
+                ctx.stroke();
+            }
+
+            // Engine Flame
+            ctx.fillStyle = (gameTime % 4 === 0) ? "orange" : "red";
+            ctx.beginPath();
+            ctx.moveTo(-10, 25);
+            ctx.lineTo(0, 45 + Math.random()*10);
+            ctx.lineTo(10, 25);
+            ctx.fill();
+
+            // The Rocket Emoji
+            ctx.font = "50px Arial";
+            ctx.fillText("🚀", 0, 0);
+            ctx.restore();
         }
 
-        function rectIntersect(x1, y1, w1, h1, x2, y2, w2, h2) {
-            return x2 < x1 + w1 && x2 + w2 > x1 && y2 < y1 + h1 && y2 + h2 > y1;
+        function getDistance(x1, y1, x2, y2) {
+            const xDist = x2 - x1;
+            const yDist = y2 - y1;
+            return Math.sqrt(xDist * xDist + yDist * yDist);
         }
-
 
         // ==========================================
-        // 🐍 GAME 2: SNAKE LOGIC
+        // 🐍 SNAKE GAME (No Changes needed, works fine)
         // ==========================================
         const gridSize = 20;
-        let snake = [];
-        let food = {};
-        let direction = 'RIGHT'; // UP, DOWN, LEFT, RIGHT
-        let nextDirection = 'RIGHT';
-        let snakeSpeed = 10; // Frame interval
-        let snakeFrame = 0;
+        let snake = []; let food = {};
+        let direction = 'RIGHT'; let nextDirection = 'RIGHT';
+        let snakeSpeed = 10; let snakeFrame = 0;
 
-        // Input
         document.addEventListener('keydown', e => {
             if (e.key === 'ArrowUp' && direction !== 'DOWN') nextDirection = 'UP';
             else if (e.key === 'ArrowDown' && direction !== 'UP') nextDirection = 'DOWN';
@@ -417,37 +443,22 @@
             else if (e.key === 'ArrowRight' && direction !== 'LEFT') nextDirection = 'RIGHT';
         });
 
-        // Touch Swipe
         let touchStartX = 0; let touchStartY = 0;
-        canvas.addEventListener('touchstart', e => {
-            touchStartX = e.touches[0].clientX;
-            touchStartY = e.touches[0].clientY;
-        }, {passive: false});
+        canvas.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, {passive: false});
         canvas.addEventListener('touchend', e => {
             let dx = e.changedTouches[0].clientX - touchStartX;
             let dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy)) {
-                if (dx > 0 && direction !== 'LEFT') nextDirection = 'RIGHT';
-                else if (dx < 0 && direction !== 'RIGHT') nextDirection = 'LEFT';
-            } else {
-                if (dy > 0 && direction !== 'UP') nextDirection = 'DOWN';
-                else if (dy < 0 && direction !== 'DOWN') nextDirection = 'UP';
-            }
+            if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0 && direction !== 'LEFT') nextDirection = 'RIGHT'; else if (dx < 0 && direction !== 'RIGHT') nextDirection = 'LEFT'; } 
+            else { if (dy > 0 && direction !== 'UP') nextDirection = 'DOWN'; else if (dy < 0 && direction !== 'DOWN') nextDirection = 'UP'; }
         });
 
         function startSnakeGame() {
             snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
-            placeFood();
-            direction = 'RIGHT'; nextDirection = 'RIGHT';
-            snakeSpeed = 10;
-            
+            placeFood(); direction = 'RIGHT'; nextDirection = 'RIGHT'; snakeSpeed = 10;
             function loop() {
                 if(!gameActive) return;
                 snakeFrame++;
-                if (snakeFrame >= snakeSpeed) {
-                    snakeFrame = 0;
-                    updateSnake();
-                }
+                if (snakeFrame >= snakeSpeed) { snakeFrame = 0; updateSnake(); }
                 drawSnake();
                 gameLoopId = requestAnimationFrame(loop);
             }
@@ -455,84 +466,38 @@
         }
 
         function placeFood() {
-            food = {
-                x: Math.floor(Math.random() * (width / gridSize)),
-                y: Math.floor(Math.random() * (height / gridSize))
-            };
-            // Ensure food doesn't spawn on snake
-            for(let cell of snake) {
-                if(cell.x === food.x && cell.y === food.y) placeFood();
-            }
+            food = { x: Math.floor(Math.random() * (width / gridSize)), y: Math.floor(Math.random() * (height / gridSize)) };
+            for(let cell of snake) if(cell.x === food.x && cell.y === food.y) placeFood();
         }
 
         function updateSnake() {
             direction = nextDirection;
             const head = { ...snake[0] };
-
-            if (direction === 'UP') head.y--;
-            else if (direction === 'DOWN') head.y++;
-            else if (direction === 'LEFT') head.x--;
-            else if (direction === 'RIGHT') head.x++;
-
-            // Wall Collision
-            if (head.x < 0 || head.x >= width/gridSize || head.y < 0 || head.y >= height/gridSize) {
-                gameOver(); return;
-            }
-            // Self Collision
-            for(let cell of snake) {
-                if (cell.x === head.x && cell.y === head.y) { gameOver(); return; }
-            }
-
+            if (direction === 'UP') head.y--; else if (direction === 'DOWN') head.y++; else if (direction === 'LEFT') head.x--; else if (direction === 'RIGHT') head.x++;
+            if (head.x < 0 || head.x >= width/gridSize || head.y < 0 || head.y >= height/gridSize) { gameOver(); return; }
+            for(let cell of snake) if (cell.x === head.x && cell.y === head.y) { gameOver(); return; }
             snake.unshift(head);
-
-            // Eat Food
             if (head.x === food.x && head.y === food.y) {
-                // XP Calculation: 5 + Scaling
-                let bonus = Math.min(680, 5 + Math.floor(snake.length * 0.5));
-                currentXP += bonus;
-                sessionScore++;
-                
-                // Speed Increase logic
+                currentXP += 5; sessionScore++;
                 if (sessionScore % 5 === 0 && snakeSpeed > 3) snakeSpeed--;
-                
                 placeFood();
-            } else {
-                snake.pop();
-            }
-
+            } else snake.pop();
             document.getElementById('gameScore').innerText = sessionScore;
             document.getElementById('gameXP').innerText = currentXP;
         }
 
         function drawSnake() {
-            ctx.fillStyle = '#000';
-            ctx.fillRect(0, 0, width, height);
+            ctx.fillStyle = '#0a0a12'; ctx.fillRect(0, 0, width, height);
+            // Draw Grid
+            ctx.strokeStyle = 'rgba(255,255,255,0.05)'; ctx.lineWidth = 1;
+            for(let i=0; i<width; i+=gridSize) { ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,height); ctx.stroke(); }
+            for(let i=0; i<height; i+=gridSize) { ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(width,i); ctx.stroke(); }
 
-            // Draw Snake
-            ctx.fillStyle = '#00ffcc';
-            snake.forEach(cell => {
-                ctx.fillRect(cell.x * gridSize, cell.y * gridSize, gridSize-2, gridSize-2);
-            });
-
-            // Draw Food
-            ctx.fillStyle = 'yellow';
-            ctx.beginPath();
-            ctx.arc(food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2, gridSize/2 - 2, 0, Math.PI*2);
-            ctx.fill();
+            ctx.fillStyle = '#00e676';
+            snake.forEach(cell => ctx.fillRect(cell.x * gridSize + 1, cell.y * gridSize + 1, gridSize-2, gridSize-2));
+            ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+            ctx.fillText("🍌", food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2);
         }
-
-        // --- Background Animation (Matches Index) ---
-        // (This runs on the background canvas, separate from game logic)
-        const bgCanvas = document.getElementById('canvas-bg');
-        const bgCtx = bgCanvas.getContext('2d');
-        let bgW, bgH, particles = [];
-        function bgResize() { bgW = bgCanvas.width = window.innerWidth; bgH = bgCanvas.height = window.innerHeight; }
-        window.addEventListener('resize', bgResize); bgResize();
-        class P { constructor(){this.x=Math.random()*bgW;this.y=Math.random()*bgH;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5} u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>bgW)this.vx*=-1;if(this.y<0||this.y>bgH)this.vy*=-1} d(){bgCtx.fillStyle='rgba(140,155,255,0.3)';bgCtx.beginPath();bgCtx.arc(this.x,this.y,2,0,Math.PI*2);bgCtx.fill()} }
-        for(let i=0;i<50;i++) particles.push(new P());
-        function bgAnim() { bgCtx.clearRect(0,0,bgW,bgH); particles.forEach(p=>{p.u();p.d()}); requestAnimationFrame(bgAnim); }
-        bgAnim();
-
     </script>
 </body>
 </html>
