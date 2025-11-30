@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* (نفس التصميم السابق) */
+        /* (نفس التصميم السابق تماماً) */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -86,7 +86,7 @@
     <div class="main-content">
         <div class="card">
             <h1 data-i18n="profileTitle">User Profile</h1>
-            <div id="loader" style="color: #666;" data-i18n="loading">Initializing...</div>
+            <div id="loader" style="color: #666;" data-i18n="loading">Synchronizing...</div>
             <div id="content" style="display:none;">
                 <div class="info-row">
                     <div><b data-i18n="nameLabel">NAME</b><span id="name"></span></div>
@@ -148,48 +148,59 @@
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // ✅ نظام التحميل الذكي (Retry Mechanism)
-        async function loadProfile() {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { window.location.replace("login.html"); return; }
+        // ✅✅ الإصلاح الجذري: الانتظار حتى التأكد (AuthState Listener)
+        let isProcessing = true; // متغير لمنع القرارات المتسرعة
 
-            // محاولة جلب البيانات (5 محاولات، كل ثانية)
-            // هذا يعطي قاعدة البيانات وقتاً لإنشاء الملف للمستخدم الجديد
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            console.log("Auth Event:", event);
+            
+            // 1. إذا وجدنا جلسة -> المستخدم مسجل -> حمل البيانات
+            if (session) {
+                isProcessing = false;
+                await loadProfileData(session.user);
+            } 
+            // 2. إذا لم نجد جلسة، نتأكد هل هناك عملية معالجة لرابط جوجل؟
+            else {
+                // هل الرابط يحتوي على توكن؟ (يعني المستخدم قادم من جوجل حالاً)
+                const isRedirecting = window.location.hash && window.location.hash.includes('access_token');
+                
+                if (isRedirecting) {
+                    // انتظر... Supabase ستقوم بتسجيل الدخول قريباً
+                    console.log("Processing redirect...");
+                    return; 
+                }
+
+                // إذا لم يكن هناك توكن ولا جلسة -> المستخدم غير مسجل حقاً -> اطرده
+                // نستخدم مهلة بسيطة جداً كإجراء احتياطي أخير
+                setTimeout(() => {
+                    if (isProcessing) window.location.replace("login.html");
+                }, 2000);
+            }
+        });
+
+        // دالة تحميل البيانات (منفصلة)
+        async function loadProfileData(user) {
             let profileData = null;
             let attempts = 0;
-            const maxAttempts = 5;
-
-            while (attempts < maxAttempts && !profileData) {
-                try {
-                    let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
-                    if (!error && data) {
-                        profileData = data;
-                        break; // وجدنا البيانات! اخرج من الحلقة
-                    }
-                } catch (e) { console.log('Retrying...'); }
-                
-                attempts++;
-                if (!profileData) {
-                    document.getElementById('loader').innerText = `Creating Profile... (${attempts}/${maxAttempts})`;
-                    await new Promise(r => setTimeout(r, 1000)); // انتظر ثانية
-                }
-            }
-
-            // 🛑 إذا بعد كل المحاولات لم نجد شيئاً، فهذا مستخدم محذوف حقاً
-            if (!profileData) {
-                console.warn("Profile not found after retries. Logging out.");
-                await supabase.auth.signOut();
-                window.location.replace("login.html");
-                return;
-            }
             
-            // نجاح! اعرض البيانات
+            // محاولة جلب البيانات (مع إعادة المحاولة في حال تأخر التريجر)
+            while (attempts < 5 && !profileData) {
+                try {
+                    let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
+                    if (data) profileData = data;
+                } catch (e) { }
+                
+                if (!profileData) await new Promise(r => setTimeout(r, 800));
+                attempts++;
+            }
+
+            // عرض البيانات (أو البيانات الافتراضية إذا فشل التحميل)
             document.getElementById("loader").style.display = "none";
             document.getElementById("content").style.display = "block";
             
-            const finalName = profileData.name || user.user_metadata.full_name || "User";
+            const finalName = profileData?.name || user.user_metadata.full_name || "User";
             const finalEmail = user.email;
-            const finalRank = profileData.rank || "free";
+            const finalRank = profileData?.rank || "free";
 
             document.getElementById("name").textContent = finalName;
             document.getElementById("email").textContent = finalEmail;
@@ -205,8 +216,6 @@
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
-        
-        loadProfile();
     </script>
 
 </body>
