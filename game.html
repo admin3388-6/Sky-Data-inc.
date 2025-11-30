@@ -9,26 +9,17 @@
     
     <style>
         /* --- Global Styles --- */
-        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; --shield-color: #00f2ff; }
+        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
 
         /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 100; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 100; transition: transform 0.3s; }
         .user-info { display: flex; align-items: center; gap: 15px; }
         .xp-display { background: rgba(0, 210, 255, 0.1); color: var(--accent); padding: 5px 15px; border-radius: 20px; font-weight: bold; border: 1px solid rgba(0, 210, 255, 0.2); font-size: 14px; }
 
-        /* Unsaved Points Alert */
-        .unsaved-alert {
-            position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-            background: rgba(255, 165, 0, 0.2); border: 1px solid orange; color: orange;
-            padding: 10px 20px; border-radius: 50px; font-size: 14px; z-index: 99;
-            display: none; animation: pulse 2s infinite; cursor: pointer;
-        }
-        .unsaved-alert:hover { background: rgba(255, 165, 0, 0.4); }
-
-        /* Main Menu */
+        /* Menu Content */
         .main-content { margin-top: 100px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
         .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
         .game-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 24px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
@@ -36,26 +27,46 @@
         .game-icon { font-size: 50px; color: var(--accent); margin-bottom: 20px; }
         .play-btn { margin-top: 20px; padding: 10px 30px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; }
 
-        /* Game Modal */
-        .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
-        .game-hud { position: absolute; top: 20px; left: 20px; color: white; font-family: 'Courier New', monospace; z-index: 2002; pointer-events: none; }
-        .game-hud div { margin-bottom: 8px; text-shadow: 0 2px 4px black; font-size: 18px; font-weight: bold; }
-        .close-game { position: absolute; top: 20px; right: 20px; background: rgba(255,0,0,0.3); color: white; border: 1px solid red; padding: 8px 20px; border-radius: 10px; cursor: pointer; z-index: 2002; }
+        /* --- Full Screen Game Mode --- */
+        .game-modal { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #0b0b14; /* لون فضاء عميق */
+            z-index: 200000; /* فوق كل شيء */
+            display: none; flex-direction: column; 
+        }
         
-        canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
+        /* Game UI (HUD) */
+        .game-hud { 
+            position: absolute; top: 20px; left: 20px; 
+            color: white; font-family: 'Courier New', monospace; 
+            z-index: 200002; pointer-events: none; 
+            text-shadow: 0 2px 4px black;
+        }
+        .hud-item { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        
+        .close-game { 
+            position: absolute; top: 20px; right: 20px; 
+            background: rgba(255, 0, 0, 0.2); color: #ff8888; 
+            border: 1px solid #ff4444; padding: 8px 20px; 
+            border-radius: 8px; cursor: pointer; z-index: 200002; 
+            font-weight: bold; backdrop-filter: blur(5px);
+        }
 
-        /* Game Over */
-        .game-over-screen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.92); z-index: 2003; display: none; flex-direction: column; justify-content: center; align-items: center; text-align: center; backdrop-filter: blur(10px); }
-        .score-result { font-size: 1.5rem; color: white; margin-bottom: 10px; }
-        .xp-gained { font-size: 1.2rem; color: var(--accent); margin-bottom: 30px; }
-        .total-pending { color: orange; font-size: 14px; margin-bottom: 30px; border: 1px dashed orange; padding: 5px 15px; border-radius: 20px; }
+        canvas#gameCanvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+
+        /* Overlays */
+        #startOverlay, #gameOverScreen {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85); z-index: 200003;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            backdrop-filter: blur(8px);
+        }
         
+        .game-over-title { font-size: 3rem; color: #ff4b4b; margin-bottom: 10px; font-weight: 900; letter-spacing: 2px; }
         .action-btn { padding: 15px 40px; font-size: 18px; border-radius: 50px; border: none; cursor: pointer; margin: 10px; font-weight: bold; transition: 0.3s; min-width: 200px; }
-        .btn-save { background: #00c853; color: white; box-shadow: 0 0 20px rgba(0, 200, 83, 0.4); }
+        .btn-save { background: linear-gradient(135deg, #00c853, #009624); color: white; box-shadow: 0 0 20px rgba(0, 200, 83, 0.4); }
         .btn-retry { background: transparent; border: 2px solid white; color: white; }
-        .btn-save:hover { transform: scale(1.05); }
 
-        @keyframes pulse { 0%, 100% { opacity: 1; transform: translateX(-50%) scale(1); } 50% { opacity: 0.8; transform: translateX(-50%) scale(0.98); } }
         @media (max-width: 600px) { .header { padding: 15px; } .xp-display { display: none; } }
     </style>
 </head>
@@ -63,7 +74,7 @@
 
     <canvas id="canvas-bg"></canvas>
 
-    <div class="header">
+    <div class="header" id="mainHeader">
         <div style="font-size: 24px; font-weight: bold; color: white;">SKY <span style="color:var(--accent)">ARCADE</span></div>
         <div class="user-info">
             <div class="xp-display"><i class="fas fa-bolt"></i> <span id="headerXp">0</span></div>
@@ -71,23 +82,19 @@
         </div>
     </div>
 
-    <div id="unsavedAlert" class="unsaved-alert" onclick="forceSave()">
-        ⚠️ You have <span id="unsavedVal">0</span> Unsaved XP! Click to Save.
-    </div>
-
-    <div class="main-content">
+    <div class="main-content" id="mainMenu">
         <div class="game-grid">
             <div class="game-card" onclick="startGame('rocket')">
                 <div class="game-icon"><i class="fas fa-rocket"></i></div>
                 <h3>Space Dodge</h3>
-                <p>Navigate asteroid fields. Collect Energy.</p>
+                <p>Avoid meteors. Collect energy cores.</p>
                 <div style="margin-top:10px; font-size:12px; color:#aaa;">Best: <span id="rocketHigh">0</span></div>
                 <button class="play-btn">Launch</button>
             </div>
             <div class="game-card" onclick="startGame('snake')">
                 <div class="game-icon"><i class="fas fa-dragon"></i></div>
                 <h3>Neon Snake</h3>
-                <p>Classic snake. Consume fuel cells.</p>
+                <p>Grow your cyber-snake.</p>
                 <div style="margin-top:10px; font-size:12px; color:#aaa;">Best: <span id="snakeHigh">0</span></div>
                 <button class="play-btn">Start</button>
             </div>
@@ -97,31 +104,27 @@
 
     <div class="game-modal" id="gameModal">
         <div class="game-hud">
-            <div>🚀 SCORE: <span id="gameScore" style="color:#00e676">0</span></div>
-            <div>⚡ XP: <span id="gameXP" style="color:var(--accent)">0</span></div>
-            <div id="shieldStatus" style="color:var(--shield-color); display:none; text-shadow: 0 0 10px var(--shield-color);">🛡️ SHIELD ACTIVE</div>
+            <div class="hud-item">🚀 <span id="gameScore">0</span></div>
+            <div class="hud-item" style="color:var(--accent)">⚡ <span id="gameXP">0</span></div>
+            <div id="shieldStatus" style="color:#00f2ff; display:none; font-size:16px;">🛡️ SHIELD: <span id="shieldTime">0</span>s</div>
         </div>
-        <button class="close-game" onclick="exitGame()">ABORT</button>
+        <button class="close-game" onclick="exitGame()">EXIT</button>
+        
         <canvas id="gameCanvas"></canvas>
 
-        <div id="startOverlay" style="position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); display:flex; flex-direction:column; justify-content:center; align-items:center; color:white; z-index:2001; cursor:pointer;" onclick="initGameLogic()">
-            <i class="fas fa-play-circle" style="font-size:60px; margin-bottom:20px; color:var(--accent);"></i>
-            <div style="font-size:24px; font-weight:bold;">TAP TO START</div>
+        <div id="startOverlay" onclick="initGameLogic()">
+            <i class="fas fa-hand-pointer" style="font-size:50px; color:white; margin-bottom:20px; animation: pulse 1s infinite;"></i>
+            <h2 style="color:white;">TAP TO START</h2>
+            <p style="color:#aaa;">Drag to move • Avoid Rocks</p>
         </div>
 
-        <div class="game-over-screen" id="gameOverScreen">
-            <h1 style="color:#ff4b4b; text-shadow: 0 0 20px red;">CRITICAL FAILURE</h1>
-            <div class="score-result">Round Score: <span id="finalScore">0</span></div>
-            <div class="xp-gained">Gained: +<span id="finalXP">0</span> XP</div>
+        <div id="gameOverScreen" style="display:none;">
+            <h1 class="game-over-title">CRASHED!</h1>
+            <div style="color:white; font-size:20px; margin-bottom:10px;">Score: <span id="finalScore">0</span></div>
+            <div style="color:var(--accent); font-size:18px; margin-bottom:30px;">XP Earned: +<span id="finalXP">0</span></div>
             
-            <div class="total-pending">
-                📦 Total Unsaved in Vault: <span id="vaultXP">0</span> XP
-            </div>
-
-            <div>
-                <button class="action-btn btn-save" onclick="forceSave()">SAVE TO DATABASE</button>
-                <button class="action-btn btn-retry" onclick="resetGame()">REPLAY (Keep XP)</button>
-            </div>
+            <button class="action-btn btn-save" onclick="saveAndExit()">SAVE XP</button>
+            <button class="action-btn btn-retry" onclick="resetGame()">RETRY</button>
         </div>
     </div>
 
@@ -130,64 +133,48 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // --- Global Variables ---
+        // Variables
         let currentUser = null;
         let currentGame = null;
         let gameActive = false;
         let gameLoopId = null;
         let currentRunXP = 0;
         let currentRunScore = 0;
-        let unsavedVault = 0; // النقاط المحفوظة محلياً ولم ترفع بعد
         
+        // Canvas
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
 
-        // --- Initialization ---
         function resizeGame() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeGame);
 
+        // Init
         async function initPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.replace("login.html"); return; }
             currentUser = session.user;
             
-            // Load User Info
             let { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
             document.getElementById('userName').innerText = profile?.name || "Player";
             document.getElementById('headerXp').innerText = (profile?.xp || 0).toLocaleString();
             
             document.getElementById('rocketHigh').innerText = localStorage.getItem('rocket_high') || 0;
             document.getElementById('snakeHigh').innerText = localStorage.getItem('snake_high') || 0;
-
-            // Check Local Vault (استرجاع النقاط غير المحفوظة)
-            unsavedVault = parseInt(localStorage.getItem('skydata_unsaved_xp') || '0');
-            updateVaultUI();
         }
         initPage();
 
-        function updateVaultUI() {
-            const alertBox = document.getElementById('unsavedAlert');
-            const vaultSpan = document.getElementById('unsavedVal');
-            const gameOverVault = document.getElementById('vaultXP');
-            
-            if (unsavedVault > 0) {
-                alertBox.style.display = 'block';
-                vaultSpan.innerText = unsavedVault;
-                gameOverVault.innerText = unsavedVault;
-            } else {
-                alertBox.style.display = 'none';
-                gameOverVault.innerText = 0;
-            }
-        }
-
-        // --- Game Flow Control ---
+        // Game State Management
         window.startGame = function(type) {
             currentGame = type;
             document.getElementById('gameModal').style.display = 'flex';
             document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('gameOverScreen').style.display = 'none';
             resizeGame();
+            
+            // Hide System UI (Buttons)
+            const sysUI = document.querySelectorAll('.system-controls, .support-float');
+            sysUI.forEach(el => el.style.display = 'none');
         };
 
         window.initGameLogic = function() {
@@ -202,126 +189,86 @@
         window.exitGame = function() {
             gameActive = false;
             cancelAnimationFrame(gameLoopId);
-            // إضافة النقاط الحالية للخزنة قبل الخروج
-            if (currentRunXP > 0) {
-                unsavedVault += currentRunXP;
-                localStorage.setItem('skydata_unsaved_xp', unsavedVault);
-            }
             document.getElementById('gameModal').style.display = 'none';
-            updateVaultUI();
+            // Show System UI
+            const sysUI = document.querySelectorAll('.system-controls, .support-float');
+            sysUI.forEach(el => el.style.display = 'flex');
+            // Reload to clear canvas state completely
+            location.reload();
         };
 
-        // زر إعادة اللعب (Replay) - يحفظ محلياً فقط
+        window.saveAndExit = async function() {
+            const btn = document.querySelector('.btn-save');
+            btn.innerText = "Saving...";
+            try {
+                let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
+                let newTotal = (profile?.xp || 0) + currentRunXP;
+                const { error } = await supabase.from('users').update({ xp: newTotal }).eq('id', currentUser.id);
+                if (error) throw error;
+
+                // Save High Score
+                const key = currentGame + '_high';
+                const oldHigh = parseInt(localStorage.getItem(key) || 0);
+                if (currentRunScore > oldHigh) localStorage.setItem(key, currentRunScore);
+
+                window.location.href = "menu.html";
+            } catch (err) {
+                console.error(err);
+                btn.innerText = "Error! Retry";
+            }
+        };
+
         window.resetGame = function() {
-            // إضافة النقاط للخزنة المحلية
-            unsavedVault += currentRunXP;
-            localStorage.setItem('skydata_unsaved_xp', unsavedVault);
-            updateVaultUI();
+            // Save local points before retry
+            let vault = parseInt(localStorage.getItem('skydata_unsaved_xp') || 0);
+            localStorage.setItem('skydata_unsaved_xp', vault + currentRunXP);
             
             document.getElementById('gameOverScreen').style.display = 'none';
             initGameLogic();
         };
 
-        // زر الحفظ (Save) - يرفع للسيرفر ويصفر الخزنة
-        window.forceSave = async function() {
-            // نجمع نقاط الجولة الحالية + ما في الخزنة
-            let totalToUpload = unsavedVault;
-            if (document.getElementById('gameModal').style.display !== 'none' && !gameActive) {
-                // إذا كنا في شاشة الخسارة، أضف نقاط الجولة الحالية أيضاً
-                totalToUpload += currentRunXP;
-            }
-
-            if (totalToUpload <= 0) return;
-
-            const btn = document.querySelector('.btn-save');
-            const originalText = btn.innerText;
-            btn.innerText = "Syncing with Cloud...";
-            
-            try {
-                let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
-                let newTotal = (profile?.xp || 0) + totalToUpload;
-                
-                const { error } = await supabase.from('users').update({ xp: newTotal }).eq('id', currentUser.id);
-                if (error) throw error;
-
-                // تصفير الخزنة بعد النجاح
-                unsavedVault = 0;
-                currentRunXP = 0;
-                localStorage.setItem('skydata_unsaved_xp', 0);
-                updateVaultUI();
-                
-                // تحديث الهايدر
-                document.getElementById('headerXp').innerText = newTotal.toLocaleString();
-                
-                // الخروج
-                if (document.getElementById('gameModal').style.display !== 'none') {
-                    window.location.href = "menu.html";
-                } else {
-                    btn.innerText = "Saved Successfully!";
-                    setTimeout(() => btn.innerText = originalText, 2000);
-                }
-
-            } catch (err) {
-                console.error(err);
-                btn.innerText = "Failed! Try Again";
-                alert("Internet Error: Points are safe in your browser. Try again.");
-            }
-        };
-
         function gameOver() {
             gameActive = false;
             cancelAnimationFrame(gameLoopId);
-            
-            // تحديث أعلى نتيجة محلياً
-            const key = currentGame + '_high';
-            const oldHigh = parseInt(localStorage.getItem(key) || 0);
-            if (currentRunScore > oldHigh) localStorage.setItem(key, currentRunScore);
-
             document.getElementById('finalScore').innerText = Math.floor(currentRunScore);
             document.getElementById('finalXP').innerText = Math.floor(currentRunXP);
-            // عرض المجموع الكلي المعلق
-            document.getElementById('vaultXP').innerText = unsavedVault + Math.floor(currentRunXP);
-            
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
 
         // ==========================================
-        // 🚀 GAME 1: ROCKET (IMPROVED GRAPHICS)
+        // 🚀 ROCKET GAME ENGINE (CUSTOM DRAWING)
         // ==========================================
-        let rocket = { x: 0, y: 0, w: 40, h: 60 };
+        let rocket = { x: 0, y: 0 };
         let obstacles = [];
         let items = [];
-        let effects = []; // For explosions/particles
+        let stars = [];
         let gameTime = 0;
         let shieldActive = false;
         let shieldTimer = 0;
         let speedFactor = 1;
         let mouse = { x: width/2, y: height/2 };
 
-        // Load Icons from FontAwesome (drawn on canvas)
-        function drawIcon(icon, x, y, size, color, rotation = 0) {
-            ctx.save();
-            ctx.translate(x, y);
-            ctx.rotate(rotation);
-            ctx.fillStyle = color;
-            ctx.font = `${size}px "Font Awesome 6 Free"`;
-            ctx.font = `${size}px "Font Awesome 6 Brands"`; 
-            // Note: Canvas needs FontAwesome Loaded. We use unicode.
-            // Rocket: \uf135, Meteor: \uf185 (Sun-like) or \uf06d (Fire) - Let's use shapes for meteors for better rotation
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
-            ctx.fillText(icon, 0, 0);
-            ctx.restore();
+        // Input Handler (Fixed Glitch)
+        function updateInput(clientX, clientY) {
+            // Get canvas position to fix offset issues
+            const rect = canvas.getBoundingClientRect();
+            mouse.x = clientX - rect.left;
+            mouse.y = clientY - rect.top;
         }
-
-        // Input
-        function updateInput(x, y) { mouse.x = x; mouse.y = y; }
         canvas.addEventListener('mousemove', e => updateInput(e.clientX, e.clientY));
-        canvas.addEventListener('touchmove', e => { e.preventDefault(); updateInput(e.touches[0].clientX, e.touches[0].clientY); }, {passive: false});
+        canvas.addEventListener('touchmove', e => { 
+            e.preventDefault(); 
+            updateInput(e.touches[0].clientX, e.touches[0].clientY);
+        }, {passive: false});
 
         function startRocketGame() {
             rocket.x = width/2; rocket.y = height - 150;
-            obstacles = []; items = []; effects = [];
+            mouse.x = width/2; mouse.y = height - 150;
+            obstacles = []; items = []; stars = [];
+            
+            // Warp Speed Stars
+            for(let i=0; i<80; i++) stars.push({x: Math.random()*width, y: Math.random()*height, speed: Math.random()*10+5});
+
             gameTime = 0; speedFactor = 1; shieldActive = false;
             
             function loop() {
@@ -335,77 +282,58 @@
 
         function updateRocket() {
             gameTime++;
-            
-            // Smooth Difficulty: Start slow, increase every 10s (600 frames)
-            if (gameTime % 600 === 0) speedFactor += 0.2;
-            const currentSpeed = (2 + (gameTime/1000)) * speedFactor;
+            if (gameTime % 300 === 0) speedFactor += 0.15;
+            const currentSpeed = (3 + (gameTime/500)) * speedFactor;
 
-            // Rocket Physics
-            rocket.x += (mouse.x - rocket.x) * 0.12;
-            rocket.y += (mouse.y - rocket.y) * 0.12;
+            // Rocket Physics (Smooth)
+            rocket.x += (mouse.x - rocket.x) * 0.15;
+            rocket.y += (mouse.y - rocket.y) * 0.15;
 
-            // Spawn Meteors (Better distribution)
-            if (gameTime % Math.max(30, Math.floor(80/speedFactor)) === 0) {
-                const size = Math.random() * 30 + 30; // 30-60px
-                const xPos = Math.random() * (width - size);
-                
-                // Prevent overlapping spawn
-                let safe = true;
-                obstacles.forEach(o => { if (Math.abs(o.x - xPos) < size + 10 && o.y < 100) safe = false; });
-                
-                if (safe) {
-                    obstacles.push({
-                        x: xPos, y: -100, size: size,
-                        speed: currentSpeed + Math.random(),
-                        rot: Math.random() * 6.28, rotSpeed: (Math.random()-0.5) * 0.1
-                    });
-                }
+            // Spawn Meteors (Polygons)
+            if (gameTime % Math.max(15, Math.floor(50/speedFactor)) === 0) {
+                const size = Math.random() * 30 + 20;
+                obstacles.push({
+                    x: Math.random() * width, y: -50, size: size,
+                    speed: currentSpeed, vertices: createAsteroidVertices(size),
+                    rot: 0, rotSpeed: (Math.random()-0.5)*0.1
+                });
             }
 
-            // Spawn Items (Powerups)
-            if (gameTime % 300 === 0) {
+            // Spawn Energy
+            if (gameTime % 200 === 0) {
                 const r = Math.random();
-                let type = 'fuel'; // ⛽
-                if (r < 0.05) type = 'shield'; // 🛡️ 5%
-                else if (r < 0.2) type = 'gem'; // 💎 15%
-                items.push({ x: Math.random() * (width - 40), y: -50, type: type, speed: currentSpeed });
+                let type = 'fuel'; 
+                if (r < 0.05) type = 'shield'; 
+                items.push({ x: Math.random()*(width-40), y: -50, type: type, speed: currentSpeed });
             }
 
-            // Logic loops
+            // Logic Loop
             obstacles.forEach((o, i) => {
                 o.y += o.speed; o.rot += o.rotSpeed;
-                if(o.y > height) { obstacles.splice(i, 1); currentRunXP += 1; }
+                if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; }
                 
                 // Collision
-                const dist = Math.hypot(rocket.x - o.x, rocket.y - o.y);
-                if (dist < (30 + o.size/2.5)) {
-                    if (shieldActive) {
-                        // Shield Block Effect
-                        effects.push({x: o.x, y: o.y, type: 'shockwave', life: 20});
-                        obstacles.splice(i, 1);
-                        currentRunXP += 10;
-                    } else {
-                        gameOver();
-                    }
+                const dx = rocket.x - o.x; const dy = rocket.y - o.y;
+                if (Math.sqrt(dx*dx + dy*dy) < (20 + o.size)) {
+                    if (shieldActive) { obstacles.splice(i, 1); currentRunXP += 5; } // Smash rock
+                    else gameOver();
                 }
             });
 
             items.forEach((it, i) => {
                 it.y += it.speed;
-                if(it.y > height) items.splice(i, 1);
                 if (Math.hypot(rocket.x - it.x, rocket.y - it.y) < 40) {
-                    if(it.type === 'shield') { shieldActive = true; shieldTimer = 900; currentRunXP += 100; }
-                    else if(it.type === 'gem') currentRunXP += 50;
+                    if(it.type === 'shield') { shieldActive = true; shieldTimer = 600; }
                     else currentRunXP += 10;
                     items.splice(i, 1);
                 }
             });
 
-            // Shield Timer
-            if (shieldActive) {
+            if(shieldActive) {
                 shieldTimer--;
                 document.getElementById('shieldStatus').style.display = 'block';
-                if (shieldTimer <= 0) { shieldActive = false; document.getElementById('shieldStatus').style.display = 'none'; }
+                document.getElementById('shieldTime').innerText = Math.floor(shieldTimer/60);
+                if(shieldTimer<=0) { shieldActive=false; document.getElementById('shieldStatus').style.display='none'; }
             }
 
             currentRunScore = Math.floor(gameTime / 10);
@@ -413,150 +341,134 @@
             document.getElementById('gameXP').innerText = Math.floor(currentRunXP);
         }
 
+        // --- DRAWING FUNCTIONS (NO EMOJIS) ---
+        
         function drawRocketGame() {
-            ctx.clearRect(0, 0, width, height);
+            ctx.fillStyle = '#0b0b14'; ctx.fillRect(0,0,width,height);
 
-            // Draw Stars (Warp Speed)
-            ctx.fillStyle = 'rgba(255,255,255,0.8)';
-            for(let i=0; i<50; i++) {
-                let sY = (Date.now() * (0.2 + i*0.01)) % height;
-                let sX = (i * 137) % width;
-                ctx.beginPath(); ctx.arc(sX, sY, Math.random()*2, 0, Math.PI*2); ctx.fill();
-            }
-
-            // Draw Meteors (Shapes for performance & look)
-            ctx.fillStyle = '#555';
-            ctx.strokeStyle = '#222';
-            obstacles.forEach(o => {
-                ctx.save();
-                ctx.translate(o.x, o.y);
-                ctx.rotate(o.rot);
-                // Draw Rock Shape
-                ctx.beginPath();
-                ctx.moveTo(-o.size/2, -o.size/2);
-                ctx.lineTo(o.size/2, -o.size/2 + 10);
-                ctx.lineTo(o.size/2 - 5, o.size/2);
-                ctx.lineTo(-o.size/2 + 5, o.size/2 - 5);
-                ctx.closePath();
-                ctx.fillStyle = '#6e6e6e'; ctx.fill(); ctx.stroke();
-                // Crater
-                ctx.beginPath(); ctx.arc(5, -5, o.size/6, 0, Math.PI*2); ctx.fillStyle='rgba(0,0,0,0.2)'; ctx.fill();
-                ctx.restore();
+            // 1. Stars (Warp)
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            stars.forEach(s => {
+                s.y += s.speed * speedFactor;
+                if(s.y > height) s.y = 0;
+                ctx.beginPath(); ctx.arc(s.x, s.y, 1.5, 0, Math.PI*2); ctx.fill();
             });
 
-            // Draw Items (Unicode Icons)
-            ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            items.forEach(it => {
-                let icon = "⛽";
-                if(it.type === 'shield') icon = "🛡️";
-                if(it.type === 'gem') icon = "💎";
-                ctx.font = "30px Arial";
-                ctx.fillText(icon, it.x, it.y);
-            });
-
-            // Draw Rocket
+            // 2. Rocket Drawing
             ctx.save();
             ctx.translate(rocket.x, rocket.y);
             
-            // Shield Visuals (Blue Bubble)
-            if (shieldActive) {
-                // Flash in last 3 seconds (180 frames)
-                if (shieldTimer > 180 || Math.floor(Date.now() / 100) % 2 === 0) {
-                    ctx.beginPath();
-                    ctx.arc(0, 0, 50, 0, Math.PI*2);
-                    ctx.fillStyle = 'rgba(0, 242, 255, 0.2)';
-                    ctx.strokeStyle = 'rgba(0, 242, 255, 0.8)';
-                    ctx.lineWidth = 2;
-                    ctx.fill(); ctx.stroke();
-                }
+            // Shield
+            if(shieldActive) {
+                ctx.beginPath(); ctx.arc(0,0, 45, 0, Math.PI*2);
+                ctx.strokeStyle = `rgba(0, 242, 255, ${Math.random()*0.5 + 0.5})`; 
+                ctx.lineWidth = 3; ctx.stroke();
+                ctx.fillStyle = 'rgba(0, 242, 255, 0.1)'; ctx.fill();
             }
 
             // Engine Flame
-            ctx.fillStyle = (gameTime % 4 === 0) ? '#ff5722' : '#ff9800';
-            ctx.beginPath();
-            ctx.moveTo(-10, 20); ctx.lineTo(0, 45 + Math.random()*10); ctx.lineTo(10, 20);
-            ctx.fill();
+            ctx.fillStyle = `rgba(255, ${Math.random()*150}, 0, 0.8)`;
+            ctx.beginPath(); ctx.moveTo(-8, 20); ctx.lineTo(0, 40+Math.random()*15); ctx.lineTo(8, 20); ctx.fill();
 
-            // Rocket Body (Using FontAwesome Unicode or Simple Drawing)
-            // Using text is safer for cross-origin issues
-            ctx.font = "50px Arial";
-            ctx.fillText("🚀", 0, 0);
+            // Body
+            ctx.fillStyle = '#eee';
+            ctx.beginPath(); ctx.ellipse(0, 0, 12, 30, 0, 0, Math.PI*2); ctx.fill();
+            // Fins
+            ctx.fillStyle = '#d32f2f';
+            ctx.beginPath(); ctx.moveTo(-12, 10); ctx.lineTo(-20, 30); ctx.lineTo(-10, 25); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(12, 10); ctx.lineTo(20, 30); ctx.lineTo(10, 25); ctx.fill();
+            // Window
+            ctx.fillStyle = '#00d2ff';
+            ctx.beginPath(); ctx.arc(0, -10, 6, 0, Math.PI*2); ctx.fill();
             ctx.restore();
 
-            // Draw Effects (Shockwaves)
-            for(let i=effects.length-1; i>=0; i--) {
-                let e = effects[i];
+            // 3. Obstacles (Asteroids)
+            ctx.fillStyle = '#555';
+            obstacles.forEach(o => {
+                ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.rot);
                 ctx.beginPath();
-                ctx.arc(e.x, e.y, 20 + (20 - e.life)*3, 0, Math.PI*2);
-                ctx.strokeStyle = `rgba(0, 242, 255, ${e.life/20})`;
-                ctx.lineWidth = 4;
-                ctx.stroke();
-                e.life--;
-                if(e.life <= 0) effects.splice(i,1);
+                o.vertices.forEach((v, i) => {
+                    i === 0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y);
+                });
+                ctx.closePath();
+                ctx.fill();
+                // Crater details
+                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(5, 5, o.size/4, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#555'; // Reset for next
+                ctx.restore();
+            });
+
+            // 4. Items (Energy)
+            items.forEach(it => {
+                ctx.save(); ctx.translate(it.x, it.y);
+                if(it.type === 'shield') {
+                    ctx.fillStyle = '#00f2ff';
+                    ctx.beginPath(); ctx.arc(0,0, 15, 0, Math.PI*2); ctx.fill(); // Orb
+                    ctx.strokeStyle = 'white'; ctx.lineWidth=2; ctx.stroke();
+                } else {
+                    ctx.fillStyle = '#00e676';
+                    ctx.beginPath(); ctx.rect(-10, -15, 20, 30); ctx.fill(); // Jerry can shape
+                    ctx.fillStyle = '#004d40'; ctx.font="12px Arial"; ctx.fillText("⚡", -6, 5);
+                }
+                ctx.restore();
+            });
+        }
+
+        // Helper: Create jagged rock shape
+        function createAsteroidVertices(radius) {
+            const vertices = [];
+            const numPoints = 8;
+            for (let i = 0; i < numPoints; i++) {
+                const angle = (i / numPoints) * Math.PI * 2;
+                const r = radius * (0.8 + Math.random() * 0.4); // Randomize radius
+                vertices.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
             }
+            return vertices;
         }
 
         // ==========================================
-        // 🐍 SNAKE (Classic - Same Logic)
+        // 🐍 SNAKE (Simple Drawing)
         // ==========================================
-        const gridSize = 20;
-        let snake = []; let food = {};
-        let direction = 'RIGHT'; let nextDirection = 'RIGHT';
-        let snakeSpeed = 10; let snakeFrame = 0;
-
+        let snake = []; let food = {}; let direction='RIGHT'; let nextDir='RIGHT'; let sFrame=0; const gridSize=20;
         document.addEventListener('keydown', e => {
-            if (e.key === 'ArrowUp' && direction !== 'DOWN') nextDirection = 'UP';
-            else if (e.key === 'ArrowDown' && direction !== 'UP') nextDirection = 'DOWN';
-            else if (e.key === 'ArrowLeft' && direction !== 'RIGHT') nextDirection = 'LEFT';
-            else if (e.key === 'ArrowRight' && direction !== 'LEFT') nextDirection = 'RIGHT';
+            if(e.key=='ArrowUp'&&direction!='DOWN')nextDir='UP'; else if(e.key=='ArrowDown'&&direction!='UP')nextDir='DOWN';
+            else if(e.key=='ArrowLeft'&&direction!='RIGHT')nextDir='LEFT'; else if(e.key=='ArrowRight'&&direction!='LEFT')nextDir='RIGHT';
         });
-
-        let touchStartX = 0; let touchStartY = 0;
-        canvas.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY; }, {passive: false});
-        canvas.addEventListener('touchend', e => {
-            let dx = e.changedTouches[0].clientX - touchStartX;
-            let dy = e.changedTouches[0].clientY - touchStartY;
-            if (Math.abs(dx) > Math.abs(dy)) { if (dx > 0 && direction !== 'LEFT') nextDirection = 'RIGHT'; else if (dx < 0 && direction !== 'RIGHT') nextDirection = 'LEFT'; } 
-            else { if (dy > 0 && direction !== 'UP') nextDirection = 'DOWN'; else if (dy < 0 && direction !== 'DOWN') nextDirection = 'UP'; }
+        // Touch logic needed for snake too? (Added simple swipe)
+        let tsX=0, tsY=0; canvas.addEventListener('touchstart', e=>{tsX=e.touches[0].clientX;tsY=e.touches[0].clientY}, {passive:false});
+        canvas.addEventListener('touchend', e=>{
+            let dx=e.changedTouches[0].clientX-tsX, dy=e.changedTouches[0].clientY-tsY;
+            if(Math.abs(dx)>Math.abs(dy)) { if(dx>0&&direction!='LEFT')nextDir='RIGHT'; else if(dx<0&&direction!='RIGHT')nextDir='LEFT'; }
+            else { if(dy>0&&direction!='UP')nextDir='DOWN'; else if(dy<0&&direction!='DOWN')nextDir='UP'; }
         });
 
         function startSnakeGame() {
-            snake = [{x: 10, y: 10}, {x: 9, y: 10}, {x: 8, y: 10}];
-            placeFood(); direction = 'RIGHT'; nextDirection = 'RIGHT'; snakeSpeed = 10;
-            function loop() {
-                if(!gameActive) return;
-                snakeFrame++;
-                if (snakeFrame >= snakeSpeed) { snakeFrame = 0; updateSnake(); }
-                drawSnake();
-                gameLoopId = requestAnimationFrame(loop);
-            }
+            snake=[{x:10,y:10},{x:9,y:10}]; placeFood(); direction='RIGHT'; nextDir='RIGHT';
+            function loop(){ if(!gameActive)return; sFrame++; if(sFrame>5){sFrame=0;updateSnake()} drawSnake(); gameLoopId=requestAnimationFrame(loop); }
             loop();
         }
-
-        function placeFood() { food = { x: Math.floor(Math.random() * (width / gridSize)), y: Math.floor(Math.random() * (height / gridSize)) }; }
-
-        function updateSnake() {
-            direction = nextDirection;
-            const head = { ...snake[0] };
-            if (direction === 'UP') head.y--; else if (direction === 'DOWN') head.y++; else if (direction === 'LEFT') head.x--; else if (direction === 'RIGHT') head.x++;
-            if (head.x < 0 || head.x >= width/gridSize || head.y < 0 || head.y >= height/gridSize) { gameOver(); return; }
-            for(let cell of snake) if (cell.x === head.x && cell.y === head.y) { gameOver(); return; }
+        function placeFood(){ food={x:Math.floor(Math.random()*(width/gridSize)),y:Math.floor(Math.random()*(height/gridSize))}; }
+        function updateSnake(){
+            direction=nextDir; const head={...snake[0]};
+            if(direction=='UP')head.y--; if(direction=='DOWN')head.y++; if(direction=='LEFT')head.x--; if(direction=='RIGHT')head.x++;
+            if(head.x<0||head.x>=width/gridSize||head.y<0||head.y>=height/gridSize){gameOver();return;}
+            for(let c of snake)if(c.x==head.x&&c.y==head.y){gameOver();return;}
             snake.unshift(head);
-            if (head.x === food.x && head.y === food.y) {
-                currentRunXP += 5; currentRunScore++;
-                if (currentRunScore % 5 === 0 && snakeSpeed > 3) snakeSpeed--;
-                placeFood();
-            } else snake.pop();
-            document.getElementById('gameScore').innerText = currentRunScore;
-            document.getElementById('gameXP').innerText = currentRunXP;
+            if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; currentRunScore++; placeFood(); } else snake.pop();
+            document.getElementById('gameScore').innerText=currentRunScore; document.getElementById('gameXP').innerText=currentRunXP;
         }
+        function drawSnake(){
+            ctx.fillStyle='#000'; ctx.fillRect(0,0,width,height);
+            ctx.strokeStyle='#111'; ctx.beginPath();
+            for(let i=0;i<width;i+=gridSize){ctx.moveTo(i,0);ctx.lineTo(i,height)} for(let i=0;i<height;i+=gridSize){ctx.moveTo(0,i);ctx.lineTo(width,i)} ctx.stroke();
+            
+            // Draw Snake (Neon Green Rects)
+            ctx.fillStyle='#00e676'; ctx.shadowBlur=10; ctx.shadowColor='#00e676';
+            snake.forEach(c=>ctx.fillRect(c.x*gridSize+1, c.y*gridSize+1, gridSize-2, gridSize-2));
+            ctx.shadowBlur=0;
 
-        function drawSnake() {
-            ctx.fillStyle = '#0a0a12'; ctx.fillRect(0, 0, width, height);
-            ctx.fillStyle = '#00e676';
-            snake.forEach(cell => ctx.fillRect(cell.x * gridSize + 1, cell.y * gridSize + 1, gridSize-2, gridSize-2));
-            ctx.font = "20px Arial"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-            ctx.fillText("🍌", food.x * gridSize + gridSize/2, food.y * gridSize + gridSize/2);
+            // Draw Food (Apple)
+            ctx.fillStyle='#ff1744'; ctx.beginPath(); ctx.arc(food.x*gridSize+10, food.y*gridSize+10, 8, 0, Math.PI*2); ctx.fill();
         }
     </script>
 </body>
