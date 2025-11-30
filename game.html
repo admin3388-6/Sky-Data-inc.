@@ -20,6 +20,9 @@
         .user-avatar { width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary), #8f94fb); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 900; color: white; border: 2px solid rgba(255,255,255,0.1); }
         .xp-display { background: rgba(0, 242, 255, 0.05); color: var(--accent); padding: 6px 16px; border-radius: 50px; font-weight: 700; border: 1px solid rgba(0, 242, 255, 0.3); font-size: 13px; display: flex; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0, 242, 255, 0.1); }
 
+        /* Unsaved Alert */
+        .unsaved-alert { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #ff9800, #ff5722); padding: 10px 25px; border-radius: 30px; font-size: 13px; font-weight: bold; cursor: pointer; z-index: 90; box-shadow: 0 5px 20px rgba(255, 87, 34, 0.4); display: none; animation: pulse 2s infinite; }
+
         /* Main Menu */
         .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
         .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
@@ -36,17 +39,20 @@
         canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
 
         /* Overlays */
-        #startOverlay, #gameOverScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.9); z-index: 2003; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); text-align: center; }
+        #startOverlay, #gameOverScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.95); z-index: 2003; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); text-align: center; }
         .game-title-text { font-size: 40px; font-weight: 900; letter-spacing: 3px; color: white; margin-bottom: 10px; text-shadow: 0 0 30px var(--primary); }
         .score-big { font-size: 60px; font-weight: 900; color: var(--accent); margin: 10px 0; text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
+        
+        /* أزرار جديدة */
         .action-btn { padding: 16px 50px; font-size: 16px; border-radius: 50px; border: none; cursor: pointer; margin: 10px; font-weight: 700; transition: 0.3s; min-width: 220px; text-transform: uppercase; letter-spacing: 1px; }
         .btn-claim { background: linear-gradient(135deg, #00c853, #009624); color: white; box-shadow: 0 10px 30px rgba(0, 200, 83, 0.3); }
         .btn-retry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
         
-        /* Loading Overlay for Saving */
+        /* Loading Overlay */
         .saving-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; font-weight: bold; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
         @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } 100% { transform: translateX(-50%) scale(1); } }
         @media (max-width: 600px) { .header { padding: 15px; } .xp-display span:last-child { display: none; } }
     </style>
 </head>
@@ -56,15 +62,19 @@
 
     <div id="saveLoader" class="saving-overlay">
         <div class="spinner"></div>
-        <div id="saveText">SYNCING DATA...</div>
+        <div id="saveText">CHECKING RECORD...</div>
     </div>
 
     <div class="header">
         <div style="font-size: 22px; font-weight: 800; color: white; letter-spacing: 1px;">SKY <span style="color:var(--accent)">ARCADE</span></div>
         <div class="user-info">
-            <div class="xp-display"><i class="fas fa-bolt"></i> <span id="headerXp">...</span> <span>XP</span></div>
+            <div class="xp-display"><i class="fas fa-trophy"></i> Best: <span id="headerXp">...</span></div>
             <div class="user-avatar" id="userAvatar">U</div>
         </div>
+    </div>
+
+    <div id="unsavedAlert" class="unsaved-alert" onclick="saveData()">
+        ⚠️ Unsaved High Score: <span id="unsavedVal">0</span>! Click to Save.
     </div>
 
     <div class="main-content">
@@ -73,14 +83,14 @@
                 <div class="game-icon"><i class="fas fa-rocket"></i></div>
                 <h3>Hyper Space</h3>
                 <p>Advanced flight simulation.</p>
-                <div style="margin-top:15px; font-size:12px; opacity:0.7;">High Score: <span id="rocketHigh">0</span></div>
+                <div style="margin-top:15px; font-size:12px; opacity:0.7;">Best: <span id="rocketHigh">0</span></div>
                 <button class="play-btn">Launch</button>
             </div>
             <div class="game-card" onclick="startGame('snake')">
                 <div class="game-icon"><i class="fas fa-cube"></i></div>
                 <h3>Neon Snake</h3>
                 <p>Cybernetic grid challenge.</p>
-                <div style="margin-top:15px; font-size:12px; opacity:0.7;">High Score: <span id="snakeHigh">0</span></div>
+                <div style="margin-top:15px; font-size:12px; opacity:0.7;">Best: <span id="snakeHigh">0</span></div>
                 <button class="play-btn">Start</button>
             </div>
         </div>
@@ -91,7 +101,6 @@
 
     <div class="game-modal" id="gameModal">
         <div class="game-hud">
-            <div class="hud-item"><i class="fas fa-star" style="color:#ffd700; width:25px;"></i> <span id="gameScore">0</span></div>
             <div class="hud-item"><i class="fas fa-bolt" style="color:var(--accent); width:25px;"></i> <span id="gameXP">0</span></div>
             <div id="shieldStatus" style="color:#00f2ff; display:none; font-size:16px;">🛡️ SHIELD</div>
         </div>
@@ -101,26 +110,21 @@
 
         <div id="startOverlay" onclick="initGameLogic()">
             <div class="game-title-text">READY?</div>
-            <div style="font-size:16px; color:#aaa; margin-top:5px;">Tap to Engage Thrusters</div>
+            <div style="font-size:16px; color:#aaa; margin-top:5px;">Tap to Start</div>
         </div>
 
         <div id="gameOverScreen" style="display:none;">
-            <h1 class="game-title-text" style="color:#ff4444; text-shadow:0 0 30px rgba(255,0,0,0.4);">WRECKED</h1>
+            <h1 class="game-title-text" style="color:#ff4444;">GAME OVER</h1>
             
-            <div style="display:flex; gap:30px; margin:20px 0;">
-                <div style="text-align:center;">
-                    <div style="font-size:12px; color:#aaa; text-transform:uppercase;">Score</div>
-                    <div class="score-big" id="finalScore" style="font-size:40px; color:white;">0</div>
-                </div>
-                <div style="text-align:center;">
-                    <div style="font-size:12px; color:#aaa; text-transform:uppercase;">Rewards</div>
-                    <div class="score-big" id="finalXP" style="font-size:40px; color:var(--accent);">0</div>
-                </div>
+            <div style="display:flex; flex-direction: column; align-items: center; margin:20px 0;">
+                <div style="font-size:14px; color:#aaa; text-transform:uppercase;">Score Achieved</div>
+                <div class="score-big" id="finalXP" style="color:white;">0</div>
+                <div id="newRecordMsg" style="color:#00e676; font-weight:bold; display:none; margin-top:5px;">🎉 NEW RECORD!</div>
             </div>
 
             <div>
-                <button class="action-btn btn-claim" onclick="smartSave('menu')">SAVE & EXIT</button>
-                <button class="action-btn btn-retry" onclick="smartSave('retry')">SAVE & RETRY</button>
+                <button class="action-btn btn-claim" onclick="saveData()">SAVE & EXIT</button>
+                <button class="action-btn btn-retry" onclick="resetGame()">PLAY AGAIN</button>
             </div>
         </div>
     </div>
@@ -131,7 +135,9 @@
         import { supabase } from './supabase.js';
 
         // Vars
-        let currentUser=null, currentGame=null, gameActive=false, gameLoopId=null, currentRunXP=0, currentRunScore=0;
+        let currentUser=null, currentGame=null, gameActive=false, gameLoopId=null, currentRunXP=0;
+        let localBest = 0; // أفضل نتيجة مخزنة في المتصفح حالياً
+        
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -139,27 +145,33 @@
         function resizeGame() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeGame);
 
-        // ✅ إصلاح جلب البيانات: جلب الـ XP الحقيقي فوراً من السيرفر
+        // --- Init ---
         async function initPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.replace("login.html"); return; }
             currentUser = session.user;
             
-            // جلب البيانات من السيرفر مباشرة (بدون الاعتماد على الكاش)
-            const { data: profile, error } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
+            // 1. جلب أفضل نتيجة مسجلة في السيرفر
+            const { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
+            const serverBest = profile?.xp || 0;
             
-            if (profile) {
-                document.getElementById('headerXp').innerText = (profile.xp || 0).toLocaleString();
-                document.getElementById('userAvatar').innerText = (profile.name || "U").charAt(0).toUpperCase();
+            document.getElementById('headerXp').innerText = serverBest.toLocaleString();
+            
+            // 2. التحقق من المخزن المحلي (في حال وجود رقم أعلى لم يحفظ)
+            const unsaved = parseInt(localStorage.getItem('skydata_unsaved_best') || '0');
+            
+            if (unsaved > serverBest) {
+                // يوجد رقم محلي أعلى من السيرفر (لم يحفظ)
+                document.getElementById('unsavedAlert').style.display = 'block';
+                document.getElementById('unsavedVal').innerText = unsaved;
+                localBest = unsaved;
+            } else {
+                localBest = serverBest;
             }
-            
-            // تحميل أعلى النتائج المحلية (للعرض فقط)
-            document.getElementById('rocketHigh').innerText = localStorage.getItem('rocket_high') || 0;
-            document.getElementById('snakeHigh').innerText = localStorage.getItem('snake_high') || 0;
         }
         initPage();
 
-        // Game State Management
+        // --- Game Control ---
         window.startGame = function(type) {
             currentGame = type;
             document.getElementById('gameModal').style.display = 'flex';
@@ -172,74 +184,92 @@
 
         window.initGameLogic = function() {
             document.getElementById('startOverlay').style.display = 'none';
-            gameActive = true; currentRunXP = 0; currentRunScore = 0;
+            gameActive = true; currentRunXP = 0;
             if (currentGame === 'rocket') startRocketGame();
             else if (currentGame === 'snake') startSnakeGame();
         };
 
         window.exitGame = function() {
-            if(gameActive) {
-                // إذا خرج أثناء اللعب، لا نحفظ شيئاً ونعيد تحميل الصفحة لتنظيف الحالة
-                gameActive = false;
-                cancelAnimationFrame(gameLoopId);
-                location.reload();
-            } else {
-                location.reload();
-            }
+            gameActive = false; cancelAnimationFrame(gameLoopId);
+            location.reload();
         };
 
-        // ✅ نظام الحفظ الذكي (Smart Save & Refresh)
-        window.smartSave = async function(action) {
-            if (currentRunXP <= 0) {
-                // إذا لم يكسب شيئاً، فقط أعد التحميل
-                location.reload();
-                return;
-            }
+        // ✅ وظيفة الحفظ الذكية (Max Check)
+        window.saveData = async function() {
+            // الرقم المراد حفظه هو الأكبر بين (الجولة الحالية) و (المخزن محلياً)
+            let scoreToSave = Math.max(currentRunXP, parseInt(localStorage.getItem('skydata_unsaved_best') || '0'));
+            
+            if (scoreToSave <= 0) { location.reload(); return; }
 
-            // إظهار شاشة التحميل
             const loader = document.getElementById('saveLoader');
             loader.style.display = 'flex';
 
             try {
-                // 1. جلب الرصيد الحالي من السيرفر (لضمان الدقة)
+                // 1. جلب رقم السيرفر للتأكد
                 let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
                 let serverXP = profile?.xp || 0;
-                
-                // 2. حساب المجموع الجديد
-                let newTotal = serverXP + currentRunXP;
-                
-                // 3. تحديث السيرفر
-                const { error } = await supabase.from('users').update({ xp: newTotal }).eq('id', currentUser.id);
-                if (error) throw error;
 
-                // 4. حفظ أعلى نتيجة محلياً
-                const key = currentGame + '_high';
-                if (currentRunScore > (parseInt(localStorage.getItem(key)) || 0)) localStorage.setItem(key, currentRunScore);
+                // 2. المقارنة: هل رقمنا الجديد أكبر؟
+                if (scoreToSave > serverXP) {
+                    const { error } = await supabase.from('users').update({ xp: scoreToSave }).eq('id', currentUser.id);
+                    if (error) throw error;
+                }
 
-                // 5. النجاح! الآن قم بعمل Refresh للصفحة
-                // هذا يضمن أن المستخدم يرى الرصيد الجديد، ويبدأ لعبة نظيفة تماماً
-                location.reload(); 
+                // 3. تنظيف المخزن المحلي
+                localStorage.setItem('skydata_unsaved_best', '0');
+                
+                // 4. ريفريش
+                location.reload();
 
             } catch (err) {
                 console.error(err);
                 loader.style.display = 'none';
-                alert("Connection Error. Please try saving again.");
+                alert("Connection Failed. Score saved locally.");
+                // حفظ محلي احتياطي
+                if (scoreToSave > parseInt(localStorage.getItem('skydata_unsaved_best') || '0')) {
+                    localStorage.setItem('skydata_unsaved_best', scoreToSave);
+                }
+                location.reload();
             }
+        };
+
+        window.resetGame = function() {
+            // حفظ محلي سريع إذا كسر الرقم
+            let oldBest = parseInt(localStorage.getItem('skydata_unsaved_best') || '0');
+            if (currentRunXP > oldBest) {
+                localStorage.setItem('skydata_unsaved_best', currentRunXP);
+            }
+            // إعادة اللعب
+            document.getElementById('gameOverScreen').style.display = 'none';
+            initGameLogic();
         };
 
         function gameOver() {
             gameActive = false; cancelAnimationFrame(gameLoopId);
-            document.getElementById('finalScore').innerText = Math.floor(currentRunScore);
+            
             document.getElementById('finalXP').innerText = Math.floor(currentRunXP);
+            
+            // هل هذا رقم قياسي جديد (بالنسبة للجلسة الحالية)؟
+            let currentBest = Math.max(localBest, parseInt(localStorage.getItem('skydata_unsaved_best') || '0'));
+            
+            if (currentRunXP > currentBest) {
+                document.getElementById('newRecordMsg').style.display = 'block';
+                // تحديث المتغير المحلي فوراً
+                localStorage.setItem('skydata_unsaved_best', currentRunXP);
+            } else {
+                document.getElementById('newRecordMsg').style.display = 'none';
+            }
+            
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
 
         // ==========================================
-        // 🚀 ROCKET GAME ENGINE
+        // 🚀 ROCKET GAME
         // ==========================================
         let rocket = { x: 0, y: 0, w: 40 };
-        let obstacles = []; let items = []; let stars = [];
-        let gameTime = 0; let shieldActive = false; let shieldTimer = 0; let speedFactor = 1; let mouse = { x: width/2, y: height/2 };
+        let obstacles = [], items = [], stars = [];
+        let gameTime = 0, shieldActive = false, shieldTimer = 0;
+        let speedFactor = 1, mouse = { x: width/2, y: height/2 };
 
         canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
         canvas.addEventListener('touchmove', e => { e.preventDefault(); const r = canvas.getBoundingClientRect(); mouse.x = e.touches[0].clientX - r.left; mouse.y = e.touches[0].clientY - r.top; }, {passive: false});
@@ -250,11 +280,7 @@
             for(let i=0; i<60; i++) stars.push({x: Math.random()*width, y: Math.random()*height, z: Math.random()*2 + 0.5});
             gameTime = 0; speedFactor = 1; shieldActive = false;
             
-            function loop() {
-                if(!gameActive) return;
-                updateRocket(); drawRocketGame();
-                gameLoopId = requestAnimationFrame(loop);
-            }
+            function loop() { if(!gameActive) return; updateRocket(); drawRocketGame(); gameLoopId = requestAnimationFrame(loop); }
             loop();
         }
 
@@ -271,7 +297,6 @@
                 const xPos = Math.random() * (width - size);
                 let safe = true;
                 obstacles.forEach(o => { if (Math.hypot(o.x - xPos, o.y - (-50)) < 80) safe = false; });
-                
                 if (safe) {
                     const verts = []; const sides = Math.floor(Math.random()*3)+5;
                     for(let i=0;i<sides;i++) { const a = (i/sides)*Math.PI*2; const r = size*(0.7+Math.random()*0.3); verts.push({x:Math.cos(a)*r, y:Math.sin(a)*r}); }
@@ -287,7 +312,7 @@
 
             obstacles.forEach((o, i) => {
                 o.y += o.speed; o.rot += o.rotS;
-                if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; }
+                if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; } // +1 XP for dodging
                 if (Math.hypot(rocket.x - o.x, rocket.y - o.y) < (20 + o.size)) {
                     if (shieldActive) { obstacles.splice(i,1); currentRunXP += 5; } else gameOver();
                 }
@@ -308,9 +333,6 @@
                 document.getElementById('shieldStatus').style.display = 'block';
                 if(shieldTimer<=0) { shieldActive=false; document.getElementById('shieldStatus').style.display='none'; }
             }
-
-            currentRunScore = Math.floor(gameTime / 10);
-            document.getElementById('gameScore').innerText = currentRunScore;
             document.getElementById('gameXP').innerText = Math.floor(currentRunXP);
         }
 
@@ -340,14 +362,14 @@
                 const glow = it.type === 'shield' ? '#00f2ff' : (it.type === 'gem' ? '#e040fb' : '#00e676');
                 ctx.shadowBlur = 15; ctx.shadowColor = glow; ctx.fillStyle = glow;
                 ctx.beginPath(); ctx.arc(0,0, 12, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#fff'; ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle";
-                ctx.shadowBlur = 0; ctx.fillText(it.type==='shield'?'S':(it.type==='gem'?'💎':'⚡'), 0, 1);
+                ctx.fillStyle = '#fff'; ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.shadowBlur = 0;
+                ctx.fillText(it.type==='shield'?'S':(it.type==='gem'?'💎':'⚡'), 0, 1);
                 ctx.restore();
             });
         }
 
         // ==========================================
-        // 🐍 SNAKE (Same Logic)
+        // 🐍 SNAKE (Same Logic - Max Score)
         // ==========================================
         const gridSize = 20; let snake = [], food = {}, dir='RIGHT', nextDir='RIGHT', snakeSpeed=10, snakeFrame=0;
         document.addEventListener('keydown', e => { if(e.key=='ArrowUp'&&dir!='DOWN')nextDir='UP'; else if(e.key=='ArrowDown'&&dir!='UP')nextDir='DOWN'; else if(e.key=='ArrowLeft'&&dir!='RIGHT')nextDir='LEFT'; else if(e.key=='ArrowRight'&&dir!='LEFT')nextDir='RIGHT'; });
@@ -356,7 +378,15 @@
 
         function startSnakeGame() { snake=[{x:10,y:10},{x:9,y:10}]; placeFood(); dir='RIGHT'; nextDir='RIGHT'; snakeSpeed=10; function loop(){ if(!gameActive)return; snakeFrame++; if(snakeFrame>=snakeSpeed){snakeFrame=0;updateSnake()} drawSnake(); gameLoopId=requestAnimationFrame(loop); } loop(); }
         function placeFood(){ food={x:Math.floor(Math.random()*(width/gridSize)),y:Math.floor(Math.random()*(height/gridSize))}; }
-        function updateSnake(){ dir=nextDir; const head={...snake[0]}; if(dir=='UP')head.y--; if(dir=='DOWN')head.y++; if(dir=='LEFT')head.x--; if(dir=='RIGHT')head.x++; if(head.x<0||head.x>=width/gridSize||head.y<0||head.y>=height/gridSize){gameOver();return;} for(let c of snake)if(c.x==head.x&&c.y==head.y){gameOver();return;} snake.unshift(head); if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; currentRunScore++; if(currentRunScore%5===0 && snakeSpeed>3)snakeSpeed--; placeFood(); } else snake.pop(); document.getElementById('gameScore').innerText=currentRunScore; document.getElementById('gameXP').innerText=currentRunXP; }
+        function updateSnake(){
+            dir=nextDir; const head={...snake[0]};
+            if(dir=='UP')head.y--; if(dir=='DOWN')head.y++; if(dir=='LEFT')head.x--; if(dir=='RIGHT')head.x++;
+            if(head.x<0||head.x>=width/gridSize||head.y<0||head.y>=height/gridSize){gameOver();return;}
+            for(let c of snake)if(c.x==head.x&&c.y==head.y){gameOver();return;}
+            snake.unshift(head);
+            if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; if(currentRunXP%25===0 && snakeSpeed>3)snakeSpeed--; placeFood(); } else snake.pop();
+            document.getElementById('gameXP').innerText=currentRunXP;
+        }
         function drawSnake(){ ctx.fillStyle='#050508'; ctx.fillRect(0,0,width,height); ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=1; for(let i=0;i<width;i+=gridSize){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,height);ctx.stroke()} for(let i=0;i<height;i+=gridSize){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(width,i);ctx.stroke()} ctx.fillStyle='#00e676'; ctx.shadowBlur=10; ctx.shadowColor='#00e676'; snake.forEach(c=>ctx.fillRect(c.x*gridSize+1,c.y*gridSize+1,gridSize-2,gridSize-2)); ctx.shadowBlur=0; ctx.fillStyle='#ffea00'; ctx.beginPath(); ctx.arc(food.x*gridSize+10,food.y*gridSize+10,6,0,Math.PI*2); ctx.fill(); }
     </script>
 </body>
