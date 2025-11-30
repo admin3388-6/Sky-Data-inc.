@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* نفس التصميم السابق */
+        /* نفس التصميم السابق تماماً */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -38,9 +38,6 @@
         .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 1px; }
         .info-row span { color: white; font-weight: 600; font-size: 16px; }
         
-        /* زر إصلاح الاتصال */
-        #retryBtn { display: none; background: var(--accent); color: #000; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; animation: slideUp 1s ease forwards; }
         .action-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
         .action-card:hover { transform: translateY(-10px); }
@@ -56,6 +53,10 @@
 
         button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
         button.logout:hover { background: #d43f3f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.3); }
+        
+        /* زر الطوارئ */
+        #errorState { display: none; color: #ff4b4b; margin-top: 20px; }
+        #retryManual { background: var(--accent); color: black; border: none; padding: 10px 20px; border-radius: 20px; cursor: pointer; font-weight: bold; margin-top: 10px; }
 
         @media (max-width: 768px) {
             .sidebar { width: 0; padding: 0; border: none; }
@@ -89,10 +90,15 @@
             <h1 data-i18n="profileTitle">User Profile</h1>
             
             <div id="loader">
-                <div style="color: #888; margin-bottom:10px;">Syncing Data...</div>
+                <div style="color: #888; margin-bottom:10px;">Loading Profile...</div>
                 <i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:var(--accent);"></i>
-                <br>
-                <button id="retryBtn" onclick="location.reload()">Retry Connection</button>
+                
+                <div id="errorState">
+                    <div>Connection Issue. Data failed to load.</div>
+                    <button id="retryManual" onclick="location.reload()">Try Again</button>
+                    <div style="font-size:12px; margin-top:10px; opacity:0.7;">OR</div>
+                    <button onclick="forceLogout()" style="background:none; border:none; color:white; text-decoration:underline; cursor:pointer; margin-top:5px;">Force Logout</button>
+                </div>
             </div>
 
             <div id="content" style="display:none;">
@@ -131,7 +137,7 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // History Handling
+        // Back Button Trap
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -139,9 +145,17 @@
             }
         };
 
+        // UI Logic
         window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
         window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
+        
+        // Force Logout Function
+        window.forceLogout = async () => {
+            await supabase.auth.signOut();
+            window.location.replace("login.html");
+        };
 
+        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
@@ -156,54 +170,31 @@
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // ✅ المنطق الآمن للتحقق من الجلسة
-        async function init() {
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            // إذا لم يكن مسجلاً، ولكن الرابط يحتوي على توكن (قادم من جوجل)، انتظر قليلاً
-            if (!user) {
-                if (window.location.hash && window.location.hash.includes('access_token')) {
-                    console.log("OAuth Redirect detected. Waiting...");
-                    return; // لا تفعل شيئاً، onAuthStateChange سيعمل
+        // ✅✅✅ المنطق الآمن (Safe Auth Logic)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session) {
+                await loadProfileData(session.user);
+            } else {
+                // لا تطرد المستخدم فوراً، تحقق من الرابط أولاً
+                if (!window.location.hash.includes('access_token')) {
+                    window.location.replace("login.html");
                 }
-                // غير مسجل وليس قادماً من جوجل -> اذهب للدخول
-                window.location.replace("login.html");
-                return;
-            }
-            
-            // مسجل -> ابدأ التحميل
-            loadProfileData(user);
-        }
-
-        // الاستماع للتغييرات (للتعامل مع العودة من جوجل)
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                loadProfileData(session.user);
-            } else if (event === 'SIGNED_OUT') {
-                window.location.replace("login.html");
             }
         });
 
-        // ✅ دالة التحميل مع الشفاء الذاتي (Self-Healing)
         async function loadProfileData(user) {
             let profileData = null;
-            let attempts = 0;
-
-            // محاولة القراءة (5 مرات)
-            while (attempts < 5 && !profileData) {
-                try {
-                    let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
-                    if (data) profileData = data;
-                } catch (e) { }
-                if (!profileData) await new Promise(r => setTimeout(r, 500));
-                attempts++;
-            }
-
-            // إذا لم نجد البيانات -> أنشئها الآن! (Self-Healing)
-            if (!profileData) {
-                console.log("Creating missing profile...");
-                try {
-                    const { data: newData, error: err } = await supabase.from('users').insert([{
+            
+            // 1. محاولة قراءة البيانات
+            try {
+                let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
+                
+                if (data) {
+                    profileData = data;
+                } else {
+                    // 2. إذا لم نجد البيانات، ننشئها (Self-Healing)
+                    console.log("No profile found. Creating...");
+                    const { data: newData, error: insertErr } = await supabase.from('users').insert([{
                         id: user.id,
                         email: user.email,
                         name: user.user_metadata.full_name || user.email.split('@')[0],
@@ -212,29 +203,32 @@
                     }]).select().single();
                     
                     if (newData) profileData = newData;
-                } catch (e) { console.error(e); }
+                    else throw new Error("Creation Failed: " + (insertErr?.message || "Unknown"));
+                }
+
+            } catch (err) {
+                console.error("Profile Error:", err);
+                // 🛑 هنا يكمن الحل: لا تطرد المستخدم! بل اعرض زر الخطأ
+                document.getElementById('loader').querySelector('div').innerText = "Error Loading Data";
+                document.getElementById('loader').querySelector('i').style.display = "none";
+                document.getElementById('errorState').style.display = "block";
+                return; 
             }
 
-            // العرض
-            if (profileData) {
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("content").style.display = "block";
-                document.getElementById("name").textContent = profileData.name;
-                document.getElementById("email").textContent = profileData.email;
-                const r = profileData.rank || 'free';
-                document.getElementById("rank").innerHTML = r.toUpperCase() + (r==='pro' ? ' <i class="fas fa-crown" style="color:gold"></i>' : '');
-            } else {
-                // فشل تام - أظهر زر المحاولة ولا تطرد المستخدم
-                document.getElementById('retryBtn').style.display = 'inline-block';
-            }
+            // 3. نجاح! اعرض البيانات
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("content").style.display = "block";
+            
+            document.getElementById("name").textContent = profileData.name;
+            document.getElementById("email").textContent = profileData.email;
+            const r = profileData.rank || 'free';
+            document.getElementById("rank").innerHTML = r.toUpperCase() + (r==='pro' ? ' <i class="fas fa-crown" style="color:gold"></i>' : '');
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
-        
-        init();
     </script>
 
 </body>
