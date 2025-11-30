@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* (نفس التصميم السابق تماماً) */
+        /* نفس التصميم السابق */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -123,7 +123,7 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // History Handling
+        // 1. History Handling (Back Button Trap)
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -131,6 +131,7 @@
             }
         };
 
+        // 2. Sidebar & Canvas Logic
         window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
         window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
@@ -148,53 +149,55 @@
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // ✅✅ الإصلاح الجذري: الانتظار حتى التأكد (AuthState Listener)
-        let isProcessing = true; // متغير لمنع القرارات المتسرعة
-
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("Auth Event:", event);
+        // 3. ✅✅ The Fixed Auth Logic
+        async function initDashboard() {
+            // التحقق من الرابط: هل نحن قادمون من جوجل؟
+            const isRedirecting = window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'));
             
-            // 1. إذا وجدنا جلسة -> المستخدم مسجل -> حمل البيانات
-            if (session) {
-                isProcessing = false;
-                await loadProfileData(session.user);
-            } 
-            // 2. إذا لم نجد جلسة، نتأكد هل هناك عملية معالجة لرابط جوجل؟
-            else {
-                // هل الرابط يحتوي على توكن؟ (يعني المستخدم قادم من جوجل حالاً)
-                const isRedirecting = window.location.hash && window.location.hash.includes('access_token');
-                
-                if (isRedirecting) {
-                    // انتظر... Supabase ستقوم بتسجيل الدخول قريباً
-                    console.log("Processing redirect...");
-                    return; 
-                }
+            if (isRedirecting) {
+                // نحن في حالة تحويل، لا تفعل شيئاً، Supabase سيتولى الأمر
+                console.log("Processing OAuth redirect...");
+                document.getElementById('loader').innerText = "Finalizing Login...";
+                return; 
+            }
 
-                // إذا لم يكن هناك توكن ولا جلسة -> المستخدم غير مسجل حقاً -> اطرده
-                // نستخدم مهلة بسيطة جداً كإجراء احتياطي أخير
-                setTimeout(() => {
-                    if (isProcessing) window.location.replace("login.html");
-                }, 2000);
+            // التحقق العادي
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { 
+                // لست مسجلاً ولست في حالة تحويل -> اذهب للدخول
+                window.location.replace("login.html"); 
+                return; 
+            }
+
+            // المستخدم مسجل -> ابدأ تحميل البيانات
+            await loadProfileData(user);
+        }
+
+        // مستمع التغييرات (للتعامل مع لحظة انتهاء التحويل)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                // تم الدخول بنجاح! حمل البيانات
+                await loadProfileData(session.user);
+            } else if (event === 'SIGNED_OUT') {
+                window.location.replace("login.html");
             }
         });
 
-        // دالة تحميل البيانات (منفصلة)
+        // دالة تحميل البيانات (مع المحاولة المتكررة)
         async function loadProfileData(user) {
             let profileData = null;
             let attempts = 0;
             
-            // محاولة جلب البيانات (مع إعادة المحاولة في حال تأخر التريجر)
             while (attempts < 5 && !profileData) {
                 try {
                     let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
                     if (data) profileData = data;
                 } catch (e) { }
-                
                 if (!profileData) await new Promise(r => setTimeout(r, 800));
                 attempts++;
             }
 
-            // عرض البيانات (أو البيانات الافتراضية إذا فشل التحميل)
+            // عرض البيانات (حتى لو لم نجد الملف، نعرض بيانات جوجل)
             document.getElementById("loader").style.display = "none";
             document.getElementById("content").style.display = "block";
             
@@ -212,10 +215,14 @@
             }
         }
 
+        // تسجيل الخروج
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
+        
+        // التشغيل المبدئي
+        initDashboard();
     </script>
 
 </body>
