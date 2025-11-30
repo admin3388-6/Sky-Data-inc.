@@ -2,13 +2,24 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <script type="module">
+        import { supabase } from "./supabase.js";
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) {
+                // إذا كنت مسجلاً بالفعل، اذهب للمينيو
+                window.location.replace("menu.html");
+            }
+        });
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     <style>
-        /* (نفس الستايل السابق) */
+        /* نفس الستايل السابق */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background-color: #0a0a12; color: white; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
@@ -36,26 +47,20 @@
         <button id="linkedinBtn" class="social-btn btn-linkedin" disabled><i class="fab fa-linkedin"></i> LinkedIn</button>
         <button id="githubBtn" class="social-btn btn-github" disabled><i class="fab fa-github"></i> GitHub</button>
     </div>
-    
     <script type="module" src="./system.js"></script>
     <script type="module">
         import { supabase } from "./supabase.js";
         
-        // ✅ تحقق بسيط بدون طرد فوري (يمنع الحلقة)
-        supabase.auth.getSession().then(({data:{session}}) => {
-            if(session) window.location.replace("menu.html");
-        });
-
         async function login(p) {
             if(!window.cfToken || !window.isTerms) return;
+            // redirectTo مهم جداً هنا
             const { error } = await supabase.auth.signInWithOAuth({ provider: p, options: { redirectTo: window.location.origin + "/menu.html" } });
             if(error) alert(error.message);
         }
         document.getElementById('googleBtn').onclick = () => login('google');
         document.getElementById('linkedinBtn').onclick = () => login('linkedin_oidc');
         document.getElementById('githubBtn').onclick = () => login('github');
-
-        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h;function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight;}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
     </script>
 </body>
 </html>
