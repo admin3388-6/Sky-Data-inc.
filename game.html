@@ -9,122 +9,176 @@
     
     <style>
         /* --- Global Styles --- */
-        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
+        :root { 
+            --bg-dark: #050508; 
+            --glass: rgba(255, 255, 255, 0.05); 
+            --border: rgba(255, 255, 255, 0.1); 
+            --primary: #4e54c8; 
+            --accent: #00f2ff; /* Cyan for sci-fi look */
+            --text: #ffffff; 
+            --text-muted: #8b9bb4; 
+        }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; user-select: none; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
 
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 20px 30px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 100; transition: transform 0.3s; }
+        /* Header (Improved Icons) */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 25px; background: rgba(5, 5, 8, 0.95); 
+            backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); 
+            position: fixed; top: 0; width: 100%; z-index: 100; box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+        }
         .user-info { display: flex; align-items: center; gap: 15px; }
-        .xp-display { background: rgba(0, 210, 255, 0.1); color: var(--accent); padding: 5px 15px; border-radius: 20px; font-weight: bold; border: 1px solid rgba(0, 210, 255, 0.2); font-size: 14px; }
+        .user-avatar { 
+            width: 35px; height: 35px; background: linear-gradient(135deg, var(--primary), #8f94fb); 
+            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+            font-weight: 900; color: white; border: 2px solid rgba(255,255,255,0.1);
+        }
+        .xp-display { 
+            background: rgba(0, 242, 255, 0.05); color: var(--accent); 
+            padding: 6px 16px; border-radius: 50px; font-weight: 700; 
+            border: 1px solid rgba(0, 242, 255, 0.3); font-size: 13px; 
+            display: flex; align-items: center; gap: 8px; box-shadow: 0 0 10px rgba(0, 242, 255, 0.1);
+        }
+        .xp-display i { font-size: 14px; }
 
-        /* Menu Content */
-        .main-content { margin-top: 100px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+        /* Main Menu */
+        .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
         .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
-        .game-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 24px; text-align: center; transition: 0.3s; cursor: pointer; position: relative; overflow: hidden; }
-        .game-card:hover { transform: translateY(-10px); border-color: var(--accent); box-shadow: 0 10px 30px rgba(0, 210, 255, 0.1); }
-        .game-icon { font-size: 50px; color: var(--accent); margin-bottom: 20px; }
-        .play-btn { margin-top: 20px; padding: 10px 30px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; }
+        .game-card { 
+            background: var(--glass); border: 1px solid var(--border); 
+            padding: 30px; border-radius: 24px; text-align: center; 
+            transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; 
+        }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 40px rgba(0, 242, 255, 0.15); }
+        .game-icon { font-size: 45px; color: var(--accent); margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.4)); }
+        .play-btn { margin-top: 20px; padding: 12px 35px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .play-btn:hover { box-shadow: 0 0 20px rgba(78, 84, 200, 0.5); transform: scale(1.05); }
 
-        /* --- Full Screen Game Mode --- */
-        .game-modal { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: #0b0b14; /* لون فضاء عميق */
-            z-index: 200000; /* فوق كل شيء */
-            display: none; flex-direction: column; 
-        }
+        /* Game Screen */
+        .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
         
-        /* Game UI (HUD) */
         .game-hud { 
-            position: absolute; top: 20px; left: 20px; 
-            color: white; font-family: 'Courier New', monospace; 
-            z-index: 200002; pointer-events: none; 
-            text-shadow: 0 2px 4px black;
+            position: absolute; top: 20px; left: 20px; color: white; 
+            font-family: 'Outfit', sans-serif; z-index: 2002; pointer-events: none; 
         }
-        .hud-item { font-size: 20px; font-weight: bold; margin-bottom: 5px; }
+        .hud-item { margin-bottom: 5px; font-weight: 800; font-size: 18px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 10px;}
         
         .close-game { 
             position: absolute; top: 20px; right: 20px; 
-            background: rgba(255, 0, 0, 0.2); color: #ff8888; 
-            border: 1px solid #ff4444; padding: 8px 20px; 
-            border-radius: 8px; cursor: pointer; z-index: 200002; 
-            font-weight: bold; backdrop-filter: blur(5px);
+            background: rgba(255,255,255,0.1); color: white; 
+            border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; 
+            border-radius: 50px; cursor: pointer; z-index: 2002; font-weight: 600; backdrop-filter: blur(5px);
         }
-
-        canvas#gameCanvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+        
+        canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
 
         /* Overlays */
         #startOverlay, #gameOverScreen {
             position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.85); z-index: 200003;
+            background: rgba(5, 5, 8, 0.9); z-index: 2003;
             display: flex; flex-direction: column; justify-content: center; align-items: center;
-            backdrop-filter: blur(8px);
+            backdrop-filter: blur(15px); text-align: center;
         }
         
-        .game-over-title { font-size: 3rem; color: #ff4b4b; margin-bottom: 10px; font-weight: 900; letter-spacing: 2px; }
-        .action-btn { padding: 15px 40px; font-size: 18px; border-radius: 50px; border: none; cursor: pointer; margin: 10px; font-weight: bold; transition: 0.3s; min-width: 200px; }
-        .btn-save { background: linear-gradient(135deg, #00c853, #009624); color: white; box-shadow: 0 0 20px rgba(0, 200, 83, 0.4); }
-        .btn-retry { background: transparent; border: 2px solid white; color: white; }
+        .game-title-text { font-size: 40px; font-weight: 900; letter-spacing: 3px; color: white; margin-bottom: 10px; text-shadow: 0 0 30px var(--primary); }
+        .score-big { font-size: 60px; font-weight: 900; color: var(--accent); margin: 10px 0; text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
+        
+        .action-btn { 
+            padding: 16px 50px; font-size: 16px; border-radius: 50px; border: none; 
+            cursor: pointer; margin: 10px; font-weight: 700; transition: 0.3s; min-width: 220px; text-transform: uppercase; letter-spacing: 1px;
+        }
+        .btn-claim { 
+            background: linear-gradient(135deg, #00c853, #009624); color: white; 
+            box-shadow: 0 10px 30px rgba(0, 200, 83, 0.3); position: relative; overflow: hidden;
+        }
+        .btn-claim::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: rgba(255,255,255,0.2); transform: rotate(45deg); animation: shine 3s infinite; }
+        
+        .btn-retry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
+        .btn-retry:hover { background: rgba(255,255,255,0.1); }
 
-        @media (max-width: 600px) { .header { padding: 15px; } .xp-display { display: none; } }
+        @keyframes shine { 0% { left: -100%; } 20% { left: 100%; } 100% { left: 100%; } }
+        @media (max-width: 600px) { .header { padding: 15px; } .xp-display span:last-child { display: none; } }
     </style>
 </head>
 <body>
 
     <canvas id="canvas-bg"></canvas>
 
-    <div class="header" id="mainHeader">
-        <div style="font-size: 24px; font-weight: bold; color: white;">SKY <span style="color:var(--accent)">ARCADE</span></div>
+    <div class="header">
+        <div style="font-size: 22px; font-weight: 800; color: white; letter-spacing: 1px;">SKY <span style="color:var(--accent)">ARCADE</span></div>
         <div class="user-info">
-            <div class="xp-display"><i class="fas fa-bolt"></i> <span id="headerXp">0</span></div>
-            <div id="userName" style="font-weight:bold">User</div>
+            <div class="xp-display"><i class="fas fa-bolt"></i> <span id="headerXp">0</span> <span>XP</span></div>
+            <div class="user-avatar" id="userAvatar">U</div>
         </div>
     </div>
 
-    <div class="main-content" id="mainMenu">
+    <div id="unsavedAlert" onclick="forceSave()" style="position:fixed; top:80px; left:50%; transform:translateX(-50%); background:linear-gradient(90deg, #ff9800, #ff5722); padding:10px 25px; border-radius:30px; font-size:13px; font-weight:bold; cursor:pointer; z-index:90; box-shadow:0 5px 20px rgba(255, 87, 34, 0.4); display:none; animation: pulse 2s infinite;">
+        <i class="fas fa-exclamation-triangle"></i> Pending Rewards! Click to Sync.
+    </div>
+
+    <div class="main-content">
         <div class="game-grid">
             <div class="game-card" onclick="startGame('rocket')">
                 <div class="game-icon"><i class="fas fa-rocket"></i></div>
-                <h3>Space Dodge</h3>
-                <p>Avoid meteors. Collect energy cores.</p>
-                <div style="margin-top:10px; font-size:12px; color:#aaa;">Best: <span id="rocketHigh">0</span></div>
+                <h3>Hyper Space</h3>
+                <p>Advanced flight simulation.</p>
+                <div style="margin-top:15px; font-size:12px; opacity:0.7;">High Score: <span id="rocketHigh">0</span></div>
                 <button class="play-btn">Launch</button>
             </div>
             <div class="game-card" onclick="startGame('snake')">
-                <div class="game-icon"><i class="fas fa-dragon"></i></div>
+                <div class="game-icon"><i class="fas fa-cube"></i></div>
                 <h3>Neon Snake</h3>
-                <p>Grow your cyber-snake.</p>
-                <div style="margin-top:10px; font-size:12px; color:#aaa;">Best: <span id="snakeHigh">0</span></div>
+                <p>Cybernetic grid challenge.</p>
+                <div style="margin-top:15px; font-size:12px; opacity:0.7;">High Score: <span id="snakeHigh">0</span></div>
                 <button class="play-btn">Start</button>
             </div>
         </div>
-        <button onclick="window.location.href='menu.html'" style="margin-top:30px; background:transparent; border:1px solid #555; color:#888; padding:10px 20px; border-radius:20px; cursor:pointer;">Back to Dashboard</button>
+        <button onclick="window.location.href='menu.html'" style="margin-top:40px; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; opacity:0.7; transition:0.3s;">
+            <i class="fas fa-arrow-left"></i> Return to Dashboard
+        </button>
     </div>
 
     <div class="game-modal" id="gameModal">
         <div class="game-hud">
-            <div class="hud-item">🚀 <span id="gameScore">0</span></div>
-            <div class="hud-item" style="color:var(--accent)">⚡ <span id="gameXP">0</span></div>
-            <div id="shieldStatus" style="color:#00f2ff; display:none; font-size:16px;">🛡️ SHIELD: <span id="shieldTime">0</span>s</div>
+            <div class="hud-item"><i class="fas fa-star" style="color:#ffd700; width:25px;"></i> <span id="gameScore">0</span></div>
+            <div class="hud-item"><i class="fas fa-bolt" style="color:var(--accent); width:25px;"></i> <span id="gameXP">0</span></div>
+            <div id="shieldBar" style="width:150px; height:6px; background:rgba(255,255,255,0.1); border-radius:10px; margin-top:10px; display:none; overflow:hidden;">
+                <div id="shieldFill" style="width:100%; height:100%; background:#00f2ff; transition:width 0.1s linear;"></div>
+            </div>
         </div>
         <button class="close-game" onclick="exitGame()">EXIT</button>
         
         <canvas id="gameCanvas"></canvas>
 
         <div id="startOverlay" onclick="initGameLogic()">
-            <i class="fas fa-hand-pointer" style="font-size:50px; color:white; margin-bottom:20px; animation: pulse 1s infinite;"></i>
-            <h2 style="color:white;">TAP TO START</h2>
-            <p style="color:#aaa;">Drag to move • Avoid Rocks</p>
+            <div class="game-title-text">READY?</div>
+            <div style="font-size:16px; color:#aaa; margin-top:5px;">Tap to Engage Thrusters</div>
         </div>
 
         <div id="gameOverScreen" style="display:none;">
-            <h1 class="game-over-title">CRASHED!</h1>
-            <div style="color:white; font-size:20px; margin-bottom:10px;">Score: <span id="finalScore">0</span></div>
-            <div style="color:var(--accent); font-size:18px; margin-bottom:30px;">XP Earned: +<span id="finalXP">0</span></div>
+            <h1 class="game-title-text" style="color:#ff4444; text-shadow:0 0 30px rgba(255,0,0,0.4);">WRECKED</h1>
             
-            <button class="action-btn btn-save" onclick="saveAndExit()">SAVE XP</button>
-            <button class="action-btn btn-retry" onclick="resetGame()">RETRY</button>
+            <div style="display:flex; gap:30px; margin:20px 0;">
+                <div style="text-align:center;">
+                    <div style="font-size:12px; color:#aaa; text-transform:uppercase;">Score</div>
+                    <div class="score-big" id="finalScore" style="font-size:40px; color:white;">0</div>
+                </div>
+                <div style="text-align:center;">
+                    <div style="font-size:12px; color:#aaa; text-transform:uppercase;">Rewards</div>
+                    <div class="score-big" id="finalXP" style="font-size:40px; color:var(--accent);">0</div>
+                </div>
+            </div>
+
+            <div style="color:#aaa; font-size:13px; margin-bottom:30px;">
+                Total Pending in Vault: <span id="vaultXP" style="color:white; font-weight:bold;">0</span> XP
+            </div>
+
+            <div>
+                <button class="action-btn btn-claim" onclick="forceSave()">CLAIM REWARDS</button>
+                <button class="action-btn btn-retry" onclick="resetGame()">PLAY AGAIN</button>
+            </div>
         </div>
     </div>
 
@@ -133,15 +187,8 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // Variables
-        let currentUser = null;
-        let currentGame = null;
-        let gameActive = false;
-        let gameLoopId = null;
-        let currentRunXP = 0;
-        let currentRunScore = 0;
-        
-        // Canvas
+        // Vars
+        let currentUser=null, currentGame=null, gameActive=false, gameLoopId=null, currentRunXP=0, currentRunScore=0, unsavedVault=0;
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         let width, height;
@@ -149,132 +196,125 @@
         function resizeGame() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeGame);
 
-        // Init
         async function initPage() {
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.replace("login.html"); return; }
             currentUser = session.user;
             
             let { data: profile } = await supabase.from('users').select('*').eq('id', currentUser.id).single();
-            document.getElementById('userName').innerText = profile?.name || "Player";
+            document.getElementById('userName').innerText = (profile?.name || "Player").split(' ')[0];
             document.getElementById('headerXp').innerText = (profile?.xp || 0).toLocaleString();
+            document.getElementById('userAvatar').innerText = (profile?.name || "U").charAt(0).toUpperCase();
             
             document.getElementById('rocketHigh').innerText = localStorage.getItem('rocket_high') || 0;
             document.getElementById('snakeHigh').innerText = localStorage.getItem('snake_high') || 0;
+
+            unsavedVault = parseInt(localStorage.getItem('skydata_unsaved_xp') || '0');
+            updateVaultUI();
         }
         initPage();
 
-        // Game State Management
+        function updateVaultUI() {
+            const alertBox = document.getElementById('unsavedAlert');
+            const gameOverVault = document.getElementById('vaultXP');
+            if (unsavedVault > 0) {
+                alertBox.style.display = 'block';
+                gameOverVault.innerText = unsavedVault;
+            } else {
+                alertBox.style.display = 'none';
+                gameOverVault.innerText = 0;
+            }
+        }
+
+        // Logic
         window.startGame = function(type) {
             currentGame = type;
             document.getElementById('gameModal').style.display = 'flex';
             document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('gameOverScreen').style.display = 'none';
             resizeGame();
-            
-            // Hide System UI (Buttons)
-            const sysUI = document.querySelectorAll('.system-controls, .support-float');
-            sysUI.forEach(el => el.style.display = 'none');
+            document.querySelector('.system-controls').style.display = 'none'; // Hide System Buttons
+            document.querySelector('.support-float').style.display = 'none';
         };
 
         window.initGameLogic = function() {
             document.getElementById('startOverlay').style.display = 'none';
-            gameActive = true;
-            currentRunXP = 0;
-            currentRunScore = 0;
+            gameActive = true; currentRunXP = 0; currentRunScore = 0;
             if (currentGame === 'rocket') startRocketGame();
             else if (currentGame === 'snake') startSnakeGame();
         };
 
         window.exitGame = function() {
-            gameActive = false;
-            cancelAnimationFrame(gameLoopId);
+            gameActive = false; cancelAnimationFrame(gameLoopId);
+            if (currentRunXP > 0) { unsavedVault += currentRunXP; localStorage.setItem('skydata_unsaved_xp', unsavedVault); }
             document.getElementById('gameModal').style.display = 'none';
-            // Show System UI
-            const sysUI = document.querySelectorAll('.system-controls, .support-float');
-            sysUI.forEach(el => el.style.display = 'flex');
-            // Reload to clear canvas state completely
-            location.reload();
+            document.querySelector('.system-controls').style.display = 'flex';
+            document.querySelector('.support-float').style.display = 'flex';
+            updateVaultUI();
         };
 
         window.saveAndExit = async function() {
-            const btn = document.querySelector('.btn-save');
-            btn.innerText = "Saving...";
+            let total = unsavedVault + (document.getElementById('gameModal').style.display !== 'none' && !gameActive ? currentRunXP : 0);
+            if(total <= 0) { window.location.href="menu.html"; return; }
+
+            const btn = document.querySelector('.btn-claim');
+            btn.innerText = "SYNCING...";
             try {
                 let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
-                let newTotal = (profile?.xp || 0) + currentRunXP;
-                const { error } = await supabase.from('users').update({ xp: newTotal }).eq('id', currentUser.id);
-                if (error) throw error;
-
-                // Save High Score
+                await supabase.from('users').update({ xp: (profile?.xp || 0) + total }).eq('id', currentUser.id);
+                
+                unsavedVault = 0; localStorage.setItem('skydata_unsaved_xp', 0);
+                
+                // Save Highscore
                 const key = currentGame + '_high';
-                const oldHigh = parseInt(localStorage.getItem(key) || 0);
-                if (currentRunScore > oldHigh) localStorage.setItem(key, currentRunScore);
+                if (currentRunScore > (parseInt(localStorage.getItem(key)) || 0)) localStorage.setItem(key, currentRunScore);
 
                 window.location.href = "menu.html";
-            } catch (err) {
-                console.error(err);
-                btn.innerText = "Error! Retry";
-            }
+            } catch (err) { btn.innerText = "RETRY"; }
         };
 
         window.resetGame = function() {
-            // Save local points before retry
-            let vault = parseInt(localStorage.getItem('skydata_unsaved_xp') || 0);
-            localStorage.setItem('skydata_unsaved_xp', vault + currentRunXP);
-            
+            unsavedVault += currentRunXP;
+            localStorage.setItem('skydata_unsaved_xp', unsavedVault);
+            updateVaultUI();
             document.getElementById('gameOverScreen').style.display = 'none';
             initGameLogic();
         };
 
         function gameOver() {
-            gameActive = false;
-            cancelAnimationFrame(gameLoopId);
+            gameActive = false; cancelAnimationFrame(gameLoopId);
             document.getElementById('finalScore').innerText = Math.floor(currentRunScore);
             document.getElementById('finalXP').innerText = Math.floor(currentRunXP);
+            document.getElementById('vaultXP').innerText = unsavedVault + Math.floor(currentRunXP);
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
 
         // ==========================================
-        // 🚀 ROCKET GAME ENGINE (CUSTOM DRAWING)
+        // 🚀 ROCKET ENGINE (PRO GRAPHICS)
         // ==========================================
-        let rocket = { x: 0, y: 0 };
-        let obstacles = [];
-        let items = [];
-        let stars = [];
-        let gameTime = 0;
-        let shieldActive = false;
-        let shieldTimer = 0;
-        let speedFactor = 1;
-        let mouse = { x: width/2, y: height/2 };
+        let rocket = { x: 0, y: 0, w: 40 };
+        let obstacles = []; let items = []; let particles = []; let stars = [];
+        let gameTime = 0; let shieldActive = false; let shieldTimer = 0; let maxShieldTime = 600;
+        let speedFactor = 1; let mouse = { x: width/2, y: height/2 };
 
-        // Input Handler (Fixed Glitch)
-        function updateInput(clientX, clientY) {
-            // Get canvas position to fix offset issues
-            const rect = canvas.getBoundingClientRect();
-            mouse.x = clientX - rect.left;
-            mouse.y = clientY - rect.top;
-        }
-        canvas.addEventListener('mousemove', e => updateInput(e.clientX, e.clientY));
+        canvas.addEventListener('mousemove', e => { 
+            const r = canvas.getBoundingClientRect(); 
+            mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; 
+        });
         canvas.addEventListener('touchmove', e => { 
-            e.preventDefault(); 
-            updateInput(e.touches[0].clientX, e.touches[0].clientY);
+            e.preventDefault(); const r = canvas.getBoundingClientRect(); 
+            mouse.x = e.touches[0].clientX - r.left; mouse.y = e.touches[0].clientY - r.top; 
         }, {passive: false});
 
         function startRocketGame() {
-            rocket.x = width/2; rocket.y = height - 150;
-            mouse.x = width/2; mouse.y = height - 150;
-            obstacles = []; items = []; stars = [];
-            
-            // Warp Speed Stars
-            for(let i=0; i<80; i++) stars.push({x: Math.random()*width, y: Math.random()*height, speed: Math.random()*10+5});
-
+            rocket.x = width/2; rocket.y = height - 150; mouse.x = width/2; mouse.y = height - 150;
+            obstacles = []; items = []; particles = []; stars = [];
+            for(let i=0; i<60; i++) stars.push({x: Math.random()*width, y: Math.random()*height, z: Math.random()*2 + 0.5}); // 3D depth stars
             gameTime = 0; speedFactor = 1; shieldActive = false;
             
             function loop() {
                 if(!gameActive) return;
-                updateRocket();
-                drawRocketGame();
+                updateRocket(); drawRocketGame();
                 gameLoopId = requestAnimationFrame(loop);
             }
             loop();
@@ -282,49 +322,57 @@
 
         function updateRocket() {
             gameTime++;
-            if (gameTime % 300 === 0) speedFactor += 0.15;
-            const currentSpeed = (3 + (gameTime/500)) * speedFactor;
+            // Smoother Difficulty Curve: Start very slow (2.0) then ramp up
+            if (gameTime % 400 === 0) speedFactor += 0.1;
+            const currentSpeed = (2.0 + (gameTime/800)) * speedFactor;
 
-            // Rocket Physics (Smooth)
-            rocket.x += (mouse.x - rocket.x) * 0.15;
-            rocket.y += (mouse.y - rocket.y) * 0.15;
+            rocket.x += (mouse.x - rocket.x) * 0.12; 
+            rocket.y += (mouse.y - rocket.y) * 0.12;
 
-            // Spawn Meteors (Polygons)
-            if (gameTime % Math.max(15, Math.floor(50/speedFactor)) === 0) {
-                const size = Math.random() * 30 + 20;
-                obstacles.push({
-                    x: Math.random() * width, y: -50, size: size,
-                    speed: currentSpeed, vertices: createAsteroidVertices(size),
-                    rot: 0, rotSpeed: (Math.random()-0.5)*0.1
-                });
+            // Spawn Rocks (Polygons) - Prevent Overlap
+            if (gameTime % Math.max(25, Math.floor(70/speedFactor)) === 0) {
+                const size = Math.random() * 20 + 20; // 20-40px (Small rocks)
+                const xPos = Math.random() * (width - size);
+                
+                let safe = true;
+                obstacles.forEach(o => { if (Math.hypot(o.x - xPos, o.y - (-50)) < 80) safe = false; }); // Smart Spacing
+                
+                if (safe) {
+                    // Generate Polygon Vertices
+                    const verts = []; const sides = Math.floor(Math.random()*3)+5;
+                    for(let i=0;i<sides;i++) {
+                        const a = (i/sides)*Math.PI*2; const r = size*(0.7+Math.random()*0.3);
+                        verts.push({x:Math.cos(a)*r, y:Math.sin(a)*r});
+                    }
+                    obstacles.push({ x: xPos, y: -50, size: size, speed: currentSpeed, verts: verts, rot: 0, rotS: (Math.random()-0.5)*0.1 });
+                }
             }
 
-            // Spawn Energy
-            if (gameTime % 200 === 0) {
-                const r = Math.random();
-                let type = 'fuel'; 
-                if (r < 0.05) type = 'shield'; 
+            // Spawn Energy (Glowing Orbs)
+            if (gameTime % 150 === 0) {
+                const r = Math.random(); let type = 'fuel'; 
+                if(r < 0.05) type = 'shield'; else if(r < 0.2) type = 'gem';
                 items.push({ x: Math.random()*(width-40), y: -50, type: type, speed: currentSpeed });
             }
 
-            // Logic Loop
             obstacles.forEach((o, i) => {
-                o.y += o.speed; o.rot += o.rotSpeed;
+                o.y += o.speed; o.rot += o.rotS;
                 if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; }
-                
-                // Collision
-                const dx = rocket.x - o.x; const dy = rocket.y - o.y;
-                if (Math.sqrt(dx*dx + dy*dy) < (20 + o.size)) {
-                    if (shieldActive) { obstacles.splice(i, 1); currentRunXP += 5; } // Smash rock
-                    else gameOver();
+                if (Math.hypot(rocket.x - o.x, rocket.y - o.y) < (20 + o.size)) {
+                    if(shieldActive) { 
+                        createExplosion(o.x, o.y, '#aaa'); 
+                        obstacles.splice(i,1); currentRunXP += 5; 
+                    } else gameOver();
                 }
             });
 
             items.forEach((it, i) => {
                 it.y += it.speed;
-                if (Math.hypot(rocket.x - it.x, rocket.y - it.y) < 40) {
-                    if(it.type === 'shield') { shieldActive = true; shieldTimer = 600; }
-                    else currentRunXP += 10;
+                if(it.y > height) { items.splice(i, 1); return; }
+                if (Math.hypot(rocket.x - it.x, rocket.y - it.y) < 35) {
+                    createExplosion(it.x, it.y, it.type === 'shield' ? '#00f2ff' : '#00e676');
+                    if(it.type === 'shield') { shieldActive = true; shieldTimer = maxShieldTime; currentRunXP += 100; }
+                    else if(it.type === 'gem') currentRunXP += 50; else currentRunXP += 10;
                     items.splice(i, 1);
                 }
             });
@@ -332,7 +380,7 @@
             if(shieldActive) {
                 shieldTimer--;
                 document.getElementById('shieldStatus').style.display = 'block';
-                document.getElementById('shieldTime').innerText = Math.floor(shieldTimer/60);
+                document.getElementById('shieldFill').style.width = (shieldTimer/maxShieldTime)*100 + "%";
                 if(shieldTimer<=0) { shieldActive=false; document.getElementById('shieldStatus').style.display='none'; }
             }
 
@@ -341,134 +389,127 @@
             document.getElementById('gameXP').innerText = Math.floor(currentRunXP);
         }
 
-        // --- DRAWING FUNCTIONS (NO EMOJIS) ---
-        
-        function drawRocketGame() {
-            ctx.fillStyle = '#0b0b14'; ctx.fillRect(0,0,width,height);
+        function createExplosion(x, y, color) {
+            for(let i=0; i<10; i++) particles.push({x:x, y:y, vx:(Math.random()-0.5)*5, vy:(Math.random()-0.5)*5, life:30, color:color});
+        }
 
-            // 1. Stars (Warp)
-            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+        function drawRocketGame() {
+            ctx.fillStyle = '#050508'; ctx.fillRect(0,0,width,height);
+
+            // Stars (Warp Speed Effect)
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
             stars.forEach(s => {
-                s.y += s.speed * speedFactor;
+                s.y += s.z * (speedFactor * 3);
                 if(s.y > height) s.y = 0;
-                ctx.beginPath(); ctx.arc(s.x, s.y, 1.5, 0, Math.PI*2); ctx.fill();
+                ctx.beginPath(); ctx.arc(s.x, s.y, s.z, 0, Math.PI*2); ctx.fill();
             });
 
-            // 2. Rocket Drawing
-            ctx.save();
-            ctx.translate(rocket.x, rocket.y);
+            // Particles
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.life--;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life/30;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+
+            // Rocket Body
+            ctx.save(); ctx.translate(rocket.x, rocket.y);
             
-            // Shield
+            // Shield (Pulsing & Fading)
             if(shieldActive) {
+                const alpha = (shieldTimer < 180 && Math.floor(Date.now()/100)%2===0) ? 0.1 : 0.3; // Blink last 3s
                 ctx.beginPath(); ctx.arc(0,0, 45, 0, Math.PI*2);
-                ctx.strokeStyle = `rgba(0, 242, 255, ${Math.random()*0.5 + 0.5})`; 
-                ctx.lineWidth = 3; ctx.stroke();
-                ctx.fillStyle = 'rgba(0, 242, 255, 0.1)'; ctx.fill();
+                ctx.strokeStyle = `rgba(0, 242, 255, ${alpha + 0.3})`; ctx.lineWidth = 3; ctx.stroke();
+                ctx.fillStyle = `rgba(0, 242, 255, ${alpha})`; ctx.fill();
             }
 
             // Engine Flame
-            ctx.fillStyle = `rgba(255, ${Math.random()*150}, 0, 0.8)`;
-            ctx.beginPath(); ctx.moveTo(-8, 20); ctx.lineTo(0, 40+Math.random()*15); ctx.lineTo(8, 20); ctx.fill();
+            ctx.fillStyle = `rgba(0, 242, 255, 0.8)`; // Blue Ion Engine
+            ctx.shadowBlur = 20; ctx.shadowColor = '#00f2ff';
+            ctx.beginPath(); ctx.moveTo(-8, 20); ctx.lineTo(0, 35 + Math.random()*10); ctx.lineTo(8, 20); ctx.fill();
+            ctx.shadowBlur = 0;
 
-            // Body
-            ctx.fillStyle = '#eee';
-            ctx.beginPath(); ctx.ellipse(0, 0, 12, 30, 0, 0, Math.PI*2); ctx.fill();
-            // Fins
-            ctx.fillStyle = '#d32f2f';
-            ctx.beginPath(); ctx.moveTo(-12, 10); ctx.lineTo(-20, 30); ctx.lineTo(-10, 25); ctx.fill();
-            ctx.beginPath(); ctx.moveTo(12, 10); ctx.lineTo(20, 30); ctx.lineTo(10, 25); ctx.fill();
-            // Window
-            ctx.fillStyle = '#00d2ff';
-            ctx.beginPath(); ctx.arc(0, -10, 6, 0, Math.PI*2); ctx.fill();
+            // Fuselage
+            ctx.fillStyle = '#e0e0e0';
+            ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(12, 10); ctx.lineTo(8, 20); ctx.lineTo(-8, 20); ctx.lineTo(-12, 10); ctx.fill();
+            // Cockpit
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(0, -5, 5, 0, Math.PI*2); ctx.fill();
+            // Wings
+            ctx.fillStyle = '#ff3d00'; 
+            ctx.beginPath(); ctx.moveTo(-12, 10); ctx.lineTo(-22, 25); ctx.lineTo(-10, 20); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(12, 10); ctx.lineTo(22, 25); ctx.lineTo(10, 20); ctx.fill();
             ctx.restore();
 
-            // 3. Obstacles (Asteroids)
-            ctx.fillStyle = '#555';
+            // Meteors (Realistic Drawing)
             obstacles.forEach(o => {
                 ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.rot);
+                ctx.fillStyle = '#5d4037'; // Brownish Rock
                 ctx.beginPath();
-                o.vertices.forEach((v, i) => {
-                    i === 0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y);
-                });
-                ctx.closePath();
-                ctx.fill();
-                // Crater details
-                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.beginPath(); ctx.arc(5, 5, o.size/4, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#555'; // Reset for next
+                o.verts.forEach((v, i) => i===0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y));
+                ctx.closePath(); ctx.fill();
+                // Highlights
+                ctx.strokeStyle = '#8d6e63'; ctx.lineWidth=2; ctx.stroke();
                 ctx.restore();
             });
 
-            // 4. Items (Energy)
+            // Items (Glowing Orbs)
             items.forEach(it => {
                 ctx.save(); ctx.translate(it.x, it.y);
-                if(it.type === 'shield') {
-                    ctx.fillStyle = '#00f2ff';
-                    ctx.beginPath(); ctx.arc(0,0, 15, 0, Math.PI*2); ctx.fill(); // Orb
-                    ctx.strokeStyle = 'white'; ctx.lineWidth=2; ctx.stroke();
-                } else {
-                    ctx.fillStyle = '#00e676';
-                    ctx.beginPath(); ctx.rect(-10, -15, 20, 30); ctx.fill(); // Jerry can shape
-                    ctx.fillStyle = '#004d40'; ctx.font="12px Arial"; ctx.fillText("⚡", -6, 5);
-                }
+                const glow = it.type === 'shield' ? '#00f2ff' : (it.type === 'gem' ? '#e040fb' : '#00e676');
+                ctx.shadowBlur = 15; ctx.shadowColor = glow;
+                ctx.fillStyle = glow;
+                ctx.beginPath(); ctx.arc(0,0, 12, 0, Math.PI*2); ctx.fill();
+                ctx.fillStyle = '#fff'; ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle";
+                ctx.shadowBlur = 0;
+                ctx.fillText(it.type==='shield'?'S':(it.type==='gem'?'💎':'⚡'), 0, 1);
                 ctx.restore();
             });
         }
 
-        // Helper: Create jagged rock shape
-        function createAsteroidVertices(radius) {
-            const vertices = [];
-            const numPoints = 8;
-            for (let i = 0; i < numPoints; i++) {
-                const angle = (i / numPoints) * Math.PI * 2;
-                const r = radius * (0.8 + Math.random() * 0.4); // Randomize radius
-                vertices.push({ x: Math.cos(angle) * r, y: Math.sin(angle) * r });
-            }
-            return vertices;
-        }
-
         // ==========================================
-        // 🐍 SNAKE (Simple Drawing)
+        // 🐍 SNAKE (Classic - Grid Logic)
         // ==========================================
-        let snake = []; let food = {}; let direction='RIGHT'; let nextDir='RIGHT'; let sFrame=0; const gridSize=20;
+        const gridSize = 20; let snake = [], food = {}, dir='RIGHT', nextDir='RIGHT', snakeSpeed=10, snakeFrame=0;
         document.addEventListener('keydown', e => {
-            if(e.key=='ArrowUp'&&direction!='DOWN')nextDir='UP'; else if(e.key=='ArrowDown'&&direction!='UP')nextDir='DOWN';
-            else if(e.key=='ArrowLeft'&&direction!='RIGHT')nextDir='LEFT'; else if(e.key=='ArrowRight'&&direction!='LEFT')nextDir='RIGHT';
+            if(e.key=='ArrowUp'&&dir!='DOWN')nextDir='UP'; else if(e.key=='ArrowDown'&&dir!='UP')nextDir='DOWN';
+            else if(e.key=='ArrowLeft'&&dir!='RIGHT')nextDir='LEFT'; else if(e.key=='ArrowRight'&&dir!='LEFT')nextDir='RIGHT';
         });
-        // Touch logic needed for snake too? (Added simple swipe)
-        let tsX=0, tsY=0; canvas.addEventListener('touchstart', e=>{tsX=e.touches[0].clientX;tsY=e.touches[0].clientY}, {passive:false});
+        let tsX=0, tsY=0;
+        canvas.addEventListener('touchstart', e=>{tsX=e.touches[0].clientX;tsY=e.touches[0].clientY}, {passive:false});
         canvas.addEventListener('touchend', e=>{
             let dx=e.changedTouches[0].clientX-tsX, dy=e.changedTouches[0].clientY-tsY;
-            if(Math.abs(dx)>Math.abs(dy)) { if(dx>0&&direction!='LEFT')nextDir='RIGHT'; else if(dx<0&&direction!='RIGHT')nextDir='LEFT'; }
-            else { if(dy>0&&direction!='UP')nextDir='DOWN'; else if(dy<0&&direction!='DOWN')nextDir='UP'; }
+            if(Math.abs(dx)>Math.abs(dy)) { if(dx>0&&dir!='LEFT')nextDir='RIGHT'; else if(dx<0&&dir!='RIGHT')nextDir='LEFT'; }
+            else { if(dy>0&&dir!='UP')nextDir='DOWN'; else if(dy<0&&dir!='DOWN')nextDir='UP'; }
         });
 
         function startSnakeGame() {
-            snake=[{x:10,y:10},{x:9,y:10}]; placeFood(); direction='RIGHT'; nextDir='RIGHT';
-            function loop(){ if(!gameActive)return; sFrame++; if(sFrame>5){sFrame=0;updateSnake()} drawSnake(); gameLoopId=requestAnimationFrame(loop); }
+            snake=[{x:10,y:10},{x:9,y:10}]; placeFood(); dir='RIGHT'; nextDir='RIGHT'; snakeSpeed=10;
+            function loop(){ if(!gameActive)return; snakeFrame++; if(snakeFrame>=snakeSpeed){snakeFrame=0;updateSnake()} drawSnake(); gameLoopId=requestAnimationFrame(loop); }
             loop();
         }
         function placeFood(){ food={x:Math.floor(Math.random()*(width/gridSize)),y:Math.floor(Math.random()*(height/gridSize))}; }
         function updateSnake(){
-            direction=nextDir; const head={...snake[0]};
-            if(direction=='UP')head.y--; if(direction=='DOWN')head.y++; if(direction=='LEFT')head.x--; if(direction=='RIGHT')head.x++;
+            dir=nextDir; const head={...snake[0]};
+            if(dir=='UP')head.y--; if(dir=='DOWN')head.y++; if(dir=='LEFT')head.x--; if(dir=='RIGHT')head.x++;
             if(head.x<0||head.x>=width/gridSize||head.y<0||head.y>=height/gridSize){gameOver();return;}
             for(let c of snake)if(c.x==head.x&&c.y==head.y){gameOver();return;}
             snake.unshift(head);
-            if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; currentRunScore++; placeFood(); } else snake.pop();
+            if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; currentRunScore++; if(currentRunScore%5===0 && snakeSpeed>3)snakeSpeed--; placeFood(); } else snake.pop();
             document.getElementById('gameScore').innerText=currentRunScore; document.getElementById('gameXP').innerText=currentRunXP;
         }
         function drawSnake(){
-            ctx.fillStyle='#000'; ctx.fillRect(0,0,width,height);
-            ctx.strokeStyle='#111'; ctx.beginPath();
-            for(let i=0;i<width;i+=gridSize){ctx.moveTo(i,0);ctx.lineTo(i,height)} for(let i=0;i<height;i+=gridSize){ctx.moveTo(0,i);ctx.lineTo(width,i)} ctx.stroke();
-            
-            // Draw Snake (Neon Green Rects)
+            ctx.fillStyle='#050508'; ctx.fillRect(0,0,width,height);
+            // Grid
+            ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=1;
+            for(let i=0;i<width;i+=gridSize){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,height);ctx.stroke()}
+            for(let i=0;i<height;i+=gridSize){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(width,i);ctx.stroke()}
+            // Snake
             ctx.fillStyle='#00e676'; ctx.shadowBlur=10; ctx.shadowColor='#00e676';
-            snake.forEach(c=>ctx.fillRect(c.x*gridSize+1, c.y*gridSize+1, gridSize-2, gridSize-2));
+            snake.forEach(c=>ctx.fillRect(c.x*gridSize+1,c.y*gridSize+1,gridSize-2,gridSize-2));
             ctx.shadowBlur=0;
-
-            // Draw Food (Apple)
-            ctx.fillStyle='#ff1744'; ctx.beginPath(); ctx.arc(food.x*gridSize+10, food.y*gridSize+10, 8, 0, Math.PI*2); ctx.fill();
+            // Food
+            ctx.fillStyle='#ffea00'; ctx.beginPath(); ctx.arc(food.x*gridSize+10,food.y*gridSize+10,6,0,Math.PI*2); ctx.fill();
         }
     </script>
 </body>
