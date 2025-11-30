@@ -5,18 +5,21 @@
     <title>Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     
     <style>
-        /* (نفس التصميم السابق) */
+        /* Global Styles */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
 
+        /* Sidebar Overlay */
         .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
         .sidebar-overlay.active { display: block; opacity: 1; }
+        
+        /* Sidebar */
         .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
         .sidebar:hover, .sidebar.open { width: 260px; align-items: flex-start; padding-left: 20px; }
         .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
@@ -28,8 +31,10 @@
         .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
         .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
 
+        /* Main Content */
         .main-content { margin-left: 80px; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 30px; }
         
+        /* Profile Card */
         .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
         h1 { color: white; margin-bottom: 30px; font-weight: 300; font-size: 2rem; }
         
@@ -38,6 +43,7 @@
         .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 1px; }
         .info-row span { color: white; font-weight: 600; font-size: 16px; }
         
+        /* Action Grid */
         .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; animation: slideUp 1s ease forwards; }
         .action-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
         .action-card:hover { transform: translateY(-10px); }
@@ -51,9 +57,11 @@
         .rank-card:hover { border-color: #ffd700; box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2); }
         .rank-card .action-icon { color: #ffd700; }
 
+        /* Buttons */
         button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
         button.logout:hover { background: #d43f3f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.3); }
 
+        /* Mobile */
         @media (max-width: 768px) {
             .sidebar { width: 0; padding: 0; border: none; }
             .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
@@ -77,8 +85,6 @@
         <a href="#" class="nav-item active"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
         <a href="index.html#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
         <a href="index.html#ai" class="nav-item"><i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span></a>
-        <a href="index.html#dev" class="nav-item"><i class="fas fa-code"></i> <span data-i18n="navDev">Dev Services</span></a>
-        <a href="index.html#security" class="nav-item"><i class="fas fa-shield-alt"></i> <span data-i18n="navSec">Security</span></a>
         <div style="flex-grow: 1;"></div>
         <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
     </nav>
@@ -86,7 +92,12 @@
     <div class="main-content">
         <div class="card">
             <h1 data-i18n="profileTitle">User Profile</h1>
-            <div id="loader" style="color: #666;" data-i18n="loading">Processing...</div>
+            
+            <div id="loader">
+                <div style="color: #888; margin-bottom:10px;">Accessing Database...</div>
+                <i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:var(--accent);"></i>
+            </div>
+
             <div id="content" style="display:none;">
                 <div class="info-row">
                     <div><b data-i18n="nameLabel">NAME</b><span id="name"></span></div>
@@ -120,10 +131,10 @@
 
     <script type="module" src="./system.js"></script>
 
-<script type="module">
+    <script type="module">
         import { supabase } from './supabase.js';
 
-        // History Handling
+        // Prevent Back Button
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -131,48 +142,44 @@
             }
         };
 
-        // Sidebar Logic
         window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
         window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
-        // Canvas
+        // Canvas Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
-        class Particle { constructor(){this.x=Math.random()*width;this.y=Math.random()*height;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2;} update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>width)this.vx*=-1;if(this.y<0||this.y>height)this.vy*=-1;} draw(){ctx.fillStyle='rgba(140,155,255,0.3)';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();} }
+        class Particle {
+            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
+            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
+            draw() { ctx.fillStyle='rgba(140,155,255,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+        }
         for(let i=0;i<60;i++) particles.push(new Particle());
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // ✅✅ المنطق المصحح (Self-Healing v2)
-        async function initDashboard() {
-            // تجاهل التوكن في الرابط (لأنه يسبب تشويشاً أحياناً)
-            if (window.location.hash && window.location.hash.includes('access_token')) return;
-
-            const { data: { user } } = await supabase.auth.getUser();
+        // ✅✅ Self-Healing Auth Logic (المنطق الجديد)
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            const isRedirecting = window.location.hash && window.location.hash.includes('access_token');
             
-            if (!user) { 
-                window.location.replace("login.html"); 
-                return; 
+            if (session) {
+                await ensureProfile(session.user);
+            } else if (!isRedirecting) {
+                window.location.replace("login.html");
             }
+        });
 
-            await ensureProfileExists(user);
-        }
-
-        // دالة التأكد من وجود الملف وإنشائه عند الضرورة
-        async function ensureProfileExists(user) {
+        async function ensureProfile(user) {
             try {
-                // 1. محاولة الجلب
+                // 1. Try to get data
                 let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
 
-                // 2. إذا لم نجد الملف (وهذا سبب الطرد سابقاً)
+                // 2. If missing, CREATE IT NOW (Self-Healing)
                 if (error || !data) {
-                    console.log("Profile missing. Creating fallback...");
-                    
-                    // محاولة الإنشاء اليدوي من المتصفح (مسموح به الآن بفضل SQL الجديد)
-                    const { data: newData, error: createError } = await supabase.from('users').insert([{
+                    console.log("Profile not found. Auto-creating...");
+                    const { data: newData, error: insertErr } = await supabase.from('users').insert([{
                         id: user.id,
                         email: user.email,
                         name: user.user_metadata.full_name || user.email.split('@')[0],
@@ -180,55 +187,35 @@
                         xp: 0
                     }]).select().single();
 
-                    if (newData) {
-                        data = newData; // تم الإصلاح بنجاح!
-                    } else {
-                        // فشل تام - هنا فقط نطرد المستخدم
-                        console.error("Critical Fail:", createError);
-                        await supabase.auth.signOut();
-                        window.location.replace("login.html");
-                        return;
+                    if (!insertErr) data = newData; // Success
+                    else {
+                        // If insert fails, it might be RLS issue, but we try to show partial data
+                        console.error("Insert failed:", insertErr);
+                        data = { name: user.user_metadata.full_name, email: user.email, rank: 'free' };
                     }
                 }
 
-                // 3. عرض البيانات
-                renderProfile(data);
+                // 3. Render
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("content").style.display = "block";
+                
+                document.getElementById("name").textContent = data.name;
+                document.getElementById("email").textContent = data.email;
+                const r = data.rank || 'free';
+                document.getElementById("rank").innerHTML = r.toUpperCase() + (r==='pro' ? ' <i class="fas fa-crown" style="color:gold"></i>' : '');
 
             } catch (err) {
-                console.error(err);
-            }
-        }
-
-        function renderProfile(profile) {
-            document.getElementById("loader").style.display = "none";
-            document.getElementById("content").style.display = "block";
-            
-            document.getElementById("name").textContent = profile.name;
-            document.getElementById("email").textContent = profile.email;
-            
-            const rankElement = document.getElementById("rank");
-            rankElement.innerHTML = (profile.rank || 'free').toUpperCase();
-            if (profile.rank === 'pro') {
-                rankElement.innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
-            }
-        }
-
-        // Auth State Listener
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                ensureProfileExists(session.user);
-            } else if (event === 'SIGNED_OUT') {
+                console.error("Fatal Error:", err);
+                // Force logout on fatal error
+                await supabase.auth.signOut();
                 window.location.replace("login.html");
             }
-        });
+        }
 
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
+            window.location.replace("login.html");
         };
-        
-        // Start
-        initDashboard();
     </script>
-
 </body>
 </html>
