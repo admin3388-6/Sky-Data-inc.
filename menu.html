@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* نفس التصميم السابق */
+        /* (نفس التصميم السابق) */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -86,7 +86,7 @@
     <div class="main-content">
         <div class="card">
             <h1 data-i18n="profileTitle">User Profile</h1>
-            <div id="loader" style="color: #666;" data-i18n="loading">Synchronizing...</div>
+            <div id="loader" style="color: #666;" data-i18n="loading">Processing...</div>
             <div id="content" style="display:none;">
                 <div class="info-row">
                     <div><b data-i18n="nameLabel">NAME</b><span id="name"></span></div>
@@ -123,7 +123,7 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // 1. History Handling (Back Button Trap)
+        // History Handling
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -131,7 +131,6 @@
             }
         };
 
-        // 2. Sidebar & Canvas Logic
         window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
         window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
@@ -149,80 +148,75 @@
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // 3. ✅✅ The Fixed Auth Logic
-        async function initDashboard() {
-            // التحقق من الرابط: هل نحن قادمون من جوجل؟
-            const isRedirecting = window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('refresh_token'));
-            
-            if (isRedirecting) {
-                // نحن في حالة تحويل، لا تفعل شيئاً، Supabase سيتولى الأمر
-                console.log("Processing OAuth redirect...");
-                document.getElementById('loader').innerText = "Finalizing Login...";
-                return; 
-            }
-
-            // التحقق العادي
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) { 
-                // لست مسجلاً ولست في حالة تحويل -> اذهب للدخول
-                window.location.replace("login.html"); 
-                return; 
-            }
-
-            // المستخدم مسجل -> ابدأ تحميل البيانات
-            await loadProfileData(user);
-        }
-
-        // مستمع التغييرات (للتعامل مع لحظة انتهاء التحويل)
+        // ✅✅ الإصلاح الذكي (Self-Healing Logic)
         supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' && session) {
-                // تم الدخول بنجاح! حمل البيانات
+            const isRedirecting = window.location.hash && window.location.hash.includes('access_token');
+            
+            if (session) {
+                // المستخدم موجود -> ابدأ المعالجة
                 await loadProfileData(session.user);
-            } else if (event === 'SIGNED_OUT') {
+            } else if (!isRedirecting) {
+                // غير مسجل وليس قادماً من جوجل -> اذهب للدخول
                 window.location.replace("login.html");
             }
         });
 
-        // دالة تحميل البيانات (مع المحاولة المتكررة)
         async function loadProfileData(user) {
             let profileData = null;
             let attempts = 0;
             
+            // 1. محاولة جلب البيانات (5 مرات)
             while (attempts < 5 && !profileData) {
                 try {
                     let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
                     if (data) profileData = data;
                 } catch (e) { }
-                if (!profileData) await new Promise(r => setTimeout(r, 800));
+                
+                if (!profileData) await new Promise(r => setTimeout(r, 500)); // انتظر نصف ثانية
                 attempts++;
             }
 
-            // عرض البيانات (حتى لو لم نجد الملف، نعرض بيانات جوجل)
+            // 2. 🛑 إذا لم نجد البيانات، نقوم بإنشائها فوراً (Self-Healing)
+            if (!profileData) {
+                console.log("Profile missing. Creating new one...");
+                const extractedName = user.user_metadata.full_name || user.email.split('@')[0];
+                
+                const { data: newProfile, error: createError } = await supabase.from('users').upsert({
+                    id: user.id,
+                    name: extractedName,
+                    email: user.email,
+                    rank: 'free',
+                    xp: 0
+                }).select().single();
+
+                if (!createError && newProfile) {
+                    profileData = newProfile; // تم الإصلاح!
+                } else {
+                    // فشل الإصلاح -> خروج اضطراري
+                    await supabase.auth.signOut();
+                    window.location.replace("login.html");
+                    return;
+                }
+            }
+            
+            // 3. عرض البيانات (الآن مضمونة الوجود)
             document.getElementById("loader").style.display = "none";
             document.getElementById("content").style.display = "block";
             
-            const finalName = profileData?.name || user.user_metadata.full_name || "User";
-            const finalEmail = user.email;
-            const finalRank = profileData?.rank || "free";
-
-            document.getElementById("name").textContent = finalName;
-            document.getElementById("email").textContent = finalEmail;
+            document.getElementById("name").textContent = profileData.name;
+            document.getElementById("email").textContent = profileData.email;
             
             const rankElement = document.getElementById("rank");
-            rankElement.innerHTML = finalRank.toUpperCase();
-            if (finalRank === 'pro') {
+            rankElement.innerHTML = (profileData.rank || 'free').toUpperCase();
+            if (profileData.rank === 'pro') {
                 rankElement.innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
             }
         }
 
-        // تسجيل الخروج
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
-        
-        // التشغيل المبدئي
-        initDashboard();
     </script>
 
 </body>
