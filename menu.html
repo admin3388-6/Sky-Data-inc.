@@ -5,39 +5,79 @@
     <title>Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script>
+        // عندما تفتح الصفحة، نضع "حاجزاً" في التاريخ
+        history.pushState(null, null, location.href);
+        window.onpopstate = function () {
+            // إذا ضغط المستخدم رجوع، نأخذه للصفحة الرئيسية قسراً
+            history.go(1); // يمنع الرجوع للخلف فعلياً
+            window.location.replace("index.html"); 
+        };
+    </script>
+
     <style>
-        /* (نفس الستايل السابق تماماً - لم يتغير) */
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
-        .sidebar { position: fixed; width: 80px; height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--card-border); padding: 30px 0; display: flex; flex-direction: column; align-items: center; z-index: 100; transition: 0.4s; overflow: hidden; white-space: nowrap; backdrop-filter: blur(20px); }
+        /* (ستايلات القائمة والبطاقة والأنيميشن - نفس الاندكس) */
+        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
+        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s; z-index: 1000; overflow: hidden; white-space: nowrap; }
         .sidebar:hover { width: 260px; align-items: flex-start; padding-left: 20px; }
-        .nav-item { color: var(--text-muted); padding: 15px; display: flex; gap: 20px; width: 100%; text-decoration: none; border-radius: 12px; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: rgba(128,128,128,0.1); color: var(--text-main); }
-        .nav-item i { font-size: 22px; width: 30px; text-align: center; }
-        .main-content { margin-left: 80px; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 40px; border-radius: 20px; width: 100%; max-width: 500px; text-align: center; backdrop-filter: blur(20px); box-shadow: var(--shadow); }
-        .info-row { background: rgba(128,128,128,0.05); padding: 15px; margin: 15px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
-        .info-row span { color: var(--text-main); font-weight: bold; }
-        .info-row b { color: var(--text-muted); font-size: 12px; display: block; }
+        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; transition: 0.3s; }
+        .sidebar:hover .logo-icon { margin-left: 0; }
+        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
+        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); }
+        .nav-item span { opacity: 0; transition: 0.3s; }
+        .sidebar:hover .nav-item span { opacity: 1; }
+
+        .main-content { margin-left: 80px; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 20px; width: 100%; max-width: 500px; text-align: center; box-shadow: 0 10px 40px rgba(0,0,0,0.3); animation: slideUp 0.8s ease forwards; }
+        
+        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; justify-content: space-between; align-items: center; }
+        .info-row span { font-weight: bold; font-size: 16px; color: white; }
+        .info-row b { display: block; font-size: 12px; color: var(--text-muted); margin-bottom: 5px; }
+        
         .logout { background: #ff4b4b; color: white; border: none; padding: 12px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; }
-        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin: 0; } }
+        
+        /* Mobile Overlay */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; }
+        .sidebar-overlay.active { display: block; }
+        .toggle-menu { display: none; }
+
+        @media (max-width: 768px) {
+            .sidebar { width: 0; padding: 0; border: none; }
+            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
+            .main-content { margin-left: 0; }
+            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; border: 1px solid var(--border); }
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
+
     <canvas id="canvas-bg"></canvas>
-    
-    <nav class="sidebar">
-        <div style="font-size:28px; color:var(--accent); margin-bottom:50px; align-self:center;"><i class="fas fa-infinity"></i></div>
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+    <div class="toggle-menu" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
+
+    <nav class="sidebar" id="mySidebar">
+        <div class="logo-icon"><i class="fas fa-infinity"></i></div>
         <a href="index.html" class="nav-item"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
         <a href="#" class="nav-item active"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
+        <a href="index.html#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
+        <div style="flex-grow: 1;"></div>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
     </nav>
 
     <div class="main-content">
         <div class="card">
-            <h1 data-i18n="profileTitle" style="color:var(--text-main); margin-bottom:30px;">Profile</h1>
-            <div id="loader" style="color:var(--text-muted)">Loading Data...</div>
+            <h1 data-i18n="profileTitle" style="color:white; margin-bottom:30px;">Profile</h1>
+            <div id="loader" style="color:#888">Loading...</div>
             <div id="content" style="display:none;">
                 <div class="info-row"><div><b data-i18n="nameLabel">NAME</b><span id="name"></span></div><i class="fas fa-user" style="color:var(--primary)"></i></div>
                 <div class="info-row"><div><b data-i18n="emailLabel">EMAIL</b><span id="email"></span></div><i class="fas fa-envelope" style="color:var(--primary)"></i></div>
@@ -50,46 +90,38 @@
     <script type="module" src="./system.js"></script>
     <script type="module">
         import { supabase } from './supabase.js';
+
+        // Sidebar logic
+        window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
+        window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
+
+        // Animation
+        const canvas = document.getElementById('canvas-bg'); const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle {
+            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
+            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
+            draw() { ctx.fillStyle='rgba(140,155,255,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
+        }
+        for(let i=0;i<60;i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
+        animate();
+
+        // ✅ التحقق الآمن من الجلسة
+        let isChecking = true;
         
-        // منع زر العودة
-        window.onload = function() {
-            if (window.history && window.history.pushState) {
-                window.history.pushState('forward', null, './menu.html');
-                window.onpopstate = function () { window.location.replace('index.html'); };
-            }
-        };
-
-        // ✅ المنطق الذكي الجديد (Stable Auth Logic)
-        let isLoaded = false;
-
         supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_IN' || session) {
-                // المستخدم مسجل رسمياً -> حمل البيانات
-                isLoaded = true;
+            if (session) {
+                // المستخدم موجود - حمل البيانات
                 await loadData(session.user);
-            } else if (event === 'SIGNED_OUT') {
-                // المستخدم سجل خروجه بيده -> اطرده
-                window.location.replace("login.html");
             } else {
-                // حالة غير معروفة (ربما تحميل أولي)
-                // نتحقق: هل هذا رابط قادم من جوجل؟ (يحتوي على access_token)
-                // إذا كان كذلك، لا تطرده! انتظر Supabase ليعالجه.
-                const isRedirecting = window.location.hash && window.location.hash.includes('access_token');
-                
-                if (!isRedirecting && !isLoaded) {
-                    // ليس قادماً من جوجل، وليس مسجلاً -> اطرده
-                    window.location.replace("login.html");
-                }
+                // المستخدم غير موجود - اطرده لصفحة الدخول
+                // استخدم replace لمسح هذه الصفحة من التاريخ
+                window.location.replace("login.html");
             }
         });
-
-        // فحص احتياطي عند التحميل المباشر
-        setTimeout(async () => {
-            if (!isLoaded && !window.location.hash.includes('access_token')) {
-                const { data: { session } } = await supabase.auth.getSession();
-                if (!session) window.location.replace("login.html");
-            }
-        }, 2000); // مهلة 2 ثانية للطوارئ فقط
 
         async function loadData(user) {
             let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
@@ -103,11 +135,8 @@
         
         document.getElementById('logoutBtn').onclick = async () => {
             await supabase.auth.signOut();
-            window.location.replace("login.html");
+            // onAuthStateChange سيتولى عملية النقل لصفحة الدخول
         };
-        
-        const c = document.getElementById('canvas-bg'), x = c.getContext('2d');
-        c.width = window.innerWidth; c.height = window.innerHeight;
     </script>
 </body>
 </html>
