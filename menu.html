@@ -7,20 +7,21 @@
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        /* (نفس الستايل السابق) */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
         body { background-color: var(--bg-color); color: var(--text-main); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
         
-        .sidebar { position: fixed; width: 80px; height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--card-border); padding: 30px 0; display: flex; flex-direction: column; align-items: center; z-index: 100; transition: 0.4s; overflow: hidden; white-space: nowrap; backdrop-filter: blur(20px); }
+        .sidebar { position: fixed; width: 80px; height: 100vh; background: var(--sidebar-bg); border-right: 1px solid var(--card-border); padding: 30px 0; display: flex; flex-direction: column; align-items: center; z-index: 100; transition: 0.4s; overflow: hidden; white-space: nowrap; }
         .sidebar:hover { width: 260px; align-items: flex-start; padding-left: 20px; }
         .nav-item { color: var(--text-muted); padding: 15px; display: flex; gap: 20px; width: 100%; text-decoration: none; border-radius: 12px; transition: 0.3s; }
-        .nav-item:hover, .nav-item.active { background: rgba(128,128,128,0.1); color: var(--text-main); }
+        .nav-item:hover, .nav-item.active { background: var(--glass-bg); color: var(--text-main); }
         .nav-item i { font-size: 22px; width: 30px; text-align: center; }
 
         .main-content { margin-left: 80px; min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 20px; }
         
-        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 40px; border-radius: 20px; width: 100%; max-width: 500px; text-align: center; backdrop-filter: blur(20px); box-shadow: var(--shadow); }
-        .info-row { background: rgba(128,128,128,0.05); padding: 15px; margin: 15px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
+        .card { background: var(--card-bg); border: 1px solid var(--card-border); padding: 40px; border-radius: 20px; width: 100%; max-width: 500px; text-align: center; backdrop-filter: blur(20px); }
+        .info-row { background: var(--glass-bg); padding: 15px; margin: 15px 0; border-radius: 10px; display: flex; justify-content: space-between; align-items: center; border-left: 4px solid var(--primary); }
         .info-row span { color: var(--text-main); font-weight: bold; }
         .info-row b { color: var(--text-muted); font-size: 12px; display: block; }
         
@@ -55,10 +56,6 @@
     <script type="module">
         import { supabase } from './supabase.js';
         
-        // استعادة الخلفية المتحركة
-        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,2,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
-
-        // منع العودة للدخول
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -66,11 +63,20 @@
             }
         };
 
-        async function load() {
-            const { data: { user } } = await supabase.auth.getSession();
-            if(!user) { window.location.replace("login.html"); return; }
-            
-            const { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
+        // ✅ الكود المصحح لمنع الحلقة
+        // نستخدم onAuthStateChange للاستماع للتغييرات بدقة
+        supabase.auth.onAuthStateChange(async (event, session) => {
+            if (session) {
+                // المستخدم موجود -> حمل البيانات
+                await loadData(session.user);
+            } else {
+                // المستخدم غير موجود -> اذهب للدخول
+                window.location.replace("login.html");
+            }
+        });
+
+        async function loadData(user) {
+            let { data: profile } = await supabase.from('users').select('*').eq('id', user.id).single();
             document.getElementById('loader').style.display = 'none';
             document.getElementById('content').style.display = 'block';
             
@@ -81,9 +87,11 @@
         
         document.getElementById('logoutBtn').onclick = async () => {
             await supabase.auth.signOut();
-            window.location.replace("login.html");
+            // الـ Listener أعلاه سيكتشف الخروج وينقلك تلقائياً
         };
-        load();
+        
+        const c = document.getElementById('canvas-bg'), x = c.getContext('2d');
+        c.width = window.innerWidth; c.height = window.innerHeight;
     </script>
 </body>
 </html>
