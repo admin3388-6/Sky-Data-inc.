@@ -24,26 +24,37 @@
         .unsaved-alert { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #ff9800, #ff5722); padding: 10px 25px; border-radius: 30px; font-size: 13px; font-weight: bold; cursor: pointer; z-index: 90; box-shadow: 0 5px 20px rgba(255, 87, 34, 0.4); display: none; animation: pulse 2s infinite; }
 
         /* Main Menu */
-        .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; min-height: 80vh; justify-content: center; }
-        
-        /* بطاقة اللعبة الكبيرة (صاروخ فقط) */
-        .game-card-large { 
-            background: linear-gradient(180deg, rgba(10,10,20,0.8) 0%, rgba(78, 84, 200, 0.1) 100%);
-            border: 1px solid var(--border); padding: 50px; border-radius: 30px; 
-            text-align: center; transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; 
-            width: 100%; max-width: 500px; backdrop-filter: blur(10px);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
-        }
-        .game-card-large:hover { transform: scale(1.02); border-color: var(--accent); box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); }
-        
-        .game-icon-large { font-size: 80px; color: var(--accent); margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.4)); animation: float 3s ease-in-out infinite; }
-        .play-btn-large { margin-top: 30px; padding: 15px 60px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(78, 84, 200, 0.4); }
-        .play-btn-large:hover { transform: scale(1.05); background: var(--accent); color: black; }
+        .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
+        .game-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 24px; text-align: center; transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; }
+        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 40px rgba(0, 242, 255, 0.15); }
+        .game-icon { font-size: 45px; color: var(--accent); margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.4)); }
+        .play-btn { margin-top: 20px; padding: 12px 35px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
 
         /* Game UI */
         .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
+        
+        /* HUD - Top Left */
         .game-hud { position: absolute; top: 20px; left: 20px; color: white; font-family: 'Outfit', sans-serif; z-index: 2002; pointer-events: none; }
-        .hud-item { margin-bottom: 5px; font-weight: 800; font-size: 18px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 10px;}
+        .hud-item { margin-bottom: 8px; font-weight: 800; font-size: 18px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 10px;}
+        
+        /* Effects HUD - Bottom Right (New!) */
+        .effects-hud { 
+            position: absolute; bottom: 30px; right: 20px; 
+            display: flex; flex-direction: column; gap: 10px; align-items: flex-end;
+            z-index: 2002; pointer-events: none;
+        }
+        .effect-badge {
+            background: rgba(0,0,0,0.6); border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 15px; border-radius: 30px; color: white; font-weight: bold; font-size: 14px;
+            display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px);
+            animation: slideIn 0.3s ease;
+        }
+        .effect-icon { width: 25px; height: 25px; display: flex; justify-content: center; align-items: center; border-radius: 50%; }
+        .shield-badge { border-color: #00f2ff; color: #00f2ff; } .shield-bg { background: rgba(0, 242, 255, 0.2); }
+        .ammo-badge { border-color: #ff3d00; color: #ff3d00; } .ammo-bg { background: rgba(255, 61, 0, 0.2); }
+        .x2-badge { border-color: #e040fb; color: #e040fb; } .x2-bg { background: rgba(224, 64, 251, 0.2); }
+
         .close-game { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; cursor: pointer; z-index: 2002; font-weight: 600; backdrop-filter: blur(5px); }
         canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
 
@@ -58,21 +69,16 @@
         /* Loading Overlay */
         .saving-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; font-weight: bold; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
-        
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } 100% { transform: translateX(-50%) scale(1); } }
+        @keyframes slideIn { from { transform: translateX(50px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
         @media (max-width: 600px) { .header { padding: 15px; } .xp-display span:last-child { display: none; } }
     </style>
 </head>
 <body>
 
     <canvas id="canvas-bg"></canvas>
-
-    <div id="saveLoader" class="saving-overlay">
-        <div class="spinner"></div>
-        <div id="saveText">CHECKING RECORD...</div>
-    </div>
+    <div id="saveLoader" class="saving-overlay"><div class="spinner"></div><div id="saveText">CHECKING RECORD...</div></div>
 
     <div class="header">
         <div style="font-size: 22px; font-weight: 800; color: white; letter-spacing: 1px;">SKY <span style="color:var(--accent)">ARCADE</span></div>
@@ -87,20 +93,23 @@
     </div>
 
     <div class="main-content">
-        <div class="game-card-large" onclick="startGame()">
-            <div class="game-icon-large"><i class="fas fa-rocket"></i></div>
-            <h1 style="margin-bottom:10px;">Hyper Space</h1>
-            <p style="color:#8b9bb4; font-size:16px;">Navigate the asteroid field. Survive & Collect.</p>
-            
-            <div style="margin-top:25px; font-size:14px; color:rgba(255,255,255,0.5); border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
-                YOUR BEST RECORD<br>
-                <span id="rocketHigh" style="color:var(--accent); font-size:24px; font-weight:bold;">0</span>
+        <div class="game-grid">
+            <div class="game-card" onclick="startGame('rocket')">
+                <div class="game-icon"><i class="fas fa-rocket"></i></div>
+                <h3>Hyper Space</h3>
+                <p>Battle meteors. Shoot & Survive.</p>
+                <div style="margin-top:15px; font-size:12px; opacity:0.7;">Best: <span id="rocketHigh">0</span></div>
+                <button class="play-btn">Launch</button>
             </div>
-
-            <button class="play-btn-large">LAUNCH MISSION</button>
+            <div class="game-card" onclick="startGame('snake')">
+                <div class="game-icon"><i class="fas fa-cube"></i></div>
+                <h3>Neon Snake</h3>
+                <p>Cybernetic grid challenge.</p>
+                <div style="margin-top:15px; font-size:12px; opacity:0.7;">Best: <span id="snakeHigh">0</span></div>
+                <button class="play-btn">Start</button>
+            </div>
         </div>
-        
-        <button onclick="window.location.href='menu.html'" style="margin-top:20px; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; opacity:0.7; transition:0.3s;">
+        <button onclick="window.location.href='menu.html'" style="margin-top:40px; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; opacity:0.7; transition:0.3s;">
             <i class="fas fa-arrow-left"></i> Return to Dashboard
         </button>
     </div>
@@ -109,10 +118,12 @@
         <div class="game-hud">
             <div class="hud-item"><i class="fas fa-star" style="color:#ffd700; width:25px;"></i> <span id="gameScore">0</span></div>
             <div class="hud-item"><i class="fas fa-bolt" style="color:var(--accent); width:25px;"></i> <span id="gameXP">0</span></div>
-            <div id="shieldStatus" style="color:#00f2ff; display:none; font-size:16px;">🛡️ SHIELD</div>
         </div>
+
+        <div class="effects-hud" id="effectsHud">
+            </div>
+
         <button class="close-game" onclick="exitGame()">EXIT</button>
-        
         <canvas id="gameCanvas"></canvas>
 
         <div id="startOverlay" onclick="initGameLogic()">
@@ -122,13 +133,11 @@
 
         <div id="gameOverScreen" style="display:none;">
             <h1 class="game-title-text" style="color:#ff4444;">GAME OVER</h1>
-            
             <div style="display:flex; flex-direction: column; align-items: center; margin:20px 0;">
                 <div style="font-size:14px; color:#aaa; text-transform:uppercase;">Score Achieved</div>
                 <div class="score-big" id="finalXP" style="color:white;">0</div>
                 <div id="newRecordMsg" style="color:#00e676; font-weight:bold; display:none; margin-top:5px;">🎉 NEW RECORD!</div>
             </div>
-
             <div>
                 <button class="action-btn btn-claim" onclick="saveData()">SAVE & EXIT</button>
                 <button class="action-btn btn-retry" onclick="resetGame()">PLAY AGAIN</button>
@@ -141,9 +150,9 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // Vars
-        let currentUser=null, gameActive=false, gameLoopId=null, currentRunXP=0;
-        let localBest = 0; 
+        // Global Vars
+        let currentUser=null, currentGame=null, gameActive=false, gameLoopId=null, currentRunXP=0;
+        let localBest = 0;
         
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -160,7 +169,6 @@
             
             const { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
             const serverBest = profile?.xp || 0;
-            
             document.getElementById('headerXp').innerText = serverBest.toLocaleString();
             
             const unsaved = parseInt(localStorage.getItem('skydata_unsaved_best') || '0');
@@ -168,36 +176,31 @@
                 document.getElementById('unsavedAlert').style.display = 'block';
                 document.getElementById('unsavedVal').innerText = unsaved;
                 localBest = unsaved;
-            } else {
-                localBest = serverBest;
-            }
-            document.getElementById('rocketHigh').innerText = localBest;
+            } else { localBest = serverBest; }
         }
         initPage();
 
         // --- Game Control ---
-        window.startGame = function() {
+        window.startGame = function(type) {
+            currentGame = type;
             document.getElementById('gameModal').style.display = 'flex';
             document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('gameOverScreen').style.display = 'none';
             resizeGame();
-            
-            // 🛑 إخفاء أزرار النظام فوراً عند بدء اللعبة
-            const sysControls = document.querySelector('.system-controls');
-            const supportBtn = document.querySelector('.support-float');
-            if(sysControls) sysControls.style.display = 'none';
-            if(supportBtn) supportBtn.style.display = 'none';
+            document.querySelector('.system-controls').style.display = 'none';
+            document.querySelector('.support-float').style.display = 'none';
         };
 
         window.initGameLogic = function() {
             document.getElementById('startOverlay').style.display = 'none';
             gameActive = true; currentRunXP = 0;
-            startRocketGame();
+            if (currentGame === 'rocket') startRocketGame();
+            else if (currentGame === 'snake') startSnakeGame();
         };
 
         window.exitGame = function() {
             gameActive = false; cancelAnimationFrame(gameLoopId);
-            location.reload(); // سيعيد هذا إظهار الأزرار تلقائياً
+            location.reload();
         };
 
         window.saveData = async function() {
@@ -218,9 +221,7 @@
 
                 localStorage.setItem('skydata_unsaved_best', '0');
                 location.reload();
-
             } catch (err) {
-                console.error(err);
                 loader.style.display = 'none';
                 alert("Connection Failed. Score saved locally.");
                 if (scoreToSave > parseInt(localStorage.getItem('skydata_unsaved_best') || '0')) {
@@ -232,9 +233,7 @@
 
         window.resetGame = function() {
             let oldBest = parseInt(localStorage.getItem('skydata_unsaved_best') || '0');
-            if (currentRunXP > oldBest) {
-                localStorage.setItem('skydata_unsaved_best', currentRunXP);
-            }
+            if (currentRunXP > oldBest) localStorage.setItem('skydata_unsaved_best', currentRunXP);
             document.getElementById('gameOverScreen').style.display = 'none';
             initGameLogic();
         };
@@ -242,7 +241,6 @@
         function gameOver() {
             gameActive = false; cancelAnimationFrame(gameLoopId);
             document.getElementById('finalXP').innerText = Math.floor(currentRunXP);
-            
             let currentBest = Math.max(localBest, parseInt(localStorage.getItem('skydata_unsaved_best') || '0'));
             if (currentRunXP > currentBest) {
                 document.getElementById('newRecordMsg').style.display = 'block';
@@ -254,11 +252,19 @@
         }
 
         // ==========================================
-        // 🚀 ROCKET GAME ENGINE (OPTIMIZED)
+        // 🚀 ROCKET GAME ENGINE (COMBAT & BUFFS)
         // ==========================================
         let rocket = { x: 0, y: 0 };
-        let obstacles = [], items = [], stars = [];
-        let gameTime = 0, shieldActive = false, shieldTimer = 0;
+        let obstacles = [], items = [], stars = [], bullets = [], particles = [];
+        let gameTime = 0;
+        
+        // Buff States
+        let buffs = {
+            shield: { active: false, timer: 0, max: 600, label: "SHIELD" },
+            ammo: { active: false, timer: 0, max: 900, label: "AUTO-FIRE" },
+            x2: { active: false, timer: 0, max: 900, label: "2X SCORE" }
+        };
+
         let speedFactor = 1, mouse = { x: width/2, y: height/2 };
 
         canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
@@ -266,9 +272,12 @@
 
         function startRocketGame() {
             rocket.x = width/2; rocket.y = height - 150; mouse.x = width/2; mouse.y = height - 150;
-            obstacles = []; items = []; stars = [];
+            obstacles = []; items = []; stars = []; bullets = []; particles = [];
             for(let i=0; i<60; i++) stars.push({x: Math.random()*width, y: Math.random()*height, z: Math.random()*2 + 0.5});
-            gameTime = 0; speedFactor = 1; shieldActive = false;
+            gameTime = 0; speedFactor = 1;
+            // Reset Buffs
+            Object.keys(buffs).forEach(k => { buffs[k].active = false; buffs[k].timer = 0; });
+            updateEffectsHUD();
             
             function loop() { if(!gameActive) return; updateRocket(); drawRocketGame(); gameLoopId = requestAnimationFrame(loop); }
             loop();
@@ -282,81 +291,237 @@
             rocket.x += (mouse.x - rocket.x) * 0.12; 
             rocket.y += (mouse.y - rocket.y) * 0.12;
 
+            // 1. Spawn Meteors (With HP)
             if (gameTime % Math.max(25, Math.floor(70/speedFactor)) === 0) {
-                const size = Math.random() * 20 + 20;
+                const size = Math.random() * 30 + 20; // 20-50
+                const hp = size > 40 ? 2 : 1; // Big rocks need 2 hits
                 const xPos = Math.random() * (width - size);
                 let safe = true;
                 obstacles.forEach(o => { if (Math.hypot(o.x - xPos, o.y - (-50)) < 80) safe = false; });
+                
                 if (safe) {
                     const verts = []; const sides = Math.floor(Math.random()*3)+5;
                     for(let i=0;i<sides;i++) { const a = (i/sides)*Math.PI*2; const r = size*(0.7+Math.random()*0.3); verts.push({x:Math.cos(a)*r, y:Math.sin(a)*r}); }
-                    obstacles.push({ x: xPos, y: -50, size: size, speed: currentSpeed, verts: verts, rot: 0, rotS: (Math.random()-0.5)*0.1 });
+                    obstacles.push({ 
+                        x: xPos, y: -50, size: size, speed: currentSpeed, verts: verts, 
+                        rot: 0, rotS: (Math.random()-0.5)*0.1, hp: hp, maxHp: hp 
+                    });
                 }
             }
 
-            if (gameTime % 150 === 0) {
+            // 2. Spawn Items (Rare Chances)
+            if (gameTime % 200 === 0) {
                 const r = Math.random(); let type = 'fuel'; 
-                if(r < 0.05) type = 'shield'; else if(r < 0.2) type = 'gem';
+                if(r < 0.05) type = 'shield';       // 5% Shield
+                else if(r < 0.10) type = 'x2';      // 5% 2X
+                else if(r < 0.25) type = 'ammo';    // 15% Ammo
+                else if(r < 0.35) type = 'gem';     // 10% Gem
+                
                 items.push({ x: Math.random()*(width-40), y: -50, type: type, speed: currentSpeed });
             }
 
+            // 3. Auto-Fire Logic (30 frames = 0.5s)
+            if (buffs.ammo.active && gameTime % 30 === 0) {
+                bullets.push({x: rocket.x, y: rocket.y - 30});
+            }
+
+            // 4. Logic Loops
+            // Bullets
+            for (let b = bullets.length - 1; b >= 0; b--) {
+                bullets[b].y -= 15;
+                if (bullets[b].y < 0) { bullets.splice(b, 1); continue; }
+                
+                // Hit detection
+                for (let o = obstacles.length - 1; o >= 0; o--) {
+                    let obs = obstacles[o];
+                    if (Math.hypot(bullets[b].x - obs.x, bullets[b].y - obs.y) < obs.size) {
+                        // Hit!
+                        createExplosion(obs.x, obs.y, '#ff9800', 5);
+                        obs.hp--;
+                        bullets.splice(b, 1); // Remove bullet
+                        
+                        if (obs.hp <= 0) {
+                            // Destroy Rock
+                            createExplosion(obs.x, obs.y, '#aaa', 15);
+                            obstacles.splice(o, 1);
+                            currentRunXP += (buffs.x2.active ? 10 : 5);
+                        } else {
+                            // Shrink Rock visually
+                            obs.size *= 0.7;
+                        }
+                        break; // Bullet hit something, stop checking other rocks
+                    }
+                }
+            }
+
+            // Obstacles
             obstacles.forEach((o, i) => {
                 o.y += o.speed; o.rot += o.rotS;
-                if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; }
+                if(o.y > height) { obstacles.splice(i, 1); return; }
+                
+                // Collision with Rocket
                 if (Math.hypot(rocket.x - o.x, rocket.y - o.y) < (20 + o.size)) {
-                    if (shieldActive) { obstacles.splice(i,1); currentRunXP += 5; } else gameOver();
+                    if (buffs.shield.active) { 
+                        createExplosion(o.x, o.y, '#aaa', 10);
+                        obstacles.splice(i,1); 
+                        currentRunXP += (buffs.x2.active ? 10 : 5);
+                    } else {
+                        gameOver();
+                    }
                 }
             });
 
+            // Items
             items.forEach((it, i) => {
                 it.y += it.speed;
                 if(it.y > height) { items.splice(i, 1); return; }
                 if (Math.hypot(rocket.x - it.x, rocket.y - it.y) < 35) {
-                    if(it.type === 'shield') { shieldActive = true; shieldTimer = 600; currentRunXP += 100; }
-                    else if(it.type === 'gem') currentRunXP += 50; else currentRunXP += 10;
+                    let gain = 10;
+                    if(it.type === 'shield') { activateBuff('shield'); gain = 50; }
+                    else if(it.type === 'ammo') { activateBuff('ammo'); gain = 30; }
+                    else if(it.type === 'x2') { activateBuff('x2'); gain = 20; }
+                    else if(it.type === 'gem') gain = 50;
+                    
+                    currentRunXP += (buffs.x2.active ? gain * 2 : gain);
+                    createExplosion(it.x, it.y, getTypeColor(it.type), 10);
                     items.splice(i, 1);
                 }
             });
 
-            if(shieldActive) {
-                shieldTimer--;
-                document.getElementById('shieldStatus').style.display = 'block';
-                if(shieldTimer<=0) { shieldActive=false; document.getElementById('shieldStatus').style.display='none'; }
-            }
+            // Update Buff Timers
+            updateBuffs();
+
+            // Update HUD text
+            document.getElementById('gameScore').innerText = Math.floor(gameTime / 10);
             document.getElementById('gameXP').innerText = Math.floor(currentRunXP);
+        }
+
+        function activateBuff(type) {
+            buffs[type].active = true;
+            buffs[type].timer = buffs[type].max;
+        }
+
+        function updateBuffs() {
+            let needsUpdate = false;
+            Object.keys(buffs).forEach(key => {
+                if (buffs[key].active) {
+                    buffs[key].timer--;
+                    if (buffs[key].timer <= 0) buffs[key].active = false;
+                    needsUpdate = true;
+                }
+            });
+            if (needsUpdate || gameTime % 30 === 0) updateEffectsHUD();
+        }
+
+        function updateEffectsHUD() {
+            const hud = document.getElementById('effectsHud');
+            hud.innerHTML = '';
+            
+            if (buffs.shield.active) createBadge(hud, 'shield', 'fa-shield-alt', buffs.shield.timer, buffs.shield.max);
+            if (buffs.ammo.active) createBadge(hud, 'ammo', 'fa-crosshairs', buffs.ammo.timer, buffs.ammo.max);
+            if (buffs.x2.active) createBadge(hud, 'x2', 'fa-bolt', buffs.x2.timer, buffs.x2.max);
+        }
+
+        function createBadge(container, type, icon, val, max) {
+            const percent = Math.floor((val / max) * 100);
+            const div = document.createElement('div');
+            div.className = `effect-badge ${type}-badge ${type}-bg`;
+            // Circular timer using conic-gradient
+            div.innerHTML = `
+                <div class="effect-icon ${type}-badge" style="background:conic-gradient(currentColor ${percent}%, transparent 0); border:2px solid rgba(255,255,255,0.1);">
+                    <i class="fas ${icon}" style="font-size:12px; background:#000; border-radius:50%; width:20px; height:20px; display:flex; justify-content:center; align-items:center;"></i>
+                </div>
+                <span>${Math.ceil(val/60)}s</span>
+            `;
+            container.appendChild(div);
+        }
+
+        function getTypeColor(type) {
+            if (type === 'shield') return '#00f2ff';
+            if (type === 'ammo') return '#ff3d00';
+            if (type === 'x2') return '#e040fb';
+            return '#00e676';
+        }
+
+        function createExplosion(x, y, color, count) {
+            for(let i=0; i<count; i++) particles.push({x:x, y:y, vx:(Math.random()-0.5)*8, vy:(Math.random()-0.5)*8, life:30, color:color});
         }
 
         function drawRocketGame() {
             ctx.fillStyle = '#050508'; ctx.fillRect(0,0,width,height);
+
+            // Stars
             ctx.fillStyle = 'rgba(255,255,255,0.7)';
             stars.forEach(s => { s.y += s.z * (speedFactor * 3); if(s.y > height) s.y = 0; ctx.beginPath(); ctx.arc(s.x, s.y, s.z, 0, Math.PI*2); ctx.fill(); });
 
+            // Particles
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.life--;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life/30;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+
+            // Bullets
+            ctx.fillStyle = '#ff3d00';
+            ctx.shadowBlur = 10; ctx.shadowColor = 'red';
+            bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI*2); ctx.fill(); });
+            ctx.shadowBlur = 0;
+
+            // Rocket
             ctx.save(); ctx.translate(rocket.x, rocket.y);
-            if(shieldActive) { ctx.beginPath(); ctx.arc(0,0, 45, 0, Math.PI*2); ctx.strokeStyle = `rgba(0, 242, 255, 0.8)`; ctx.lineWidth = 3; ctx.stroke(); ctx.fillStyle = 'rgba(0, 242, 255, 0.1)'; ctx.fill(); }
-            
+            if(buffs.shield.active) {
+                const alpha = (buffs.shield.timer < 180 && Math.floor(Date.now()/100)%2===0) ? 0.1 : 0.3;
+                ctx.beginPath(); ctx.arc(0,0, 45, 0, Math.PI*2);
+                ctx.strokeStyle = `rgba(0, 242, 255, ${alpha + 0.3})`; ctx.lineWidth = 3; ctx.stroke();
+                ctx.fillStyle = `rgba(0, 242, 255, ${alpha})`; ctx.fill();
+            }
             ctx.fillStyle = `rgba(0, 242, 255, 0.8)`; ctx.beginPath(); ctx.moveTo(-8, 20); ctx.lineTo(0, 35 + Math.random()*10); ctx.lineTo(8, 20); ctx.fill();
             ctx.fillStyle = '#e0e0e0'; ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(12, 10); ctx.lineTo(8, 20); ctx.lineTo(-8, 20); ctx.lineTo(-12, 10); ctx.fill();
             ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(0, -5, 5, 0, Math.PI*2); ctx.fill();
             ctx.fillStyle = '#ff3d00'; ctx.beginPath(); ctx.moveTo(-12, 10); ctx.lineTo(-22, 25); ctx.lineTo(-10, 20); ctx.fill(); ctx.beginPath(); ctx.moveTo(12, 10); ctx.lineTo(22, 25); ctx.lineTo(10, 20); ctx.fill();
             ctx.restore();
 
+            // Obstacles
             ctx.fillStyle = '#555';
             obstacles.forEach(o => {
                 ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.rot);
                 ctx.beginPath(); o.verts.forEach((v, i) => i===0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y)); ctx.closePath(); ctx.fill();
-                ctx.strokeStyle = '#8d6e63'; ctx.lineWidth=2; ctx.stroke(); ctx.restore();
+                ctx.strokeStyle = '#8d6e63'; ctx.lineWidth=2; ctx.stroke(); 
+                // Show cracks if damaged
+                if (o.maxHp > 1 && o.hp < o.maxHp) { ctx.beginPath(); ctx.moveTo(0,0); ctx.lineTo(10,10); ctx.stroke(); }
+                ctx.restore();
             });
 
+            // Items
             items.forEach(it => {
                 ctx.save(); ctx.translate(it.x, it.y);
-                const glow = it.type === 'shield' ? '#00f2ff' : (it.type === 'gem' ? '#e040fb' : '#00e676');
-                ctx.shadowBlur = 15; ctx.shadowColor = glow; ctx.fillStyle = glow;
+                const col = getTypeColor(it.type);
+                ctx.shadowBlur = 15; ctx.shadowColor = col; ctx.fillStyle = col;
                 ctx.beginPath(); ctx.arc(0,0, 12, 0, Math.PI*2); ctx.fill();
-                ctx.fillStyle = '#fff'; ctx.font="bold 14px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.shadowBlur = 0;
-                ctx.fillText(it.type==='shield'?'S':(it.type==='gem'?'💎':'⚡'), 0, 1);
+                ctx.fillStyle = '#fff'; ctx.font="900 14px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.shadowBlur = 0;
+                
+                let icon = "⚡";
+                if(it.type==='shield') icon="🛡️";
+                else if(it.type==='ammo') icon="🔫";
+                else if(it.type==='x2') icon="2X";
+                else if(it.type==='gem') icon="💎";
+                
+                ctx.fillText(icon, 0, 1);
                 ctx.restore();
             });
         }
+
+        // Snake Game (Classic) - No Changes
+        const gridSize = 20; let snake = [], food = {}, dir='RIGHT', nextDir='RIGHT', snakeSpeed=10, snakeFrame=0;
+        document.addEventListener('keydown', e => { if(e.key=='ArrowUp'&&dir!='DOWN')nextDir='UP'; else if(e.key=='ArrowDown'&&dir!='UP')nextDir='DOWN'; else if(e.key=='ArrowLeft'&&dir!='RIGHT')nextDir='LEFT'; else if(e.key=='ArrowRight'&&dir!='LEFT')nextDir='RIGHT'; });
+        let tsX=0, tsY=0; canvas.addEventListener('touchstart', e=>{tsX=e.touches[0].clientX;tsY=e.touches[0].clientY}, {passive:false});
+        canvas.addEventListener('touchend', e=>{ let dx=e.changedTouches[0].clientX-tsX, dy=e.changedTouches[0].clientY-tsY; if(Math.abs(dx)>Math.abs(dy)) { if(dx>0&&dir!='LEFT')nextDir='RIGHT'; else if(dx<0&&dir!='RIGHT')nextDir='LEFT'; } else { if(dy>0&&dir!='UP')nextDir='DOWN'; else if(dy<0&&dir!='DOWN')nextDir='UP'; } });
+        function startSnakeGame() { snake=[{x:10,y:10},{x:9,y:10}]; placeFood(); dir='RIGHT'; nextDir='RIGHT'; snakeSpeed=10; function loop(){ if(!gameActive)return; snakeFrame++; if(snakeFrame>=snakeSpeed){snakeFrame=0;updateSnake()} drawSnake(); gameLoopId=requestAnimationFrame(loop); } loop(); }
+        function placeFood(){ food={x:Math.floor(Math.random()*(width/gridSize)),y:Math.floor(Math.random()*(height/gridSize))}; }
+        function updateSnake(){ dir=nextDir; const head={...snake[0]}; if(dir=='UP')head.y--; if(dir=='DOWN')head.y++; if(dir=='LEFT')head.x--; if(dir=='RIGHT')head.x++; if(head.x<0||head.x>=width/gridSize||head.y<0||head.y>=height/gridSize){gameOver();return;} for(let c of snake)if(c.x==head.x&&c.y==head.y){gameOver();return;} snake.unshift(head); if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; if(currentRunXP%25===0 && snakeSpeed>3)snakeSpeed--; placeFood(); } else snake.pop(); document.getElementById('gameXP').innerText=currentRunXP; }
+        function drawSnake(){ ctx.fillStyle='#050508'; ctx.fillRect(0,0,width,height); ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=1; for(let i=0;i<width;i+=gridSize){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,height);ctx.stroke()} for(let i=0;i<height;i+=gridSize){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(width,i);ctx.stroke()} ctx.fillStyle='#00e676'; ctx.shadowBlur=10; ctx.shadowColor='#00e676'; snake.forEach(c=>ctx.fillRect(c.x*gridSize+1,c.y*gridSize+1,gridSize-2,gridSize-2)); ctx.shadowBlur=0; ctx.fillStyle='#ffea00'; ctx.beginPath(); ctx.arc(food.x*gridSize+10,food.y*gridSize+10,6,0,Math.PI*2); ctx.fill(); }
     </script>
 </body>
 </html>
