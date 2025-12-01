@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        /* نفس التصميم السابق تماماً */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -25,6 +24,7 @@
         .action-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
         .action-card:hover { transform: translateY(-10px); }
         button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
+        .debug-box { background: rgba(255,165,0,0.1); border: 1px solid orange; padding: 10px; margin: 10px 0; border-radius: 8px; font-size: 12px; text-align: left; max-height: 200px; overflow-y: auto; }
         @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } .action-grid { grid-template-columns: 1fr; } }
     </style>
 </head>
@@ -41,9 +41,16 @@
     <div class="main-content">
         <div class="card">
             <h1 data-i18n="profileTitle" style="color:white; margin-bottom:30px;">User Profile</h1>
+            
+            <!-- Debug Log (للتشخيص من الموبايل) -->
+            <div id="debugLog" class="debug-box" style="display:none;">
+                <strong>🔍 Debug Log:</strong>
+                <div id="logContent"></div>
+            </div>
+            
             <div id="loader" style="color: #888; margin-bottom:10px;">
                 <i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:var(--accent);"></i>
-                <div style="margin-top:10px">Verifying Session...</div>
+                <div style="margin-top:10px" id="loaderText">Verifying Session...</div>
             </div>
 
             <div id="content" style="display:none;">
@@ -66,11 +73,36 @@
                 <div style="font-size:12px; color:#888; margin-top:5px;">Top 100</div>
             </div>
         </div>
+        
+        <!-- زر Debug -->
+        <button onclick="toggleDebug()" style="margin-top:20px; background:transparent; border:1px solid #555; color:#888; padding:8px 20px; border-radius:8px; cursor:pointer; font-size:12px;">
+            Show Debug Log
+        </button>
     </div>
 
     <script type="module" src="./system.js"></script>
     <script type="module">
         import { supabase } from './supabase.js';
+
+        // Debug Logger (للموبايل)
+        const logMessages = [];
+        function addLog(msg, type = 'info') {
+            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '📡';
+            const timestamp = new Date().toLocaleTimeString();
+            const fullMsg = `[${timestamp}] ${emoji} ${msg}`;
+            logMessages.push(fullMsg);
+            console.log(fullMsg);
+            
+            const logDiv = document.getElementById('logContent');
+            if(logDiv) {
+                logDiv.innerHTML = logMessages.slice(-20).join('<br>');
+            }
+        }
+
+        window.toggleDebug = function() {
+            const debugBox = document.getElementById('debugLog');
+            debugBox.style.display = debugBox.style.display === 'none' ? 'block' : 'none';
+        };
 
         // 1. منع العودة للخلف
         window.onload = function() {
@@ -80,67 +112,131 @@
             }
         };
 
-        // 2. ✅ التحقق الآمن من الجلسة (The Safe Check)
-        // نتحقق: هل يوجد هاش في الرابط (قادم من جوجل)؟
+        // 2. التحقق من الجلسة
         const isRedirecting = window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'));
 
+        addLog('Page loaded. Checking auth state...');
+        addLog(`Is redirecting: ${isRedirecting}`);
+
         supabase.auth.onAuthStateChange(async (event, session) => {
-            console.log("Auth Event:", event);
+            addLog(`Auth Event: ${event}`);
             
             if (session) {
-                // المستخدم موجود فعلياً -> ابدأ التحميل
+                addLog(`✅ Session found for: ${session.user.email}`, 'success');
                 await loadProfileData(session.user);
             } else {
-                // لا يوجد جلسة حالياً... ولكن هل نحن ننتظر جوجل؟
                 if (isRedirecting) {
-                    console.log("Waiting for OAuth redirect to finish...");
-                    // لا تفعل شيئاً! انتظر حتى تكتمل العملية ويطلق Supabase حدث SIGNED_IN
+                    addLog('⏳ Waiting for OAuth redirect...', 'warning');
                 } else {
-                    // لست مسجلاً ولست قادماً من جوجل -> اطرده
-                    console.log("No session, redirecting to login.");
-                    window.location.replace("login.html");
+                    addLog('❌ No session, redirecting to login...', 'error');
+                    setTimeout(() => {
+                        window.location.replace("login.html");
+                    }, 2000);
                 }
             }
         });
 
-        // 3. تحميل البيانات (مع الشفاء الذاتي)
+        // 3. تحميل البيانات (محسّن)
         async function loadProfileData(user) {
+            addLog(`🔍 Loading profile for: ${user.id}`);
+            document.getElementById('loaderText').innerText = 'Loading Profile...';
+            
             let profileData = null;
             let attempts = 0;
+            const maxAttempts = 5;
 
-            // محاولة جلب البيانات
-            while (attempts < 3 && !profileData) {
-                try {
-                    let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
-                    if (data) profileData = data;
-                } catch (e) {}
-                if (!profileData) await new Promise(r => setTimeout(r, 1000)); // انتظر ثانية
+            while (attempts < maxAttempts && !profileData) {
                 attempts++;
+                addLog(`📡 Attempt ${attempts}/${maxAttempts}...`);
+                document.getElementById('loaderText').innerText = `Loading... (${attempts}/${maxAttempts})`;
+                
+                try {
+                    const { data, error } = await supabase
+                        .from('users')
+                        .select('*')
+                        .eq('id', user.id)
+                        .maybeSingle();
+
+                    if (error) {
+                        addLog(`⚠️ Fetch error: ${error.message}`, 'warning');
+                        addLog(`Error code: ${error.code}`);
+                        await new Promise(r => setTimeout(r, 1000));
+                        continue;
+                    }
+
+                    if (data) {
+                        profileData = data;
+                        addLog('✅ Profile found in database', 'success');
+                        break;
+                    }
+
+                    // إنشاء ملف جديد بعد 3 محاولات
+                    if (attempts >= 3 && !profileData) {
+                        addLog('🔧 Profile not found. Creating new one...', 'warning');
+                        document.getElementById('loaderText').innerText = 'Creating Profile...';
+                        
+                        const newProfile = {
+                            id: user.id,
+                            email: user.email,
+                            name: user.user_metadata.full_name || 
+                                  user.user_metadata.name || 
+                                  user.email.split('@')[0],
+                            rank: 'free',
+                            xp: 0
+                        };
+
+                        addLog(`📝 Inserting: ${JSON.stringify(newProfile)}`);
+
+                        const { data: insertedData, error: insertError } = await supabase
+                            .from('users')
+                            .insert([newProfile])
+                            .select()
+                            .single();
+
+                        if (insertError) {
+                            addLog(`❌ Insert failed: ${insertError.message}`, 'error');
+                            addLog(`Error details: ${JSON.stringify(insertError)}`);
+                        } else {
+                            profileData = insertedData;
+                            addLog('✅ Profile created successfully!', 'success');
+                        }
+                    }
+
+                } catch (err) {
+                    addLog(`❌ Unexpected error: ${err.message}`, 'error');
+                }
+
+                if (!profileData && attempts < maxAttempts) {
+                    await new Promise(r => setTimeout(r, 1500));
+                }
             }
 
-            // إذا لم نجد البيانات، ننشئها الآن (Self Healing)
-            if (!profileData) {
-                const { data: newData } = await supabase.from('users').insert([{
-                    id: user.id,
-                    email: user.email,
-                    name: user.user_metadata.full_name || user.email.split('@')[0],
-                    rank: 'free',
-                    xp: 0
-                }]).select().single();
-                profileData = newData;
-            }
-
-            // العرض النهائي
+            // عرض النتيجة
             if (profileData) {
+                addLog('🎉 Displaying profile data', 'success');
                 document.getElementById("loader").style.display = "none";
                 document.getElementById("content").style.display = "block";
-                document.getElementById("name").textContent = profileData.name;
-                document.getElementById("email").textContent = profileData.email;
+                document.getElementById("name").textContent = profileData.name || "User";
+                document.getElementById("email").textContent = profileData.email || "N/A";
                 document.getElementById("rank").innerHTML = (profileData.rank || 'free').toUpperCase();
+            } else {
+                addLog('❌ All attempts failed. Showing error.', 'error');
+                document.getElementById("loader").innerHTML = `
+                    <div style="color:#ff4444; text-align:center;">
+                        <i class="fas fa-exclamation-triangle" style="font-size:40px;"></i>
+                        <div style="margin-top:15px; font-size:16px;">Failed to load profile</div>
+                        <div style="margin-top:10px; font-size:12px; color:#888;">Check Debug Log for details</div>
+                        <button onclick="location.reload()" style="margin-top:20px; padding:10px 30px; background:#4e54c8; color:white; border:none; border-radius:10px; cursor:pointer;">
+                            Retry
+                        </button>
+                    </div>
+                `;
+                document.getElementById('debugLog').style.display = 'block';
             }
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
+            addLog('🚪 Logging out...');
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
