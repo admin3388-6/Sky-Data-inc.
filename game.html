@@ -13,24 +13,13 @@
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
 
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 25px; background: rgba(5, 5, 8, 0.95); backdrop-filter: blur(15px); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 100; }
-        .user-info { display: flex; align-items: center; gap: 15px; }
-        .xp-display { background: rgba(0, 242, 255, 0.05); color: var(--accent); padding: 6px 16px; border-radius: 50px; font-weight: 700; border: 1px solid rgba(0, 242, 255, 0.3); font-size: 13px; display: flex; align-items: center; gap: 8px; }
-
-        /* Main Menu */
-        .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; min-height: 80vh; justify-content: center; }
-        .game-card-large { background: linear-gradient(180deg, rgba(10,10,20,0.8) 0%, rgba(78, 84, 200, 0.1) 100%); border: 1px solid var(--border); padding: 50px; border-radius: 30px; text-align: center; transition: 0.4s; cursor: pointer; width: 100%; max-width: 500px; backdrop-filter: blur(10px); box-shadow: 0 20px 50px rgba(0,0,0,0.3); }
-        .game-icon-large { font-size: 80px; color: var(--accent); margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.4)); animation: float 3s ease-in-out infinite; }
-        .play-btn-large { margin-top: 30px; padding: 15px 60px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(78, 84, 200, 0.4); }
-
-        /* Game Screen */
-        .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
+        /* Game Modal Only */
+        .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: flex; flex-direction: column; }
         
-        /* HUD - XP Only */
         .game-hud { position: absolute; top: 20px; left: 20px; color: white; font-family: 'Outfit', sans-serif; z-index: 2002; pointer-events: none; }
-        .hud-item { margin-bottom: 5px; font-weight: 800; font-size: 24px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 10px;}
+        .hud-item { margin-bottom: 5px; font-weight: 800; font-size: 18px; text-shadow: 0 2px 10px rgba(0,0,0,0.8); display: flex; align-items: center; gap: 10px;}
         
+        /* Effects HUD */
         .effects-hud { position: absolute; bottom: 30px; right: 20px; display: flex; flex-direction: column; gap: 10px; align-items: flex-end; z-index: 2002; pointer-events: none; }
         .effect-badge { background: rgba(0,0,0,0.8); border: 1px solid rgba(255,255,255,0.1); padding: 6px 12px; border-radius: 30px; color: white; font-weight: bold; font-size: 12px; display: flex; align-items: center; gap: 10px; backdrop-filter: blur(5px); }
         
@@ -38,41 +27,27 @@
         canvas#gameCanvas { width: 100%; height: 100%; display: block; touch-action: none; cursor: none; }
 
         /* Overlays */
-        #startOverlay, #gameOverScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.9); z-index: 2003; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); text-align: center; }
+        #startOverlay, #gameOverScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.95); z-index: 2003; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); text-align: center; }
         .game-title-text { font-size: 40px; font-weight: 900; letter-spacing: 3px; color: white; margin-bottom: 10px; text-shadow: 0 0 30px var(--primary); }
         .score-big { font-size: 60px; font-weight: 900; color: var(--accent); margin: 10px 0; text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
+        
+        /* Auto Save Timer Style */
+        .auto-save-timer { font-size: 16px; color: #00e676; margin-top: 20px; font-weight: bold; border: 1px dashed #00e676; padding: 10px 20px; border-radius: 20px; }
+        
         .action-btn { padding: 16px 50px; font-size: 16px; border-radius: 50px; border: none; cursor: pointer; margin: 10px; font-weight: 700; transition: 0.3s; min-width: 220px; text-transform: uppercase; letter-spacing: 1px; }
         .btn-claim { background: linear-gradient(135deg, #00c853, #009624); color: white; box-shadow: 0 10px 30px rgba(0, 200, 83, 0.3); }
-        .btn-retry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
+
+        /* Save Loader */
         .saving-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; font-weight: bold; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
-        
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <canvas id="canvas-bg"></canvas>
-
-    <div id="saveLoader" class="saving-overlay"><div class="spinner"></div><div id="saveText">SYNCING DATA...</div></div>
-
-    <div class="header">
-        <div style="font-size: 22px; font-weight: 800; color: white; letter-spacing: 1px;">SKY <span style="color:var(--accent)">ARCADE</span></div>
-        <div class="user-info">
-            <div class="xp-display"><i class="fas fa-bolt"></i> <span id="headerXp">...</span> <span>XP</span></div>
-        </div>
-    </div>
-
-    <div class="main-content">
-        <div class="game-card-large" onclick="startGame()">
-            <div class="game-icon-large"><i class="fas fa-rocket"></i></div>
-            <h1 style="margin-bottom:10px;">Hyper Space</h1>
-            <p style="color:#8b9bb4; font-size:16px;">Navigate. Survive. Collect XP.</p>
-            <div style="margin-top:25px; font-size:14px; color:rgba(255,255,255,0.5); border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">YOUR BEST XP<br><span id="rocketHigh" style="color:var(--accent); font-size:24px; font-weight:bold;">0</span></div>
-            <button class="play-btn-large">LAUNCH MISSION</button>
-        </div>
-        <button onclick="window.location.href='menu.html'" style="margin-top:20px; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; opacity:0.7;">Back to Dashboard</button>
+    <div id="saveLoader" class="saving-overlay">
+        <div class="spinner"></div>
+        <div id="saveText">SYNCING DATA...</div>
     </div>
 
     <div class="game-modal" id="gameModal">
@@ -80,23 +55,29 @@
             <div class="hud-item"><i class="fas fa-bolt" style="color:var(--accent);"></i> <span id="gameXP">0</span></div>
         </div>
         <div class="effects-hud" id="effectsHud"></div>
-        <button class="close-game" onclick="exitGame()">EXIT</button>
+        <button class="close-game" onclick="window.location.href='menu.html'">EXIT</button>
+        
         <canvas id="gameCanvas"></canvas>
 
         <div id="startOverlay" onclick="initGameLogic()">
             <div class="game-title-text">READY?</div>
-            <div style="font-size:16px; color:#aaa;">Tap to Engage Thrusters</div>
+            <div style="font-size:16px; color:#aaa; margin-top:5px;">Tap to Start</div>
+            <div style="font-size:14px; color:var(--primary); margin-top:20px;">Best: <span id="highScoreDisplay">0</span></div>
         </div>
 
         <div id="gameOverScreen" style="display:none;">
             <h1 class="game-title-text" style="color:#ff4444;">WRECKED</h1>
-            <div style="display:flex; flex-direction: column; align-items: center; margin:20px 0;">
+            
+            <div style="display:flex; flex-direction: column; align-items: center; margin:10px 0;">
                 <div style="font-size:14px; color:#aaa; text-transform:uppercase;">XP Gained</div>
                 <div class="score-big" id="finalXP" style="color:var(--accent);">0</div>
+                <div id="newRecordMsg" style="color:#00e676; font-weight:bold; display:none; margin-top:5px;">🎉 NEW RECORD!</div>
             </div>
+
+            <div id="autoSaveCounter" class="auto-save-timer">Auto-saving in 5s...</div>
+
             <div>
-                <button class="action-btn btn-claim" onclick="saveData()">CLAIM XP</button>
-                <button class="action-btn btn-retry" onclick="resetGame()">RETRY</button>
+                <button class="action-btn btn-claim" onclick="saveData()">SAVE NOW</button>
             </div>
         </div>
     </div>
@@ -108,7 +89,6 @@
 
         // Global Vars
         let currentUser=null, gameActive=false, gameLoopId=null, currentRunXP=0;
-        let gamePaused = true;
         let localBest = 0;
         
         const canvas = document.getElementById('gameCanvas');
@@ -118,88 +98,106 @@
         function resizeGame() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resizeGame);
 
+        // --- Init ---
         async function initPage() {
-            document.querySelector('.support-float').style.display = 'none'; // Hide support btn
-
             const { data: { session } } = await supabase.auth.getSession();
             if (!session) { window.location.replace("login.html"); return; }
             currentUser = session.user;
             
             const { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
             const serverBest = profile?.xp || 0;
-            document.getElementById('headerXp').innerText = serverBest.toLocaleString();
-            
             const unsaved = parseInt(localStorage.getItem('rocket_high') || '0');
-            localBest = Math.max(serverBest, unsaved); // Display highest ever
-            document.getElementById('rocketHigh').innerText = localBest;
-            
+            localBest = Math.max(serverBest, unsaved);
+            document.getElementById('highScoreDisplay').innerText = localBest;
+
             resizeGame();
+            // Start game loop for background
+            startRocketGame();
         }
         initPage();
 
-        window.startGame = function() {
-            document.getElementById('gameModal').style.display = 'flex';
-            document.getElementById('startOverlay').style.display = 'flex';
-            document.getElementById('gameOverScreen').style.display = 'none';
-            resizeGame();
-            // Start drawing immediately (background mode)
+        // --- Game Logic ---
+        window.initGameLogic = function() {
+            document.getElementById('startOverlay').style.display = 'none';
+            gameActive = true; currentRunXP = 0;
             startRocketGame();
         };
 
-        window.initGameLogic = function() {
-            document.getElementById('startOverlay').style.display = 'none';
-            gameActive = true; 
-            gamePaused = false; // Unpause physics
-            currentRunXP = 0;
-        };
-
-        window.exitGame = function() {
-            gameActive = false; cancelAnimationFrame(gameLoopId);
-            location.reload();
-        };
-
+        // ✅ Save Data Logic (Auto & Manual)
         window.saveData = async function() {
-            if (currentRunXP <= 0) { location.reload(); return; }
-            const loader = document.getElementById('saveLoader'); loader.style.display = 'flex';
+            if (currentRunXP <= 0) { window.location.href = "menu.html"; return; }
+
+            const loader = document.getElementById('saveLoader');
+            loader.style.display = 'flex';
+
             try {
+                // Get current XP
                 let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
-                let newTotal = Math.max((profile?.xp || 0), currentRunXP); // إذا كنت تريد حفظ "أعلى رقم" فقط
-                // أو إذا كنت تريد جمع النقاط (تراكمي): let newTotal = (profile?.xp || 0) + currentRunXP; 
-                // سأفترض أنك تريد "تجميع" الـ XP كعملة، لأنك قلت "Collect XP".
-                // إذا كنت تريد "أعلى نتيجة" فقط، أخبرني لأعدلها. سأجعلها تجميعية الآن لأنها ممتعة أكثر.
                 
-                // تحديث: أنت طلبت High Score في الرد السابق. سأجعلها "أعلى نتيجة" (High Score Mode)
+                // High Score Mode: Update only if new score is higher
                 if (currentRunXP > (profile?.xp || 0)) {
-                     await supabase.from('users').update({ xp: currentRunXP }).eq('id', currentUser.id);
+                    const { error } = await supabase.from('users').update({ xp: currentRunXP }).eq('id', currentUser.id);
+                    if (error) throw error;
                 }
-                
+
+                // Local Save
+                if (currentRunXP > localBest) localStorage.setItem('rocket_high', currentRunXP);
+
+                window.location.href = "menu.html";
+            } catch (err) {
+                console.error(err);
+                loader.style.display = 'none';
+                // If fails, save locally and exit
                 if (currentRunXP > localBest) localStorage.setItem('rocket_high', currentRunXP);
                 window.location.href = "menu.html";
-            } catch (err) { location.reload(); }
-        };
-
-        window.resetGame = function() {
-            // Check High Score Locally
-            if(currentRunXP > localBest) { localBest = currentRunXP; localStorage.setItem('rocket_high', currentRunXP); }
-            document.getElementById('gameOverScreen').style.display = 'none';
-            // Reset Game State
-            gameActive = true; gamePaused = false; currentRunXP = 0;
-            startRocketGame(); // Restart engine
+            }
         };
 
         function gameOver() {
-            gamePaused = true; // Stop physics
+            gameActive = false; cancelAnimationFrame(gameLoopId);
             document.getElementById('finalXP').innerText = Math.floor(currentRunXP);
+            
+            if (currentRunXP > localBest) {
+                document.getElementById('newRecordMsg').style.display = 'block';
+                localBest = currentRunXP; // Update immediately
+            } else {
+                document.getElementById('newRecordMsg').style.display = 'none';
+            }
+            
             document.getElementById('gameOverScreen').style.display = 'flex';
+
+            // ✅ Auto Save Timer Logic
+            let countdown = 5;
+            const timerEl = document.getElementById('autoSaveCounter');
+            timerEl.style.display = 'block';
+            timerEl.innerText = `Auto-saving in ${countdown}s...`;
+            
+            const interval = setInterval(() => {
+                countdown--;
+                if(countdown > 0) {
+                    timerEl.innerText = `Auto-saving in ${countdown}s...`;
+                } else {
+                    clearInterval(interval);
+                    timerEl.innerText = "Saving...";
+                    saveData();
+                }
+            }, 1000);
         }
 
         // ==========================================
-        // 🚀 ROCKET ENGINE (VISUALS READY BEFORE START)
+        // 🚀 ROCKET ENGINE (WITH LOOT & COMBAT)
         // ==========================================
         let rocket = { x: 0, y: 0 };
         let obstacles = [], items = [], stars = [], bullets = [], particles = [];
         let gameTime = 0;
-        let buffs = { shield: {active:false, timer:0, max:600, color:'#00f2ff'}, ammo: {active:false, timer:0, max:900, color:'#ff3d00'}, x2: {active:false, timer:0, max:900, color:'#e040fb'} };
+        
+        // Buffs
+        let buffs = {
+            shield: { active: false, timer: 0, max: 600, color:'#00f2ff', icon:'fa-shield-alt' },
+            ammo:   { active: false, timer: 0, max: 900, color:'#ff3d00', icon:'fa-crosshairs' },
+            x2:     { active: false, timer: 0, max: 900, color:'#e040fb', icon:'fa-bolt' }
+        };
+
         let speedFactor = 1, mouse = { x: width/2, y: height/2 };
 
         canvas.addEventListener('mousemove', e => { const r = canvas.getBoundingClientRect(); mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; });
@@ -208,72 +206,105 @@
         function startRocketGame() {
             rocket.x = width/2; rocket.y = height - 150; mouse.x = width/2; mouse.y = height - 150;
             obstacles = []; items = []; stars = []; bullets = []; particles = [];
-            Object.keys(buffs).forEach(k => { buffs[k].active = false; });
-            document.getElementById('effectsHud').innerHTML = '';
-            
-            for(let i=0; i<60; i++) stars.push({x: Math.random()*width, y: Math.random()*height, z: Math.random()*2 + 0.5});
-            gameTime = 0; speedFactor = 1; 
-            gamePaused = true; // Paused initially (Draws but doesn't move)
+            Object.keys(buffs).forEach(k => { buffs[k].active = false; buffs[k].timer = 0; });
+            updateEffectsHUD();
 
-            if(gameLoopId) cancelAnimationFrame(gameLoopId);
-            function loop() {
-                if(!gamePaused) updateRocket(); // Only update physics if playing
-                drawRocketGame(); // Always draw (so we see rocket behind overlay)
-                gameLoopId = requestAnimationFrame(loop);
-            }
-            loop();
+            for(let i=0; i<60; i++) stars.push({x: Math.random()*width, y: Math.random()*height, z: Math.random()*2 + 0.5});
+            gameTime = 0; speedFactor = 1;
+            
+            function loop() { if(!gameActive) return; updateRocket(); drawRocketGame(); gameLoopId = requestAnimationFrame(loop); }
+            if(gameActive) loop(); else drawRocketGame(); // Draw once if waiting
         }
 
         function updateRocket() {
             gameTime++;
             if (gameTime % 400 === 0) speedFactor += 0.1;
-            const currentSpeed = (3.0 + (gameTime/800)) * speedFactor;
-            rocket.x += (mouse.x - rocket.x) * 0.15; rocket.y += (mouse.y - rocket.y) * 0.15;
+            const currentSpeed = (2.5 + (gameTime/800)) * speedFactor;
 
-            // Spawn Rocks
-            if (gameTime % Math.max(25, Math.floor(70/speedFactor)) === 0) {
-                const size = Math.random() * 30 + 20;
-                const hp = size > 40 ? 2 : 1;
+            rocket.x += (mouse.x - rocket.x) * 0.15; 
+            rocket.y += (mouse.y - rocket.y) * 0.15;
+
+            // 1. Spawning
+            if (gameTime % Math.max(20, Math.floor(60/speedFactor)) === 0) {
+                const size = Math.random() * 30 + 25;
+                const hp = size > 45 ? 2 : 1;
                 const xPos = Math.random() * (width - size);
                 let safe = true;
                 obstacles.forEach(o => { if (Math.hypot(o.x - xPos, o.y - (-50)) < 80) safe = false; });
+                
                 if (safe) {
                     const verts = []; const sides = Math.floor(Math.random()*3)+5;
                     for(let i=0;i<sides;i++) { const a = (i/sides)*Math.PI*2; const r = size*(0.7+Math.random()*0.3); verts.push({x:Math.cos(a)*r, y:Math.sin(a)*r}); }
                     obstacles.push({ x: xPos, y: -50, size: size, speed: currentSpeed, verts: verts, rot: 0, rotS: (Math.random()-0.5)*0.1, hp:hp });
                 }
             }
-            // Spawn Items
-            if (gameTime % 200 === 0) {
-                const r = Math.random(); let type = 'fuel'; 
-                if(r < 0.05) type = 'shield'; else if(r < 0.12) type = 'x2'; else if(r < 0.25) type = 'ammo'; else if(r < 0.35) type = 'gem';
+
+            if (gameTime % 180 === 0) {
+                const r = Math.random(); let type = 'xp'; 
+                if(r < 0.05) type = 'shield'; 
+                else if(r < 0.10) type = 'x2'; 
+                else if(r < 0.20) type = 'ammo'; 
+                else if(r < 0.30) type = 'gem'; // 10% chance for rare gem
+                else type = 'xp'; // 70% chance for normal XP
+                
                 items.push({ x: Math.random()*(width-40), y: -50, type: type, speed: currentSpeed });
             }
-            // Auto Fire
-            if (buffs.ammo.active && gameTime % 15 === 0) bullets.push({x: rocket.x, y: rocket.y - 30});
 
-            // Logic Loops (Bullets, Rocks, Items) ... [Simplified for brevity, logic matches previous]
-            for(let b=bullets.length-1; b>=0; b--) {
-                bullets[b].y-=15; if(bullets[b].y<0){bullets.splice(b,1);continue;}
-                for(let o=obstacles.length-1; o>=0; o--) {
-                    if(Math.hypot(bullets[b].x-obstacles[o].x, bullets[b].y-obstacles[o].y) < obstacles[o].size) {
-                        obstacles[o].hp--; bullets.splice(b,1); createExplosion(obstacles[o].x, obstacles[o].y, '#ff9800', 5);
-                        if(obstacles[o].hp<=0) { createExplosion(obstacles[o].x, obstacles[o].y, '#aaa', 15); obstacles.splice(o,1); currentRunXP+=(buffs.x2.active?10:5); }
+            // 2. Auto Fire
+            if (buffs.ammo.active && gameTime % 15 === 0) {
+                bullets.push({x: rocket.x, y: rocket.y - 30});
+            }
+
+            // 3. Logic Loops
+            // Bullets
+            for (let b = bullets.length - 1; b >= 0; b--) {
+                bullets[b].y -= 15;
+                if (bullets[b].y < 0) { bullets.splice(b, 1); continue; }
+                for (let o = obstacles.length - 1; o >= 0; o--) {
+                    let obs = obstacles[o];
+                    if (Math.hypot(bullets[b].x - obs.x, bullets[b].y - obs.y) < obs.size) {
+                        obs.hp--; bullets.splice(b, 1);
+                        createExplosion(obs.x, obs.y, '#ff9800', 5);
+                        if (obs.hp <= 0) {
+                            createExplosion(obs.x, obs.y, '#aaa', 10);
+                            
+                            // ✅ Loot Drop Chance (20%) when destroyed
+                            if(Math.random() < 0.2) {
+                                items.push({ x: obs.x, y: obs.y, type: 'xp', speed: currentSpeed });
+                            }
+                            
+                            obstacles.splice(o, 1);
+                        } else {
+                            obs.size *= 0.7; // Shrink
+                        }
                         break;
                     }
                 }
             }
-            obstacles.forEach((o,i) => {
-                o.y+=o.speed; o.rot+=o.rotS; if(o.y>height){obstacles.splice(i,1); return;}
-                if(Math.hypot(rocket.x-o.x, rocket.y-o.y)<(20+o.size)) {
-                    if(buffs.shield.active) { createExplosion(o.x,o.y,'#aaa',10); obstacles.splice(i,1); currentRunXP+=5; } else gameOver();
+
+            obstacles.forEach((o, i) => {
+                o.y += o.speed; o.rot += o.rotS;
+                if(o.y > height) { obstacles.splice(i, 1); return; }
+                if (Math.hypot(rocket.x - o.x, rocket.y - o.y) < (20 + o.size)) {
+                    if (buffs.shield.active) { createExplosion(o.x, o.y, '#aaa', 10); obstacles.splice(i,1); } 
+                    else gameOver();
                 }
             });
-            items.forEach((it,i) => {
-                it.y+=it.speed; if(it.y>height){items.splice(i,1);return;}
-                if(Math.hypot(rocket.x-it.x, rocket.y-it.y)<35) {
-                    let gain=10; if(it.type=='shield'){activateBuff('shield');gain=50;} else if(it.type=='ammo'){activateBuff('ammo');gain=30;} else if(it.type=='x2'){activateBuff('x2');gain=20;} else if(it.type=='gem')gain=50;
-                    currentRunXP+=(buffs.x2.active?gain*2:gain); createExplosion(it.x,it.y,it.type=='shield'?'#00f2ff':'#00e676',10); items.splice(i,1);
+
+            items.forEach((it, i) => {
+                it.y += it.speed;
+                if(it.y > height) { items.splice(i, 1); return; }
+                if (Math.hypot(rocket.x - it.x, rocket.y - it.y) < 35) {
+                    let gain = 5;
+                    if(it.type === 'shield') { activateBuff('shield'); gain = 50; }
+                    else if(it.type === 'ammo') { activateBuff('ammo'); gain = 30; }
+                    else if(it.type === 'x2') { activateBuff('x2'); gain = 20; }
+                    else if(it.type === 'gem') gain = 50;
+                    else if(it.type === 'xp') gain = 10; // Common drop
+                    
+                    currentRunXP += (buffs.x2.active ? gain * 2 : gain);
+                    createExplosion(it.x, it.y, getTypeColor(it.type), 8);
+                    items.splice(i, 1);
                 }
             });
 
@@ -281,38 +312,95 @@
             document.getElementById('gameXP').innerText = Math.floor(currentRunXP);
         }
 
-        function activateBuff(type) { buffs[type].active=true; buffs[type].timer=buffs[type].max; }
+        function activateBuff(type) { buffs[type].active = true; buffs[type].timer = buffs[type].max; }
+
         function updateBuffs() {
-            let changed=false; Object.keys(buffs).forEach(k=>{ if(buffs[k].active){ buffs[k].timer--; if(buffs[k].timer<=0)buffs[k].active=false; changed=true; } });
-            if(changed || gameTime%30===0) renderEffectsHUD();
-        }
-        function renderEffectsHUD() {
-            const hud=document.getElementById('effectsHud'); hud.innerHTML='';
-            Object.keys(buffs).forEach(k=>{
+            let changed = false;
+            Object.keys(buffs).forEach(k => {
                 if(buffs[k].active) {
-                    const b=buffs[k], pct=Math.floor((b.timer/b.max)*100);
-                    hud.innerHTML += `<div class="effect-badge" style="border-color:${b.color}; color:${b.color}"><div style="width:20px;height:20px;border-radius:50%;background:conic-gradient(${b.color} ${pct}%, transparent 0);display:flex;justify-content:center;align-items:center;border:1px solid rgba(255,255,255,0.3)"><div style="width:16px;height:16px;background:#000;border-radius:50%"></div></div> ${Math.ceil(b.timer/60)}s</div>`;
+                    buffs[k].timer--;
+                    if (buffs[k].timer <= 0) buffs[k].active = false;
+                    changed = true;
+                }
+            });
+            if(changed || gameTime % 30 === 0) renderEffectsHUD();
+        }
+
+        function renderEffectsHUD() {
+            const hud = document.getElementById('effectsHud'); hud.innerHTML = '';
+            Object.keys(buffs).forEach(k => {
+                if(buffs[k].active) {
+                    const b = buffs[k];
+                    const pct = Math.floor((b.timer / b.max) * 100);
+                    hud.innerHTML += `<div class="effect-badge" style="border-color:${b.color}; color:${b.color}"><i class="fas ${b.icon}"></i> ${Math.ceil(b.timer/60)}s</div>`;
                 }
             });
         }
-        function createExplosion(x,y,c,n){ for(let i=0;i<n;i++)particles.push({x:x,y:y,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8,life:30,color:c}); }
+
+        function getTypeColor(type) {
+            if (type === 'shield') return '#00f2ff';
+            if (type === 'ammo') return '#ff3d00';
+            if (type === 'x2') return '#e040fb';
+            if (type === 'gem') return '#d500f9';
+            return '#00e676'; // XP
+        }
+
+        function createExplosion(x, y, color, count) {
+            for(let i=0; i<count; i++) particles.push({x:x, y:y, vx:(Math.random()-0.5)*8, vy:(Math.random()-0.5)*8, life:30, color:color});
+        }
 
         function drawRocketGame() {
             ctx.fillStyle = '#050508'; ctx.fillRect(0,0,width,height);
-            ctx.fillStyle = 'rgba(255,255,255,0.7)'; stars.forEach(s=>{ s.y+=s.z*(speedFactor*3); if(s.y>height)s.y=0; ctx.beginPath();ctx.arc(s.x,s.y,s.z,0,Math.PI*2);ctx.fill(); });
-            particles.forEach((p,i)=>{ p.x+=p.vx; p.y+=p.vy; p.life--; ctx.fillStyle=p.color; ctx.globalAlpha=p.life/30; ctx.beginPath();ctx.arc(p.x,p.y,3,0,Math.PI*2);ctx.fill(); if(p.life<=0)particles.splice(i,1); }); ctx.globalAlpha=1;
-            ctx.fillStyle='#ff3d00'; bullets.forEach(b=>{ ctx.beginPath();ctx.arc(b.x,b.y,4,0,Math.PI*2);ctx.fill(); });
+
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            stars.forEach(s => { s.y += s.z * (speedFactor * 3); if(s.y > height) s.y = 0; ctx.beginPath(); ctx.arc(s.x, s.y, s.z, 0, Math.PI*2); ctx.fill(); });
+
+            particles.forEach((p, i) => {
+                p.x += p.vx; p.y += p.vy; p.life--;
+                ctx.fillStyle = p.color; ctx.globalAlpha = p.life/30;
+                ctx.beginPath(); ctx.arc(p.x, p.y, 3, 0, Math.PI*2); ctx.fill();
+                if(p.life <= 0) particles.splice(i, 1);
+            });
+            ctx.globalAlpha = 1;
+
+            ctx.fillStyle = '#ff3d00';
+            ctx.shadowBlur = 10; ctx.shadowColor = 'red';
+            bullets.forEach(b => { ctx.beginPath(); ctx.arc(b.x, b.y, 4, 0, Math.PI*2); ctx.fill(); });
+            ctx.shadowBlur = 0;
 
             ctx.save(); ctx.translate(rocket.x, rocket.y);
-            if(buffs.shield.active) { ctx.beginPath();ctx.arc(0,0,45,0,Math.PI*2);ctx.strokeStyle='rgba(0,242,255,0.8)';ctx.lineWidth=3;ctx.stroke();ctx.fillStyle='rgba(0,242,255,0.1)';ctx.fill(); }
-            ctx.fillStyle=`rgba(0,242,255,0.8)`; ctx.beginPath();ctx.moveTo(-8,20);ctx.lineTo(0,35+Math.random()*10);ctx.lineTo(8,20);ctx.fill();
-            ctx.fillStyle='#e0e0e0'; ctx.beginPath();ctx.moveTo(0,-25);ctx.lineTo(12,10);ctx.lineTo(8,20);ctx.lineTo(-8,20);ctx.lineTo(-12,10);ctx.fill();
-            ctx.fillStyle='#111'; ctx.beginPath();ctx.arc(0,-5,5,0,Math.PI*2);ctx.fill();
-            ctx.fillStyle='#ff3d00'; ctx.beginPath();ctx.moveTo(-12,10);ctx.lineTo(-22,25);ctx.lineTo(-10,20);ctx.fill(); ctx.beginPath();ctx.moveTo(12,10);ctx.lineTo(22,25);ctx.lineTo(10,20);ctx.fill();
+            if(buffs.shield.active) {
+                const alpha = (buffs.shield.timer < 180 && Math.floor(Date.now()/100)%2===0) ? 0.1 : 0.3;
+                ctx.beginPath(); ctx.arc(0,0, 45, 0, Math.PI*2); ctx.strokeStyle=`rgba(0,242,255,${alpha+0.3})`; ctx.lineWidth=3; ctx.stroke(); ctx.fillStyle=`rgba(0,242,255,${alpha})`; ctx.fill();
+            }
+            ctx.fillStyle = `rgba(0, 242, 255, 0.8)`; ctx.beginPath(); ctx.moveTo(-8, 20); ctx.lineTo(0, 35 + Math.random()*10); ctx.lineTo(8, 20); ctx.fill();
+            ctx.fillStyle = '#e0e0e0'; ctx.beginPath(); ctx.moveTo(0, -25); ctx.lineTo(12, 10); ctx.lineTo(8, 20); ctx.lineTo(-8, 20); ctx.lineTo(-12, 10); ctx.fill();
+            ctx.fillStyle = '#111'; ctx.beginPath(); ctx.arc(0, -5, 5, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#ff3d00'; ctx.beginPath(); ctx.moveTo(-12, 10); ctx.lineTo(-22, 25); ctx.lineTo(-10, 20); ctx.fill(); ctx.beginPath(); ctx.moveTo(12, 10); ctx.lineTo(22, 25); ctx.lineTo(10, 20); ctx.fill();
             ctx.restore();
 
-            ctx.fillStyle='#555'; obstacles.forEach(o=>{ ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot); ctx.beginPath(); o.verts.forEach((v,i)=>i===0?ctx.moveTo(v.x,v.y):ctx.lineTo(v.x,v.y)); ctx.closePath();ctx.fill(); ctx.strokeStyle='#8d6e63';ctx.lineWidth=2;ctx.stroke(); ctx.restore(); });
-            items.forEach(it=>{ ctx.save();ctx.translate(it.x,it.y); const c=it.type=='shield'?'#00f2ff':(it.type=='gem'?'#d500f9':'#00e676'); ctx.shadowBlur=15;ctx.shadowColor=c;ctx.fillStyle=c; ctx.beginPath();ctx.arc(0,0,12,0,Math.PI*2);ctx.fill(); ctx.fillStyle='#fff';ctx.font="900 14px Arial";ctx.textAlign="center";ctx.textBaseline="middle";ctx.shadowBlur=0; ctx.fillText(it.type=='shield'?'S':(it.type=='gem'?'💎':it.type=='x2'?'2X':'⚡'),0,1); ctx.restore(); });
+            ctx.fillStyle = '#555';
+            obstacles.forEach(o => {
+                ctx.save(); ctx.translate(o.x, o.y); ctx.rotate(o.rot);
+                ctx.beginPath(); o.verts.forEach((v, i) => i===0 ? ctx.moveTo(v.x, v.y) : ctx.lineTo(v.x, v.y)); ctx.closePath(); ctx.fill();
+                ctx.strokeStyle = '#8d6e63'; ctx.lineWidth=2; ctx.stroke(); 
+                if (o.hp < 2 && o.size > 40) { ctx.beginPath(); ctx.moveTo(-5,-5); ctx.lineTo(5,5); ctx.stroke(); }
+                ctx.restore();
+            });
+
+            items.forEach(it => {
+                ctx.save(); ctx.translate(it.x, it.y);
+                const col = getTypeColor(it.type);
+                ctx.shadowBlur = 15; ctx.shadowColor = col; ctx.fillStyle = col;
+                ctx.beginPath(); ctx.arc(0,0, 12, 0, Math.PI*2); ctx.fill();
+                
+                let icon = "⚡";
+                if(it.type==='shield') icon="🛡️"; else if(it.type==='ammo') icon="🔫"; else if(it.type==='x2') icon="2X"; else if(it.type==='gem') icon="💎";
+                
+                ctx.fillStyle = '#fff'; ctx.font="900 14px Arial"; ctx.textAlign="center"; ctx.textBaseline="middle"; ctx.shadowBlur = 0;
+                ctx.fillText(icon, 0, 1);
+                ctx.restore();
+            });
         }
     </script>
 </body>
