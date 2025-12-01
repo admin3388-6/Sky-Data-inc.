@@ -1,5 +1,5 @@
 // ==========================================
-// 1. Global Styles (الستايل الأساسي)
+// 1. Global Styles (الستايل الأساسي - Dark Mode Only)
 // ==========================================
 const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Outfit:wght@300;500;700&display=swap');
@@ -27,18 +27,7 @@ const styles = `
     }
     body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
 
-    /* زر الدعم العائم */
-    .support-float { 
-        position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; 
-        border-radius: 50%; background: var(--card-bg); color: var(--text-white); 
-        display: flex; align-items: center; justify-content: center; 
-        text-decoration: none; border: 1px solid var(--border); 
-        box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 99990; transition: 0.3s; font-size: 20px; 
-        backdrop-filter: blur(10px);
-    }
-    .support-float:hover { background: var(--primary); border-color: var(--primary); transform: scale(1.1); }
-
-    /* شاشة التحميل */
+    /* شاشة التحميل (Loader) */
     .global-loader { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: var(--bg-dark); z-index: 999999; 
@@ -59,6 +48,8 @@ const styles = `
         border-top: 3px solid var(--primary); color: var(--text-white); display: none; 
     }
     .cookie-banner.visible { display: flex; bottom: 0; }
+    .cookie-banner h3 { color: var(--accent); margin-bottom: 10px; }
+    .cookie-banner p { color: var(--text-muted); margin-bottom: 20px; font-size: 14px; }
     
     .btn-accept { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; }
     .btn-reject { background: transparent; border: 1px solid #888; color: #888; padding: 10px 25px; border-radius: 50px; cursor: pointer; }
@@ -66,24 +57,16 @@ const styles = `
     @keyframes spin { 100% { transform: rotate(360deg); } }
 `;
 
+// حقن الستايل
 const styleSheet = document.createElement("style");
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
 
 // ==========================================
-// 2. UI Injection (حقن العناصر الضرورية فقط)
+// 2. UI Injection (اللودر والكوكيز فقط)
 // ==========================================
 function injectUI() {
-    // 1. زر الدعم
-    if (!document.querySelector('.support-float')) {
-        const supportBtn = document.createElement('a'); 
-        supportBtn.href = "support.html"; 
-        supportBtn.className = "support-float"; 
-        supportBtn.innerHTML = `<i class="fas fa-headset"></i>`; 
-        document.body.appendChild(supportBtn);
-    }
-
-    // 2. اللودر
+    // 1. اللودر
     if (!document.getElementById('globalLoader')) { 
         const loader = document.createElement('div'); 
         loader.className = 'global-loader'; 
@@ -92,18 +75,21 @@ function injectUI() {
         document.body.appendChild(loader); 
     }
 
-    // 3. الكوكيز
+    // 2. الكوكيز
     if (!document.getElementById('cookieBanner')) { 
         const banner = document.createElement('div'); 
         banner.className = 'cookie-banner'; 
         banner.id = 'cookieBanner'; 
         banner.innerHTML = `
             <div>
-                <h3 style="color:var(--accent); margin-bottom:10px;">Privacy</h3>
-                <p style="color:#aaa; margin-bottom:15px; font-size:13px;">We use cookies to save your progress.</p>
+                <h3 data-i18n="cookieTitle">Privacy</h3>
+                <p data-i18n="cookieText">We use cookies to save your progress.</p>
+                <div style="margin-bottom:15px; font-size:12px;">
+                    <a href="terms.html" style="color:var(--accent)">Terms</a> | <a href="privacy.html" style="color:var(--accent)">Privacy</a>
+                </div>
                 <div style="display:flex;gap:10px;justify-content:center;">
-                    <button class="btn-reject" onclick="window.handleCookieChoice('reject')">Close</button>
-                    <button class="btn-accept" onclick="window.handleCookieChoice('accept')">Accept</button>
+                    <button class="btn-reject" onclick="window.handleCookieChoice('reject')" data-i18n="cookieReject">Deny</button>
+                    <button class="btn-accept" onclick="window.handleCookieChoice('accept')" data-i18n="cookieAccept">Accept</button>
                 </div>
             </div>`; 
         document.body.appendChild(banner); 
@@ -125,14 +111,16 @@ window.navigateTo = function(url) {
 
 window.handleCookieChoice = function(choice) {
     document.getElementById('cookieBanner').classList.remove('visible');
+    setTimeout(() => document.getElementById('cookieBanner').style.display = 'none', 500);
     localStorage.setItem('skydata_cookie_consent', choice);
 };
 
 // ==========================================
-// 4. Translation Dictionary (تعريفات فقط دون أزرار)
+// 4. Translation Dictionary (القاموس الكامل)
 // ==========================================
 const translations = {
     en: { 
+        cookieTitle: "Privacy Policy", cookieText: "We use cookies to improve your experience.", cookieAccept: "Accept", cookieReject: "Deny",
         heroTitle: "NEXT GEN DIGITAL SOLUTIONS", heroDesc: "Advanced Web Tools & AI.", heroBtnLogin: "Access Console", heroBtnDash: "Go to Dashboard", 
         navHome: "Home", navDash: "Dashboard", navTools: "Tools", navAI: "AI", navDev: "Dev", navSec: "Security", navSet: "Settings", 
         statUptime: "Uptime", statUsers: "Users", statSecure: "Encrypted", 
@@ -143,6 +131,7 @@ const translations = {
         gameScore: "Score", gameXP: "XP", gameShield: "Shield", gameLaunch: "Launch", gameStart: "Start", gameBest: "Best", gameSave: "Save & Exit", gameRetry: "Retry"
     },
     ar: { 
+        cookieTitle: "الخصوصية", cookieText: "نستخدم الكوكيز.", cookieAccept: "موافقة", cookieReject: "رفض",
         heroTitle: "حلول رقمية", heroDesc: "أدوات متقدمة.", heroBtnLogin: "دخول", heroBtnDash: "لوحة التحكم", 
         navHome: "الرئيسية", navDash: "لوحة التحكم", navTools: "أدوات", navAI: "ذكاء", navDev: "تطوير", navSec: "أمان", navSet: "إعدادات", 
         statUptime: "تشغيل", statUsers: "مستخدم", statSecure: "تشفير", 
@@ -153,6 +142,7 @@ const translations = {
         gameScore: "نقاط", gameXP: "خبرة", gameShield: "درع", gameLaunch: "انطلاق", gameStart: "ابدأ", gameBest: "أفضل", gameSave: "حفظ وخروج", gameRetry: "إعادة"
     },
     ru: { 
+        cookieTitle: "Приватность", cookieText: "Cookie.", cookieAccept: "Принять", cookieReject: "Отклонить",
         heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Веб и AI.", heroBtnLogin: "Вход", heroBtnDash: "Панель", 
         navHome: "Главная", navDash: "Панель", navTools: "Тулзы", navAI: "AI", navDev: "Код", navSec: "Защита", navSet: "Настройки", 
         statUptime: "Аптайм", statUsers: "Юзеры", statSecure: "Шифрование", 
@@ -164,7 +154,7 @@ const translations = {
     }
 };
 
-// دالة الترجمة (تعمل تلقائياً بناءً على اللغة المحفوظة)
+// دالة الترجمة (تلقائية)
 window.changeLanguage = function(lang) {
     localStorage.setItem('skydata_lang', lang); 
     document.body.dir = lang === 'ar' ? "rtl" : "ltr";
@@ -197,14 +187,12 @@ function initNotifications() {
     window.addEventListener('DOMContentLoaded', () => {
         injectUI();
         
-        // تطبيق اللغة المحفوظة (افتراضي: الإنجليزية)
+        // تطبيق اللغة الافتراضية
         const savedLang = localStorage.getItem('skydata_lang') || 'en';
         window.changeLanguage(savedLang);
         
-        // إظهار الكوكيز إذا لم يتم قبوله من قبل
-        if (!localStorage.getItem('skydata_cookie_consent')) {
-            setTimeout(() => document.getElementById('cookieBanner').classList.add('visible'), 1500);
-        }
+        // الكوكيز
+        if (!localStorage.getItem('skydata_cookie_consent')) setTimeout(() => document.getElementById('cookieBanner').classList.add('visible'), 1500);
         
         initNotifications();
     });
