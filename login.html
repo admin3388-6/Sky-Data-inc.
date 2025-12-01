@@ -2,66 +2,76 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <title>Login</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Emergency Mode</title>
+    
+    <script type="module">
+        import { supabase } from "./supabase.js";
+        supabase.auth.getSession().then(({ data: { session } }) => {
+            if (session) window.location.replace("menu.html");
+        });
+    </script>
+
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
     
     <style>
+        /* تصميم زجاجي احترافي */
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background-color: #0a0a12; color: white; height: 100vh; display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden; }
-        .login-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; }
+        body { background-color: #0a0a12; color: white; height: 100vh; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
         
-        .social-btn { width: 100%; height: 50px; margin-bottom: 15px; border: none; border-radius: 12px; font-weight: bold; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; color: white; opacity: 0.5; pointer-events: none; }
-        .social-btn.active { opacity: 1; pointer-events: all; }
+        .login-card { background: rgba(255,255,255,0.05); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; width: 90%; max-width: 400px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.4); animation: slideUp 0.8s ease forwards; }
+        
+        .social-btn { width: 100%; height: 55px; margin-bottom: 15px; border: none; border-radius: 12px; font-weight: 600; font-size: 16px; cursor: not-allowed; display: flex; align-items: center; justify-content: center; gap: 12px; color: white; opacity: 0.5; filter: grayscale(1); transition: 0.3s; }
+        .social-btn.active { cursor: pointer; opacity: 1; filter: none; }
+        .social-btn.active:hover { transform: translateY(-3px); box-shadow: 0 5px 15px rgba(0,0,0,0.2); }
+        
         .btn-google { background: #db4437; } .btn-linkedin { background: #0077b5; } .btn-github { background: #24292e; }
-
-        /* زر الطوارئ */
-        #fixBtn { background: red; color: white; border: none; padding: 15px; width: 100%; border-radius: 50px; font-weight: bold; margin-bottom: 20px; cursor: pointer; box-shadow: 0 0 20px red; }
+        .captcha { margin: 25px 0; display: flex; justify-content: center; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 
     <script>
-        window.cfToken=null;
+        window.cfToken = null;
         function onSuccess(t){ 
-            window.cfToken=t; 
-            document.querySelectorAll('.social-btn').forEach(b => b.classList.add('active')); 
+            window.cfToken = t; 
+            document.querySelectorAll('.social-btn').forEach(b => { b.disabled = false; b.classList.add('active'); });
         }
     </script>
 </head>
 <body>
+    <canvas id="canvas-bg"></canvas>
 
     <div class="login-card">
-        <button id="fixBtn">⚠️ CLICK HERE TO FIX LOOP ⚠️</button>
+        <i class="fas fa-fingerprint" style="font-size:50px; color:#00d2ff; margin-bottom:20px;"></i>
+        <h2 style="margin-bottom:30px;">Secure Login</h2>
 
-        <h2 style="margin-bottom:20px;">Login</h2>
-        <div style="margin: 20px 0; display:flex; justify-content:center;">
+        <div class="captcha">
             <div class="cf-turnstile" data-sitekey="0x4AAAAAACDn9I1izJuNt20l" data-callback="onSuccess" data-theme="dark"></div>
         </div>
 
-        <button id="googleBtn" class="social-btn btn-google"><i class="fab fa-google"></i> Google</button>
-        <button id="linkedinBtn" class="social-btn btn-linkedin"><i class="fab fa-linkedin"></i> LinkedIn</button>
-        <button id="githubBtn" class="social-btn btn-github"><i class="fab fa-github"></i> GitHub</button>
+        <button id="googleBtn" class="social-btn btn-google" disabled><i class="fab fa-google"></i> Google</button>
+        <button id="linkedinBtn" class="social-btn btn-linkedin" disabled><i class="fab fa-linkedin"></i> LinkedIn</button>
+        <button id="githubBtn" class="social-btn btn-github" disabled><i class="fab fa-github"></i> GitHub</button>
     </div>
-    
+
+    <script type="module" src="./system.js"></script>
     <script type="module">
         import { supabase } from "./supabase.js";
+        
+        // Canvas Animation
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
 
-        // 🛑 1. كود الإصلاح اليدوي (اضغط الزر الأحمر لتعمل)
-        document.getElementById('fixBtn').onclick = async () => {
-            localStorage.clear(); // مسح كل شيء في المتصفح
-            await supabase.auth.signOut(); // تسجيل خروج إجباري
-            alert("System Reset! Now try to login.");
-            window.location.reload();
-        };
-
-        // 2. الدخول (بدون أي تحويل تلقائي)
-        async function login(p) {
-            if(!window.cfToken) { alert("Please do the captcha"); return; }
-            
+        async function login(prov) {
+            if(!window.cfToken) return;
             const { error } = await supabase.auth.signInWithOAuth({ 
-                provider: p, 
-                options: { redirectTo: window.location.origin + "/menu.html" } 
+                provider: prov, 
+                options: { 
+                    redirectTo: window.location.origin + "/menu.html",
+                    skipBrowserRedirect: false 
+                } 
             });
             if(error) alert(error.message);
         }

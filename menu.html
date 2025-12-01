@@ -5,57 +5,145 @@
     <title>Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* تصميم بسيط للطوارئ */
-        body { background-color: #0a0a12; color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 50px; }
-        .card { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; margin-bottom: 20px; }
-        button { padding: 10px 30px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; }
-        .btn-logout { background: red; color: white; }
-        .btn-home { background: blue; color: white; }
+        /* --- PRO DESIGN RESTORED --- */
+        body { background-color: #0a0a12; color: white; overflow-x: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
+
+        /* Sidebar */
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid rgba(255,255,255,0.1); display: flex; flex-direction: column; align-items: center; padding: 30px 0; z-index: 1000; transition: 0.3s; }
+        .nav-item { color: #8b9bb4; padding: 15px; margin: 5px 0; width: 100%; text-align: center; transition: 0.3s; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { color: white; background: rgba(255,255,255,0.05); border-left: 3px solid #4e54c8; }
+        .nav-item i { font-size: 22px; }
+
+        /* Content */
+        .main-content { margin-left: 80px; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 30px; }
+        
+        /* Profile Card */
+        .card { background: rgba(255,255,255,0.03); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.1); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; box-shadow: 0 20px 60px rgba(0,0,0,0.3); animation: slideUp 0.8s ease forwards; }
+        
+        .info-row { background: rgba(0,0,0,0.3); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-left: 4px solid #4e54c8; display: flex; justify-content: space-between; align-items: center; }
+        .info-row span { font-weight: bold; font-size: 16px; }
+        .info-row b { color: #8b9bb4; font-size: 12px; display: block; margin-bottom: 5px; }
+        
+        /* Actions */
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; animation: slideUp 1s ease forwards; }
+        .action-card { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; }
+        .action-card:hover { transform: translateY(-5px); border-color: #00d2ff; background: rgba(255,255,255,0.05); }
+        
+        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; }
+
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } .action-grid { grid-template-columns: 1fr; } }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <h1>User Profile</h1>
-        <div id="status">Checking...</div>
-        <h2 id="name">...</h2>
-        <p id="email">...</p>
-        <h3 id="rank" style="color:gold">...</h3>
+    <canvas id="canvas-bg"></canvas>
+
+    <nav class="sidebar">
+        <div style="font-size:28px; color:#00d2ff; margin-bottom:50px;"><i class="fas fa-infinity"></i></div>
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fas fa-home"></i></div>
+        <div class="nav-item active"><i class="fas fa-user-astronaut"></i></div>
+        <div class="nav-item"><i class="fas fa-cog"></i></div>
+    </nav>
+
+    <div class="main-content">
+        
+        <div class="card">
+            <h1 style="margin-bottom:30px;">User Profile</h1>
+            
+            <div id="loader">
+                <i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:#00d2ff;"></i>
+                <div style="margin-top:10px; color:#888;">Synchronizing...</div>
+            </div>
+
+            <div id="content" style="display:none;">
+                <div class="info-row">
+                    <div><b>NAME</b><span id="name"></span></div>
+                    <i class="fas fa-user" style="color:#4e54c8;"></i>
+                </div>
+                <div class="info-row">
+                    <div><b>EMAIL</b><span id="email"></span></div>
+                    <i class="fas fa-envelope" style="color:#4e54c8;"></i>
+                </div>
+                <div class="info-row" style="border-color:#ffd700;">
+                    <div><b>RANK</b><span id="rank" style="color:#ffd700;"></span></div>
+                    <i class="fas fa-star" style="color:#ffd700;"></i>
+                </div>
+                <button id="logoutBtn" class="logout">Logout</button>
+            </div>
+        </div>
+
+        <div class="action-grid">
+            <div class="action-card" onclick="window.navigateTo('game.html')">
+                <i class="fas fa-gamepad" style="font-size:40px; color:#00e676; margin-bottom:15px;"></i>
+                <div style="font-size:18px; font-weight:bold;">Play & Earn</div>
+                <div style="font-size:12px; color:#888; margin-top:5px;">Collect XP</div>
+            </div>
+            <div class="action-card" onclick="window.navigateTo('ranking.html')">
+                <i class="fas fa-trophy" style="font-size:40px; color:#ffd700; margin-bottom:15px;"></i>
+                <div style="font-size:18px; font-weight:bold;">Leaderboard</div>
+                <div style="font-size:12px; color:#888; margin-top:5px;">Top 100</div>
+            </div>
+        </div>
     </div>
 
-    <button class="btn-logout" id="logoutBtn">Logout</button>
-    <button class="btn-home" onclick="window.location.href='index.html'">Go Home</button>
-
+    <script type="module" src="./system.js"></script>
     <script type="module">
         import { supabase } from './supabase.js';
 
-        async function init() {
-            // 1. تحقق بسيط جداً
-            const { data: { session } } = await supabase.auth.getSession();
+        // 1. منع زر العودة
+        window.onload = function() {
+            if (window.history && window.history.pushState) {
+                window.history.pushState('forward', null, './menu.html');
+                window.onpopstate = function () { window.location.replace('index.html'); };
+            }
+        };
 
-            if (!session) {
-                // 🛑 لن أطردك! سأخبرك فقط.
-                document.getElementById("status").innerText = "NO USER FOUND (Stuck Session)";
-                document.getElementById("status").style.color = "red";
-                return; 
+        // 2. خلفية متحركة
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
+
+        // 3. ✅ المنطق الآمن للتحميل (بدون طرد عشوائي)
+        async function init() {
+            // هل هذا توجيه من جوجل؟
+            if (window.location.hash && window.location.hash.includes('access_token')) {
+                console.log("OAuth Redirect detected. Processing...");
+                return; // انتظر onAuthStateChange
             }
 
-            // 2. المستخدم موجود، جلب البيانات
-            document.getElementById("status").innerText = "User Found. Fetching Data...";
-            
-            const user = session.user;
-            let profile = null;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { 
+                window.location.replace("login.html"); 
+                return; 
+            }
+            loadData(user);
+        }
 
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                loadData(session.user);
+            } else if (event === 'SIGNED_OUT') {
+                window.location.replace("login.html");
+            }
+        });
+
+        async function loadData(user) {
+            let profile = null;
+            // محاولة جلب البيانات (مع الشفاء الذاتي)
             try {
-                let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
+                let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
                 
                 if (!data) {
-                    // محاولة الإنشاء
-                    document.getElementById("status").innerText = "Creating Profile...";
+                    // إنشاء الملف إذا كان مفقوداً
+                    console.log("Creating profile...");
                     const { data: newData } = await supabase.from('users').insert([{
-                        id: user.id, email: user.email, name: "New User", rank: "free", xp: 0
+                        id: user.id, email: user.email, 
+                        name: user.user_metadata.full_name || "User", 
+                        rank: 'free', xp: 0
                     }]).select().single();
                     profile = newData;
                 } else {
@@ -64,17 +152,17 @@
             } catch (e) { console.error(e); }
 
             if (profile) {
-                document.getElementById("status").innerText = "Active ✅";
-                document.getElementById("status").style.color = "lightgreen";
-                document.getElementById("name").innerText = profile.name || "No Name";
+                document.getElementById("loader").style.display = "none";
+                document.getElementById("content").style.display = "block";
+                document.getElementById("name").innerText = profile.name;
                 document.getElementById("email").innerText = profile.email;
-                document.getElementById("rank").innerText = profile.rank;
+                document.getElementById("rank").innerHTML = (profile.rank || 'free').toUpperCase();
             }
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
-            window.location.href = "login.html";
+            window.location.replace("login.html");
         };
 
         init();
