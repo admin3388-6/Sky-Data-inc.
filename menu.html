@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* (نفس التصميم السابق) */
+        /* نفس التصميم تماماً */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
@@ -30,7 +30,7 @@
 
         .main-content { margin-left: 80px; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 30px; }
         
-        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; position: relative; animation: slideUp 0.8s ease forwards; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
         h1 { color: white; margin-bottom: 30px; font-weight: 300; font-size: 2rem; }
         
         .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
@@ -38,7 +38,7 @@
         .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 1px; }
         .info-row span { color: white; font-weight: 600; font-size: 16px; }
         
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; animation: slideUp 1s ease forwards; }
+        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; }
         .action-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
         .action-card:hover { transform: translateY(-10px); }
         .action-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); opacity: 0; transition: 0.4s; }
@@ -46,15 +46,9 @@
         .action-icon { font-size: 40px; margin-bottom: 15px; display: block; }
         .action-title { font-size: 18px; font-weight: bold; color: white; }
         .action-desc { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-        .game-card:hover { border-color: #00e676; box-shadow: 0 10px 30px rgba(0, 230, 118, 0.2); }
-        .game-card .action-icon { color: #00e676; }
-        .rank-card:hover { border-color: #ffd700; box-shadow: 0 10px 30px rgba(255, 215, 0, 0.2); }
-        .rank-card .action-icon { color: #ffd700; }
 
         button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
         button.logout:hover { background: #d43f3f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.3); }
-        
-        #hardReset { display: none; color: var(--accent); margin-top: 15px; font-size: 12px; text-decoration: underline; cursor: pointer; }
 
         @media (max-width: 768px) {
             .sidebar { width: 0; padding: 0; border: none; }
@@ -64,7 +58,6 @@
             .action-grid { grid-template-columns: 1fr; }
         }
         @media (min-width: 769px) { .toggle-menu { display: none; } }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -87,23 +80,17 @@
         <div class="card">
             <h1 data-i18n="profileTitle">User Profile</h1>
             
-            <div id="loader">
-                <div style="color: #888; margin-bottom:10px;">Synchronizing...</div>
-                <i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:var(--accent);"></i>
-                <div id="hardReset" onclick="forceLogout()">Stuck? Click here to Reset</div>
-            </div>
-
-            <div id="content" style="display:none;">
+            <div id="content" style="opacity: 0; transition: opacity 0.5s;">
                 <div class="info-row">
-                    <div><b data-i18n="nameLabel">NAME</b><span id="name"></span></div>
+                    <div><b data-i18n="nameLabel">NAME</b><span id="name">Loading...</span></div>
                     <i class="fas fa-user" style="color:var(--primary); opacity:0.7;"></i>
                 </div>
                 <div class="info-row">
-                    <div><b data-i18n="emailLabel">EMAIL</b><span id="email"></span></div>
+                    <div><b data-i18n="emailLabel">EMAIL</b><span id="email">Loading...</span></div>
                     <i class="fas fa-envelope" style="color:var(--primary); opacity:0.7;"></i>
                 </div>
                 <div class="info-row" style="border-inline-start-color: #00c853;">
-                    <div><b data-i18n="rankLabel">RANK</b><span id="rank" style="color: #00c853;"></span></div>
+                    <div><b data-i18n="rankLabel">RANK</b><span id="rank" style="color: #00c853;">...</span></div>
                     <i class="fas fa-star" style="color:#00c853; opacity:0.7;"></i>
                 </div>
                 <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
@@ -112,12 +99,12 @@
 
         <div class="action-grid">
             <div class="action-card game-card" onclick="window.navigateTo('game.html')">
-                <i class="fas fa-gamepad action-icon"></i>
+                <i class="fas fa-gamepad action-icon" style="color:#00e676;"></i>
                 <div class="action-title">Play & Earn</div>
                 <div class="action-desc">Collect XP & Rewards</div>
             </div>
             <div class="action-card rank-card" onclick="window.navigateTo('ranking.html')">
-                <i class="fas fa-trophy action-icon"></i>
+                <i class="fas fa-trophy action-icon" style="color:#ffd700;"></i>
                 <div class="action-title">Leaderboard</div>
                 <div class="action-desc">Top 100 Players</div>
             </div>
@@ -129,7 +116,6 @@
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // History
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -137,74 +123,79 @@
             }
         };
 
-        // Sidebar
         window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
         window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
 
-        // Canvas
+        // Animation
         const canvas = document.getElementById('canvas-bg');
         const ctx = canvas.getContext('2d');
         let width, height, particles = [];
         function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
         window.addEventListener('resize', resize); resize();
-        class Particle {
-            constructor() { this.x = Math.random()*width; this.y = Math.random()*height; this.vx = (Math.random()-0.5)*0.5; this.vy = (Math.random()-0.5)*0.5; this.size = Math.random()*2; }
-            update() { this.x+=this.vx; this.y+=this.vy; if(this.x<0||this.x>width)this.vx*=-1; if(this.y<0||this.y>height)this.vy*=-1; }
-            draw() { ctx.fillStyle='rgba(140,155,255,0.3)'; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); }
-        }
+        class Particle { constructor(){this.x=Math.random()*width;this.y=Math.random()*height;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2;} update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>width)this.vx*=-1;if(this.y<0||this.y>height)this.vy*=-1;} draw(){ctx.fillStyle='rgba(140,155,255,0.3)';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();} }
         for(let i=0;i<60;i++) particles.push(new Particle());
         function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
         animate();
 
-        // ✅ Safe Auth Logic
-        let isProcessing = true;
+        // ✅✅ المنطق الفوري (Instant Render)
+        async function initDashboard() {
+            // 1. تحقق من وجود جلسة (من الكاش فوراً)
+            const { data: { session } } = await supabase.auth.getSession();
+            
+            if (!session) {
+                // إذا لم يكن مسجلاً، انتظر قليلاً للتأكد أنه ليس عائداً من جوجل
+                if (!window.location.hash.includes('access_token')) {
+                     window.location.replace("login.html");
+                }
+                return;
+            }
 
-        // إظهار زر الريسيت بعد 5 ثواني إذا علق
-        setTimeout(() => { document.getElementById('hardReset').style.display = 'block'; }, 5000);
+            // 2. ⚡ عرض البيانات فوراً من الجلسة (بدون انتظار قاعدة البيانات)
+            const user = session.user;
+            const content = document.getElementById("content");
+            
+            // نملأ البيانات بما لدينا الآن (الاسم والإيميل)
+            document.getElementById("name").textContent = user.user_metadata.full_name || user.email.split('@')[0];
+            document.getElementById("email").textContent = user.email;
+            document.getElementById("rank").textContent = "Loading..."; // الرتبة تأتي لاحقاً
+            
+            // نظهر الصفحة فوراً
+            content.style.opacity = "1";
 
-        window.forceLogout = async () => {
-            await supabase.auth.signOut();
-            localStorage.clear();
-            window.location.replace("login.html");
+            // 3. جلب البيانات الكاملة في الخلفية (Background Sync)
+            syncWithDatabase(user);
         }
 
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            if (session) {
-                await loadProfile(session.user);
-            } else if (!window.location.hash.includes('access_token')) {
-                window.location.replace("login.html");
-            }
-        });
-
-        async function loadProfile(user) {
-            let profileData = null;
-            
-            // محاولة جلب البيانات من السيرفر
+        async function syncWithDatabase(user) {
             try {
-                let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
-                profileData = data;
-            } catch(e) {}
+                // محاولة القراءة
+                let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
+                
+                // إذا لم نجد، ننشئ (Self-Healing)
+                if (!data) {
+                    console.log("Repairing profile...");
+                    const { data: newData } = await supabase.from('users').insert([{
+                        id: user.id, email: user.email, name: user.user_metadata.full_name || "User", rank: 'free', xp: 0
+                    }]).select().single();
+                    data = newData;
+                }
 
-            // إذا فشل الجلب، استخدم بيانات الجلسة المؤقتة (لا تعلق!)
-            // هذا هو التغيير الجوهري: نعرض الصفحة حتى لو لم ترد قاعدة البيانات
-            const fallbackName = user.user_metadata.full_name || user.email.split('@')[0];
-            const displayData = profileData || { name: fallbackName, email: user.email, rank: 'free' };
-
-            document.getElementById("loader").style.display = "none";
-            document.getElementById("content").style.display = "block";
-            
-            document.getElementById("name").textContent = displayData.name;
-            document.getElementById("email").textContent = displayData.email;
-            document.getElementById("rank").innerHTML = (displayData.rank || 'free').toUpperCase();
-            if (displayData.rank === 'pro') {
-                document.getElementById("rank").innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
-            }
+                // تحديث الواجهة بالبيانات الحقيقية
+                if (data) {
+                    document.getElementById("name").textContent = data.name;
+                    document.getElementById("rank").innerHTML = (data.rank || 'free').toUpperCase();
+                    if (data.rank === 'pro') document.getElementById("rank").innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
+                }
+            } catch (e) { console.error("Sync error:", e); }
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
+
+        // البدء فوراً
+        initDashboard();
     </script>
 </body>
 </html>
