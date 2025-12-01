@@ -112,29 +112,65 @@
             }
         };
 
-        // 2. التحقق من الجلسة
-        const isRedirecting = window.location.hash && (window.location.hash.includes('access_token') || window.location.hash.includes('type=recovery'));
-
+        // 2. التحقق من الجلسة (محسّن)
         addLog('Page loaded. Checking auth state...');
-        addLog(`Is redirecting: ${isRedirecting}`);
+
+        let sessionChecked = false;
 
         supabase.auth.onAuthStateChange(async (event, session) => {
             addLog(`Auth Event: ${event}`);
             
-            if (session) {
-                addLog(`✅ Session found for: ${session.user.email}`, 'success');
-                await loadProfileData(session.user);
-            } else {
-                if (isRedirecting) {
-                    addLog('⏳ Waiting for OAuth redirect...', 'warning');
-                } else {
-                    addLog('❌ No session, redirecting to login...', 'error');
-                    setTimeout(() => {
-                        window.location.replace("login.html");
-                    }, 2000);
+            // تجاهل الحدث الأولي إذا كان فيه session
+            if (event === 'INITIAL_SESSION' && session) {
+                addLog(`✅ Initial session found for: ${session.user.email}`, 'success');
+                sessionChecked = true;
+                // ✅ نظّف الـ Hash من الـ URL
+                if (window.location.hash) {
+                    addLog('🧹 Cleaning URL hash...');
+                    window.history.replaceState(null, '', window.location.pathname);
                 }
+                await loadProfileData(session.user);
+                return;
+            }
+
+            // حدث SIGNED_IN (بعد اكتمال OAuth)
+            if (event === 'SIGNED_IN' && session) {
+                addLog(`✅ Sign-in completed for: ${session.user.email}`, 'success');
+                sessionChecked = true;
+                if (window.location.hash) {
+                    window.history.replaceState(null, '', window.location.pathname);
+                }
+                await loadProfileData(session.user);
+                return;
+            }
+
+            // لا يوجد session
+            if (!session && event === 'INITIAL_SESSION') {
+                addLog('❌ No session found', 'error');
+                setTimeout(() => {
+                    if (!sessionChecked) {
+                        addLog('Redirecting to login...');
+                        window.location.replace("login.html");
+                    }
+                }, 3000);
             }
         });
+
+        // ✅ فحص إضافي بعد 4 ثواني (Fallback)
+        setTimeout(async () => {
+            if (!sessionChecked) {
+                addLog('⏰ Timeout: Checking session manually...', 'warning');
+                const { data: { session } } = await supabase.auth.getSession();
+                if (session) {
+                    addLog('✅ Manual check: Session found!', 'success');
+                    sessionChecked = true;
+                    await loadProfileData(session.user);
+                } else {
+                    addLog('❌ Manual check: No session', 'error');
+                    window.location.replace("login.html");
+                }
+            }
+        }, 4000);
 
         // 3. تحميل البيانات (محسّن)
         async function loadProfileData(user) {
