@@ -24,12 +24,21 @@
         .unsaved-alert { position: fixed; top: 80px; left: 50%; transform: translateX(-50%); background: linear-gradient(90deg, #ff9800, #ff5722); padding: 10px 25px; border-radius: 30px; font-size: 13px; font-weight: bold; cursor: pointer; z-index: 90; box-shadow: 0 5px 20px rgba(255, 87, 34, 0.4); display: none; animation: pulse 2s infinite; }
 
         /* Main Menu */
-        .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-        .game-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px; width: 100%; max-width: 900px; }
-        .game-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 24px; text-align: center; transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; }
-        .game-card:hover { transform: translateY(-5px); border-color: var(--accent); box-shadow: 0 10px 40px rgba(0, 242, 255, 0.15); }
-        .game-icon { font-size: 45px; color: var(--accent); margin-bottom: 15px; filter: drop-shadow(0 0 15px rgba(0, 242, 255, 0.4)); }
-        .play-btn { margin-top: 20px; padding: 12px 35px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .main-content { margin-top: 90px; padding: 20px; display: flex; flex-direction: column; align-items: center; gap: 30px; min-height: 80vh; justify-content: center; }
+        
+        /* بطاقة اللعبة الكبيرة (صاروخ فقط) */
+        .game-card-large { 
+            background: linear-gradient(180deg, rgba(10,10,20,0.8) 0%, rgba(78, 84, 200, 0.1) 100%);
+            border: 1px solid var(--border); padding: 50px; border-radius: 30px; 
+            text-align: center; transition: 0.4s; cursor: pointer; position: relative; overflow: hidden; 
+            width: 100%; max-width: 500px; backdrop-filter: blur(10px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.3);
+        }
+        .game-card-large:hover { transform: scale(1.02); border-color: var(--accent); box-shadow: 0 0 50px rgba(0, 242, 255, 0.2); }
+        
+        .game-icon-large { font-size: 80px; color: var(--accent); margin-bottom: 20px; filter: drop-shadow(0 0 20px rgba(0, 242, 255, 0.4)); animation: float 3s ease-in-out infinite; }
+        .play-btn-large { margin-top: 30px; padding: 15px 60px; background: var(--primary); color: white; border: none; border-radius: 50px; font-weight: 900; font-size: 18px; cursor: pointer; transition: 0.3s; letter-spacing: 1px; box-shadow: 0 10px 30px rgba(78, 84, 200, 0.4); }
+        .play-btn-large:hover { transform: scale(1.05); background: var(--accent); color: black; }
 
         /* Game UI */
         .game-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; display: none; flex-direction: column; }
@@ -42,8 +51,6 @@
         #startOverlay, #gameOverScreen { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(5, 5, 8, 0.95); z-index: 2003; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(15px); text-align: center; }
         .game-title-text { font-size: 40px; font-weight: 900; letter-spacing: 3px; color: white; margin-bottom: 10px; text-shadow: 0 0 30px var(--primary); }
         .score-big { font-size: 60px; font-weight: 900; color: var(--accent); margin: 10px 0; text-shadow: 0 0 20px rgba(0, 242, 255, 0.5); }
-        
-        /* أزرار جديدة */
         .action-btn { padding: 16px 50px; font-size: 16px; border-radius: 50px; border: none; cursor: pointer; margin: 10px; font-weight: 700; transition: 0.3s; min-width: 220px; text-transform: uppercase; letter-spacing: 1px; }
         .btn-claim { background: linear-gradient(135deg, #00c853, #009624); color: white; box-shadow: 0 10px 30px rgba(0, 200, 83, 0.3); }
         .btn-retry { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: white; }
@@ -51,6 +58,8 @@
         /* Loading Overlay */
         .saving-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index: 3000; display: none; justify-content: center; align-items: center; flex-direction: column; color: white; font-weight: bold; }
         .spinner { width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top-color: var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
+        
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
         @keyframes spin { 100% { transform: rotate(360deg); } }
         @keyframes pulse { 0% { transform: translateX(-50%) scale(1); } 50% { transform: translateX(-50%) scale(1.05); } 100% { transform: translateX(-50%) scale(1); } }
         @media (max-width: 600px) { .header { padding: 15px; } .xp-display span:last-child { display: none; } }
@@ -78,29 +87,27 @@
     </div>
 
     <div class="main-content">
-        <div class="game-grid">
-            <div class="game-card" onclick="startGame('rocket')">
-                <div class="game-icon"><i class="fas fa-rocket"></i></div>
-                <h3>Hyper Space</h3>
-                <p>Advanced flight simulation.</p>
-                <div style="margin-top:15px; font-size:12px; opacity:0.7;">Best: <span id="rocketHigh">0</span></div>
-                <button class="play-btn">Launch</button>
+        <div class="game-card-large" onclick="startGame()">
+            <div class="game-icon-large"><i class="fas fa-rocket"></i></div>
+            <h1 style="margin-bottom:10px;">Hyper Space</h1>
+            <p style="color:#8b9bb4; font-size:16px;">Navigate the asteroid field. Survive & Collect.</p>
+            
+            <div style="margin-top:25px; font-size:14px; color:rgba(255,255,255,0.5); border-top:1px solid rgba(255,255,255,0.1); padding-top:15px;">
+                YOUR BEST RECORD<br>
+                <span id="rocketHigh" style="color:var(--accent); font-size:24px; font-weight:bold;">0</span>
             </div>
-            <div class="game-card" onclick="startGame('snake')">
-                <div class="game-icon"><i class="fas fa-cube"></i></div>
-                <h3>Neon Snake</h3>
-                <p>Cybernetic grid challenge.</p>
-                <div style="margin-top:15px; font-size:12px; opacity:0.7;">Best: <span id="snakeHigh">0</span></div>
-                <button class="play-btn">Start</button>
-            </div>
+
+            <button class="play-btn-large">LAUNCH MISSION</button>
         </div>
-        <button onclick="window.location.href='menu.html'" style="margin-top:40px; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; opacity:0.7; transition:0.3s;">
+        
+        <button onclick="window.location.href='menu.html'" style="margin-top:20px; background:transparent; border:none; color:var(--text-muted); font-size:14px; cursor:pointer; opacity:0.7; transition:0.3s;">
             <i class="fas fa-arrow-left"></i> Return to Dashboard
         </button>
     </div>
 
     <div class="game-modal" id="gameModal">
         <div class="game-hud">
+            <div class="hud-item"><i class="fas fa-star" style="color:#ffd700; width:25px;"></i> <span id="gameScore">0</span></div>
             <div class="hud-item"><i class="fas fa-bolt" style="color:var(--accent); width:25px;"></i> <span id="gameXP">0</span></div>
             <div id="shieldStatus" style="color:#00f2ff; display:none; font-size:16px;">🛡️ SHIELD</div>
         </div>
@@ -135,8 +142,8 @@
         import { supabase } from './supabase.js';
 
         // Vars
-        let currentUser=null, currentGame=null, gameActive=false, gameLoopId=null, currentRunXP=0;
-        let localBest = 0; // أفضل نتيجة مخزنة في المتصفح حالياً
+        let currentUser=null, gameActive=false, gameLoopId=null, currentRunXP=0;
+        let localBest = 0; 
         
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
@@ -151,81 +158,71 @@
             if (!session) { window.location.replace("login.html"); return; }
             currentUser = session.user;
             
-            // 1. جلب أفضل نتيجة مسجلة في السيرفر
             const { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
             const serverBest = profile?.xp || 0;
             
             document.getElementById('headerXp').innerText = serverBest.toLocaleString();
             
-            // 2. التحقق من المخزن المحلي (في حال وجود رقم أعلى لم يحفظ)
             const unsaved = parseInt(localStorage.getItem('skydata_unsaved_best') || '0');
-            
             if (unsaved > serverBest) {
-                // يوجد رقم محلي أعلى من السيرفر (لم يحفظ)
                 document.getElementById('unsavedAlert').style.display = 'block';
                 document.getElementById('unsavedVal').innerText = unsaved;
                 localBest = unsaved;
             } else {
                 localBest = serverBest;
             }
+            document.getElementById('rocketHigh').innerText = localBest;
         }
         initPage();
 
         // --- Game Control ---
-        window.startGame = function(type) {
-            currentGame = type;
+        window.startGame = function() {
             document.getElementById('gameModal').style.display = 'flex';
             document.getElementById('startOverlay').style.display = 'flex';
             document.getElementById('gameOverScreen').style.display = 'none';
             resizeGame();
-            document.querySelector('.system-controls').style.display = 'none';
-            document.querySelector('.support-float').style.display = 'none';
+            
+            // 🛑 إخفاء أزرار النظام فوراً عند بدء اللعبة
+            const sysControls = document.querySelector('.system-controls');
+            const supportBtn = document.querySelector('.support-float');
+            if(sysControls) sysControls.style.display = 'none';
+            if(supportBtn) supportBtn.style.display = 'none';
         };
 
         window.initGameLogic = function() {
             document.getElementById('startOverlay').style.display = 'none';
             gameActive = true; currentRunXP = 0;
-            if (currentGame === 'rocket') startRocketGame();
-            else if (currentGame === 'snake') startSnakeGame();
+            startRocketGame();
         };
 
         window.exitGame = function() {
             gameActive = false; cancelAnimationFrame(gameLoopId);
-            location.reload();
+            location.reload(); // سيعيد هذا إظهار الأزرار تلقائياً
         };
 
-        // ✅ وظيفة الحفظ الذكية (Max Check)
         window.saveData = async function() {
-            // الرقم المراد حفظه هو الأكبر بين (الجولة الحالية) و (المخزن محلياً)
             let scoreToSave = Math.max(currentRunXP, parseInt(localStorage.getItem('skydata_unsaved_best') || '0'));
-            
             if (scoreToSave <= 0) { location.reload(); return; }
 
             const loader = document.getElementById('saveLoader');
             loader.style.display = 'flex';
 
             try {
-                // 1. جلب رقم السيرفر للتأكد
                 let { data: profile } = await supabase.from('users').select('xp').eq('id', currentUser.id).single();
                 let serverXP = profile?.xp || 0;
 
-                // 2. المقارنة: هل رقمنا الجديد أكبر؟
                 if (scoreToSave > serverXP) {
                     const { error } = await supabase.from('users').update({ xp: scoreToSave }).eq('id', currentUser.id);
                     if (error) throw error;
                 }
 
-                // 3. تنظيف المخزن المحلي
                 localStorage.setItem('skydata_unsaved_best', '0');
-                
-                // 4. ريفريش
                 location.reload();
 
             } catch (err) {
                 console.error(err);
                 loader.style.display = 'none';
                 alert("Connection Failed. Score saved locally.");
-                // حفظ محلي احتياطي
                 if (scoreToSave > parseInt(localStorage.getItem('skydata_unsaved_best') || '0')) {
                     localStorage.setItem('skydata_unsaved_best', scoreToSave);
                 }
@@ -234,39 +231,32 @@
         };
 
         window.resetGame = function() {
-            // حفظ محلي سريع إذا كسر الرقم
             let oldBest = parseInt(localStorage.getItem('skydata_unsaved_best') || '0');
             if (currentRunXP > oldBest) {
                 localStorage.setItem('skydata_unsaved_best', currentRunXP);
             }
-            // إعادة اللعب
             document.getElementById('gameOverScreen').style.display = 'none';
             initGameLogic();
         };
 
         function gameOver() {
             gameActive = false; cancelAnimationFrame(gameLoopId);
-            
             document.getElementById('finalXP').innerText = Math.floor(currentRunXP);
             
-            // هل هذا رقم قياسي جديد (بالنسبة للجلسة الحالية)؟
             let currentBest = Math.max(localBest, parseInt(localStorage.getItem('skydata_unsaved_best') || '0'));
-            
             if (currentRunXP > currentBest) {
                 document.getElementById('newRecordMsg').style.display = 'block';
-                // تحديث المتغير المحلي فوراً
                 localStorage.setItem('skydata_unsaved_best', currentRunXP);
             } else {
                 document.getElementById('newRecordMsg').style.display = 'none';
             }
-            
             document.getElementById('gameOverScreen').style.display = 'flex';
         }
 
         // ==========================================
-        // 🚀 ROCKET GAME
+        // 🚀 ROCKET GAME ENGINE (OPTIMIZED)
         // ==========================================
-        let rocket = { x: 0, y: 0, w: 40 };
+        let rocket = { x: 0, y: 0 };
         let obstacles = [], items = [], stars = [];
         let gameTime = 0, shieldActive = false, shieldTimer = 0;
         let speedFactor = 1, mouse = { x: width/2, y: height/2 };
@@ -312,7 +302,7 @@
 
             obstacles.forEach((o, i) => {
                 o.y += o.speed; o.rot += o.rotS;
-                if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; } // +1 XP for dodging
+                if(o.y > height) { obstacles.splice(i, 1); currentRunXP++; return; }
                 if (Math.hypot(rocket.x - o.x, rocket.y - o.y) < (20 + o.size)) {
                     if (shieldActive) { obstacles.splice(i,1); currentRunXP += 5; } else gameOver();
                 }
@@ -367,27 +357,6 @@
                 ctx.restore();
             });
         }
-
-        // ==========================================
-        // 🐍 SNAKE (Same Logic - Max Score)
-        // ==========================================
-        const gridSize = 20; let snake = [], food = {}, dir='RIGHT', nextDir='RIGHT', snakeSpeed=10, snakeFrame=0;
-        document.addEventListener('keydown', e => { if(e.key=='ArrowUp'&&dir!='DOWN')nextDir='UP'; else if(e.key=='ArrowDown'&&dir!='UP')nextDir='DOWN'; else if(e.key=='ArrowLeft'&&dir!='RIGHT')nextDir='LEFT'; else if(e.key=='ArrowRight'&&dir!='LEFT')nextDir='RIGHT'; });
-        let tsX=0, tsY=0; canvas.addEventListener('touchstart', e=>{tsX=e.touches[0].clientX;tsY=e.touches[0].clientY}, {passive:false});
-        canvas.addEventListener('touchend', e=>{ let dx=e.changedTouches[0].clientX-tsX, dy=e.changedTouches[0].clientY-tsY; if(Math.abs(dx)>Math.abs(dy)) { if(dx>0&&dir!='LEFT')nextDir='RIGHT'; else if(dx<0&&dir!='RIGHT')nextDir='LEFT'; } else { if(dy>0&&dir!='UP')nextDir='DOWN'; else if(dy<0&&dir!='DOWN')nextDir='UP'; } });
-
-        function startSnakeGame() { snake=[{x:10,y:10},{x:9,y:10}]; placeFood(); dir='RIGHT'; nextDir='RIGHT'; snakeSpeed=10; function loop(){ if(!gameActive)return; snakeFrame++; if(snakeFrame>=snakeSpeed){snakeFrame=0;updateSnake()} drawSnake(); gameLoopId=requestAnimationFrame(loop); } loop(); }
-        function placeFood(){ food={x:Math.floor(Math.random()*(width/gridSize)),y:Math.floor(Math.random()*(height/gridSize))}; }
-        function updateSnake(){
-            dir=nextDir; const head={...snake[0]};
-            if(dir=='UP')head.y--; if(dir=='DOWN')head.y++; if(dir=='LEFT')head.x--; if(dir=='RIGHT')head.x++;
-            if(head.x<0||head.x>=width/gridSize||head.y<0||head.y>=height/gridSize){gameOver();return;}
-            for(let c of snake)if(c.x==head.x&&c.y==head.y){gameOver();return;}
-            snake.unshift(head);
-            if(head.x==food.x&&head.y==food.y){ currentRunXP+=5; if(currentRunXP%25===0 && snakeSpeed>3)snakeSpeed--; placeFood(); } else snake.pop();
-            document.getElementById('gameXP').innerText=currentRunXP;
-        }
-        function drawSnake(){ ctx.fillStyle='#050508'; ctx.fillRect(0,0,width,height); ctx.strokeStyle='rgba(255,255,255,0.03)'; ctx.lineWidth=1; for(let i=0;i<width;i+=gridSize){ctx.beginPath();ctx.moveTo(i,0);ctx.lineTo(i,height);ctx.stroke()} for(let i=0;i<height;i+=gridSize){ctx.beginPath();ctx.moveTo(0,i);ctx.lineTo(width,i);ctx.stroke()} ctx.fillStyle='#00e676'; ctx.shadowBlur=10; ctx.shadowColor='#00e676'; snake.forEach(c=>ctx.fillRect(c.x*gridSize+1,c.y*gridSize+1,gridSize-2,gridSize-2)); ctx.shadowBlur=0; ctx.fillStyle='#ffea00'; ctx.beginPath(); ctx.arc(food.x*gridSize+10,food.y*gridSize+10,6,0,Math.PI*2); ctx.fill(); }
     </script>
 </body>
 </html>
