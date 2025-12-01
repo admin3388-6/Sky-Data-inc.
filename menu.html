@@ -5,280 +5,79 @@
     <title>Dashboard</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
-        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
-        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
-        .sidebar:hover { width: 260px; align-items: flex-start; padding-left: 20px; }
-        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
-        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
-        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; } .nav-item span { opacity: 0; transition: 0.3s ease-in-out; } .sidebar:hover .nav-item span { opacity: 1; }
-        .main-content { margin-left: 80px; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; }
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; }
-        .action-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
-        .action-card:hover { transform: translateY(-10px); }
-        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; }
-        .debug-box { background: rgba(255,165,0,0.1); border: 1px solid orange; padding: 10px; margin: 10px 0; border-radius: 8px; font-size: 12px; text-align: left; max-height: 200px; overflow-y: auto; }
-        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } .action-grid { grid-template-columns: 1fr; } }
+        /* تصميم بسيط للطوارئ */
+        body { background-color: #0a0a12; color: white; font-family: 'Outfit', sans-serif; text-align: center; padding: 50px; }
+        .card { background: rgba(255,255,255,0.05); padding: 30px; border-radius: 20px; margin-bottom: 20px; }
+        button { padding: 10px 30px; border-radius: 20px; border: none; cursor: pointer; font-weight: bold; margin: 10px; }
+        .btn-logout { background: red; color: white; }
+        .btn-home { background: blue; color: white; }
     </style>
 </head>
 <body>
-    <canvas id="canvas-bg"></canvas>
-    <nav class="sidebar">
-        <div style="font-size:28px; color:var(--accent); margin-bottom:50px; align-self:center;"><i class="fas fa-infinity"></i></div>
-        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
-        <a href="#" class="nav-item active"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
-        <div style="flex-grow: 1;"></div>
-        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
-    </nav>
 
-    <div class="main-content">
-        <div class="card">
-            <h1 data-i18n="profileTitle" style="color:white; margin-bottom:30px;">User Profile</h1>
-            
-            <!-- Debug Log (للتشخيص من الموبايل) -->
-            <div id="debugLog" class="debug-box" style="display:none;">
-                <strong>🔍 Debug Log:</strong>
-                <div id="logContent"></div>
-            </div>
-            
-            <div id="loader" style="color: #888; margin-bottom:10px;">
-                <i class="fas fa-circle-notch fa-spin" style="font-size:30px; color:var(--accent);"></i>
-                <div style="margin-top:10px" id="loaderText">Verifying Session...</div>
-            </div>
-
-            <div id="content" style="display:none;">
-                <div class="info-row"><div><b data-i18n="nameLabel" style="color:#888; font-size:12px;">NAME</b><span id="name" style="color:white; font-weight:bold;"></span></div><i class="fas fa-user" style="color:var(--primary)"></i></div>
-                <div class="info-row"><div><b data-i18n="emailLabel" style="color:#888; font-size:12px;">EMAIL</b><span id="email" style="color:white; font-weight:bold;"></span></div><i class="fas fa-envelope" style="color:var(--primary)"></i></div>
-                <div class="info-row" style="border-color:gold"><div><b data-i18n="rankLabel" style="color:#888; font-size:12px;">RANK</b><span id="rank" style="color:gold; font-weight:bold;"></span></div><i class="fas fa-star" style="color:gold"></i></div>
-                <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
-            </div>
-        </div>
-
-        <div class="action-grid">
-            <div class="action-card" onclick="window.navigateTo('game.html')">
-                <i class="fas fa-gamepad" style="font-size:40px; margin-bottom:15px; display:block; color:#00e676;"></i>
-                <div style="font-size:18px; font-weight:bold; color:white;">Play & Earn</div>
-                <div style="font-size:12px; color:#888; margin-top:5px;">Collect XP</div>
-            </div>
-            <div class="action-card" onclick="window.navigateTo('ranking.html')">
-                <i class="fas fa-trophy" style="font-size:40px; margin-bottom:15px; display:block; color:#ffd700;"></i>
-                <div style="font-size:18px; font-weight:bold; color:white;">Leaderboard</div>
-                <div style="font-size:12px; color:#888; margin-top:5px;">Top 100</div>
-            </div>
-        </div>
-        
-        <!-- زر Debug -->
-        <button onclick="toggleDebug()" style="margin-top:20px; background:transparent; border:1px solid #555; color:#888; padding:8px 20px; border-radius:8px; cursor:pointer; font-size:12px;">
-            Show Debug Log
-        </button>
+    <div class="card">
+        <h1>User Profile</h1>
+        <div id="status">Checking...</div>
+        <h2 id="name">...</h2>
+        <p id="email">...</p>
+        <h3 id="rank" style="color:gold">...</h3>
     </div>
 
-    <script type="module" src="./system.js"></script>
+    <button class="btn-logout" id="logoutBtn">Logout</button>
+    <button class="btn-home" onclick="window.location.href='index.html'">Go Home</button>
+
     <script type="module">
         import { supabase } from './supabase.js';
 
-        // Debug Logger (للموبايل)
-        const logMessages = [];
-        function addLog(msg, type = 'info') {
-            const emoji = type === 'error' ? '❌' : type === 'success' ? '✅' : type === 'warning' ? '⚠️' : '📡';
-            const timestamp = new Date().toLocaleTimeString();
-            const fullMsg = `[${timestamp}] ${emoji} ${msg}`;
-            logMessages.push(fullMsg);
-            console.log(fullMsg);
+        async function init() {
+            // 1. تحقق بسيط جداً
+            const { data: { session } } = await supabase.auth.getSession();
+
+            if (!session) {
+                // 🛑 لن أطردك! سأخبرك فقط.
+                document.getElementById("status").innerText = "NO USER FOUND (Stuck Session)";
+                document.getElementById("status").style.color = "red";
+                return; 
+            }
+
+            // 2. المستخدم موجود، جلب البيانات
+            document.getElementById("status").innerText = "User Found. Fetching Data...";
             
-            const logDiv = document.getElementById('logContent');
-            if(logDiv) {
-                logDiv.innerHTML = logMessages.slice(-20).join('<br>');
-            }
-        }
+            const user = session.user;
+            let profile = null;
 
-        window.toggleDebug = function() {
-            const debugBox = document.getElementById('debugLog');
-            debugBox.style.display = debugBox.style.display === 'none' ? 'block' : 'none';
-        };
-
-        // 1. منع العودة للخلف
-        window.onload = function() {
-            if (window.history && window.history.pushState) {
-                window.history.pushState('forward', null, './menu.html');
-                window.onpopstate = function () { window.location.replace('index.html'); };
-            }
-        };
-
-        // 2. التحقق من الجلسة (محسّن)
-        addLog('Page loaded. Checking auth state...');
-
-        let sessionChecked = false;
-
-        supabase.auth.onAuthStateChange(async (event, session) => {
-            addLog(`Auth Event: ${event}`);
-            
-            // تجاهل الحدث الأولي إذا كان فيه session
-            if (event === 'INITIAL_SESSION' && session) {
-                addLog(`✅ Initial session found for: ${session.user.email}`, 'success');
-                sessionChecked = true;
-                // ✅ نظّف الـ Hash من الـ URL
-                if (window.location.hash) {
-                    addLog('🧹 Cleaning URL hash...');
-                    window.history.replaceState(null, '', window.location.pathname);
-                }
-                await loadProfileData(session.user);
-                return;
-            }
-
-            // حدث SIGNED_IN (بعد اكتمال OAuth)
-            if (event === 'SIGNED_IN' && session) {
-                addLog(`✅ Sign-in completed for: ${session.user.email}`, 'success');
-                sessionChecked = true;
-                if (window.location.hash) {
-                    window.history.replaceState(null, '', window.location.pathname);
-                }
-                await loadProfileData(session.user);
-                return;
-            }
-
-            // لا يوجد session
-            if (!session && event === 'INITIAL_SESSION') {
-                addLog('❌ No session found', 'error');
-                setTimeout(() => {
-                    if (!sessionChecked) {
-                        addLog('Redirecting to login...');
-                        window.location.replace("login.html");
-                    }
-                }, 3000);
-            }
-        });
-
-        // ✅ فحص إضافي بعد 4 ثواني (Fallback)
-        setTimeout(async () => {
-            if (!sessionChecked) {
-                addLog('⏰ Timeout: Checking session manually...', 'warning');
-                const { data: { session } } = await supabase.auth.getSession();
-                if (session) {
-                    addLog('✅ Manual check: Session found!', 'success');
-                    sessionChecked = true;
-                    await loadProfileData(session.user);
-                } else {
-                    addLog('❌ Manual check: No session', 'error');
-                    window.location.replace("login.html");
-                }
-            }
-        }, 4000);
-
-        // 3. تحميل البيانات (محسّن)
-        async function loadProfileData(user) {
-            addLog(`🔍 Loading profile for: ${user.id}`);
-            document.getElementById('loaderText').innerText = 'Loading Profile...';
-            
-            let profileData = null;
-            let attempts = 0;
-            const maxAttempts = 5;
-
-            while (attempts < maxAttempts && !profileData) {
-                attempts++;
-                addLog(`📡 Attempt ${attempts}/${maxAttempts}...`);
-                document.getElementById('loaderText').innerText = `Loading... (${attempts}/${maxAttempts})`;
+            try {
+                let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
                 
-                try {
-                    const { data, error } = await supabase
-                        .from('users')
-                        .select('*')
-                        .eq('id', user.id)
-                        .maybeSingle();
-
-                    if (error) {
-                        addLog(`⚠️ Fetch error: ${error.message}`, 'warning');
-                        addLog(`Error code: ${error.code}`);
-                        await new Promise(r => setTimeout(r, 1000));
-                        continue;
-                    }
-
-                    if (data) {
-                        profileData = data;
-                        addLog('✅ Profile found in database', 'success');
-                        break;
-                    }
-
-                    // إنشاء ملف جديد بعد 3 محاولات
-                    if (attempts >= 3 && !profileData) {
-                        addLog('🔧 Profile not found. Creating new one...', 'warning');
-                        document.getElementById('loaderText').innerText = 'Creating Profile...';
-                        
-                        const newProfile = {
-                            id: user.id,
-                            email: user.email,
-                            name: user.user_metadata.full_name || 
-                                  user.user_metadata.name || 
-                                  user.email.split('@')[0],
-                            rank: 'free',
-                            xp: 0
-                        };
-
-                        addLog(`📝 Inserting: ${JSON.stringify(newProfile)}`);
-
-                        const { data: insertedData, error: insertError } = await supabase
-                            .from('users')
-                            .insert([newProfile])
-                            .select()
-                            .single();
-
-                        if (insertError) {
-                            addLog(`❌ Insert failed: ${insertError.message}`, 'error');
-                            addLog(`Error details: ${JSON.stringify(insertError)}`);
-                        } else {
-                            profileData = insertedData;
-                            addLog('✅ Profile created successfully!', 'success');
-                        }
-                    }
-
-                } catch (err) {
-                    addLog(`❌ Unexpected error: ${err.message}`, 'error');
+                if (!data) {
+                    // محاولة الإنشاء
+                    document.getElementById("status").innerText = "Creating Profile...";
+                    const { data: newData } = await supabase.from('users').insert([{
+                        id: user.id, email: user.email, name: "New User", rank: "free", xp: 0
+                    }]).select().single();
+                    profile = newData;
+                } else {
+                    profile = data;
                 }
+            } catch (e) { console.error(e); }
 
-                if (!profileData && attempts < maxAttempts) {
-                    await new Promise(r => setTimeout(r, 1500));
-                }
-            }
-
-            // عرض النتيجة
-            if (profileData) {
-                addLog('🎉 Displaying profile data', 'success');
-                document.getElementById("loader").style.display = "none";
-                document.getElementById("content").style.display = "block";
-                document.getElementById("name").textContent = profileData.name || "User";
-                document.getElementById("email").textContent = profileData.email || "N/A";
-                document.getElementById("rank").innerHTML = (profileData.rank || 'free').toUpperCase();
-            } else {
-                addLog('❌ All attempts failed. Showing error.', 'error');
-                document.getElementById("loader").innerHTML = `
-                    <div style="color:#ff4444; text-align:center;">
-                        <i class="fas fa-exclamation-triangle" style="font-size:40px;"></i>
-                        <div style="margin-top:15px; font-size:16px;">Failed to load profile</div>
-                        <div style="margin-top:10px; font-size:12px; color:#888;">Check Debug Log for details</div>
-                        <button onclick="location.reload()" style="margin-top:20px; padding:10px 30px; background:#4e54c8; color:white; border:none; border-radius:10px; cursor:pointer;">
-                            Retry
-                        </button>
-                    </div>
-                `;
-                document.getElementById('debugLog').style.display = 'block';
+            if (profile) {
+                document.getElementById("status").innerText = "Active ✅";
+                document.getElementById("status").style.color = "lightgreen";
+                document.getElementById("name").innerText = profile.name || "No Name";
+                document.getElementById("email").innerText = profile.email;
+                document.getElementById("rank").innerText = profile.rank;
             }
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
-            addLog('🚪 Logging out...');
             await supabase.auth.signOut();
-            window.location.replace("login.html");
+            window.location.href = "login.html";
         };
 
-        // Canvas
-        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
+        init();
     </script>
 </body>
 </html>
