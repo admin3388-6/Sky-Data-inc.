@@ -1,11 +1,11 @@
 // ==========================================
-// 1. Global Styles (CSS & Themes)
+// 1. Global Styles (التصميم والنظام اللوني)
 // ==========================================
 const styles = `
     @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&family=Outfit:wght@300;500;700&display=swap');
 
     :root { 
-        /* الوضع الداكن (Default) */
+        /* الوضع الداكن (الافتراضي) */
         --primary: #4e54c8; 
         --accent: #00d2ff;
         --bg-color: #0a0a12;
@@ -16,9 +16,10 @@ const styles = `
         --card-bg: rgba(10, 10, 18, 0.95);
         --sidebar-bg: rgba(10, 10, 18, 0.95);
         --shadow: 0 10px 40px rgba(0,0,0,0.5);
+        --btn-glass: rgba(255, 255, 255, 0.1);
     }
 
-    /* الوضع الساطع */
+    /* الوضع الساطع (Light Mode) */
     [data-theme="light"] {
         --primary: #4e54c8;
         --accent: #2962ff;
@@ -30,6 +31,7 @@ const styles = `
         --card-bg: #ffffff;
         --sidebar-bg: #ffffff;
         --shadow: 0 10px 30px rgba(0,0,0,0.08);
+        --btn-glass: rgba(0, 0, 0, 0.05);
     }
     
     * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; transition: background-color 0.3s, color 0.3s, border-color 0.3s; }
@@ -42,7 +44,7 @@ const styles = `
     }
     body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
 
-    /* أزرار النظام العائمة */
+    /* أزرار النظام العائمة (يمين الشاشة) */
     .system-controls { 
         position: fixed; top: 20px; right: 20px; z-index: 99999; 
         display: flex; gap: 10px; 
@@ -55,7 +57,7 @@ const styles = `
     }
     .icon-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
 
-    /* زر الدعم العائم */
+    /* زر الدعم العائم (أسفل اليمين) */
     .support-float { 
         position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; 
         border-radius: 50%; background: var(--card-bg); color: var(--text-main); 
@@ -66,7 +68,7 @@ const styles = `
     }
     .support-float:hover { background: var(--primary); color: white; border-color: var(--primary); transform: scale(1.1); }
 
-    /* شاشة التحميل */
+    /* شاشة التحميل (Loader) */
     .global-loader { 
         position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: var(--bg-color); z-index: 999999; 
@@ -78,7 +80,7 @@ const styles = `
         animation: spin 0.8s linear infinite; 
     }
     
-    /* نافذة اللغة */
+    /* نافذة اللغة (Modal) */
     .modal-overlay { 
         display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
         background: rgba(0,0,0,0.6); z-index: 99998; backdrop-filter: blur(5px); 
@@ -92,11 +94,18 @@ const styles = `
     .language-modal h3 { color: var(--text-main); margin-bottom: 20px; }
     .lang-option { 
         display: flex; align-items: center; gap: 15px; padding: 12px; margin: 10px 0; 
-        background: rgba(128,128,128,0.1); border-radius: 12px; cursor: pointer; 
+        background: var(--btn-glass); border-radius: 12px; cursor: pointer; 
         transition: 0.2s; border: 1px solid transparent; color: var(--text-main); 
     }
     .lang-option:hover { border-color: var(--primary); background: rgba(78, 84, 200, 0.1); }
     
+    .close-btn {
+        margin-top:15px; width:100%; padding:12px; border:none; 
+        background: var(--primary); color: white; border-radius: 8px; 
+        cursor:pointer; font-weight:bold; transition: 0.3s;
+    }
+    .close-btn:hover { background: var(--accent); color: black; }
+
     /* بانر الكوكيز */
     .cookie-banner { 
         position: fixed; bottom: -400px; left: 0; width: 100%; 
@@ -111,30 +120,35 @@ const styles = `
     
     .btn-accept { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; }
     .btn-reject { background: transparent; border: 1px solid var(--text-muted); color: var(--text-muted); padding: 10px 25px; border-radius: 50px; cursor: pointer; }
+    .btn-reject:hover { border-color: white; color: white; }
+
+    .legal-links a { color: var(--accent); text-decoration: none; font-size: 12px; margin: 0 5px; opacity: 0.8; }
+    .legal-links a:hover { opacity: 1; text-decoration: underline; }
 
     @keyframes spin { 100% { transform: rotate(360deg); } }
 `;
 
-// حقن الستايل
+// حقن الستايل في الصفحة
 const styleSheet = document.createElement("style");
 styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
 
 // ==========================================
-// 2. UI Injection (إضافة العناصر للصفحة)
+// 2. UI Injection (إضافة العناصر تلقائياً)
 // ==========================================
 function injectUI() {
-    // أزرار التحكم
+    // 1. أزرار التحكم (ثيم + لغة)
     if (!document.querySelector('.system-controls')) {
         const controls = document.createElement('div');
         controls.className = 'system-controls';
         controls.innerHTML = `
-            <div class="icon-btn" onclick="window.toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></div>
-            <div class="icon-btn" onclick="window.toggleLangModal()"><i class="fas fa-globe"></i></div>
+            <div class="icon-btn" onclick="window.toggleTheme()" title="Theme"><i class="fas fa-moon" id="themeIcon"></i></div>
+            <div class="icon-btn" onclick="window.toggleLangModal()" title="Language"><i class="fas fa-globe"></i></div>
         `;
         document.body.appendChild(controls);
     }
-    // زر الدعم
+
+    // 2. زر الدعم
     if (!document.querySelector('.support-float')) {
         const supportBtn = document.createElement('a'); 
         supportBtn.href = "support.html"; 
@@ -142,7 +156,8 @@ function injectUI() {
         supportBtn.innerHTML = `<i class="fas fa-headset"></i>`; 
         document.body.appendChild(supportBtn);
     }
-    // اللودر
+
+    // 3. شاشة التحميل
     if (!document.getElementById('globalLoader')) { 
         const loader = document.createElement('div'); 
         loader.className = 'global-loader'; 
@@ -150,7 +165,8 @@ function injectUI() {
         loader.innerHTML = `<div class="spinner"></div>`; 
         document.body.appendChild(loader); 
     }
-    // نافذة اللغة
+
+    // 4. نافذة اللغة
     if (!document.getElementById('langModal')) { 
         const modal = document.createElement('div'); 
         modal.className = 'modal-overlay'; 
@@ -159,13 +175,15 @@ function injectUI() {
         modal.innerHTML = `
             <div class="language-modal">
                 <h3 data-i18n="settingsTitle">Language</h3>
-                <div class="lang-option" onclick="window.changeLanguage('en')">English</div>
-                <div class="lang-option" onclick="window.changeLanguage('ar')">العربية</div>
-                <div class="lang-option" onclick="window.changeLanguage('ru')">Русский</div>
+                <div class="lang-option" onclick="window.changeLanguage('en')"><span class="flag-icon flag-icon-us"></span><span>English</span></div>
+                <div class="lang-option" onclick="window.changeLanguage('ar')"><span class="flag-icon flag-icon-sa"></span><span>العربية</span></div>
+                <div class="lang-option" onclick="window.changeLanguage('ru')"><span class="flag-icon flag-icon-ru"></span><span>Русский</span></div>
+                <button class="close-btn" onclick="window.toggleLangModal()">Close</button>
             </div>`; 
         document.body.appendChild(modal); 
     }
-    // الكوكيز
+
+    // 5. بانر الكوكيز
     if (!document.getElementById('cookieBanner')) { 
         const banner = document.createElement('div'); 
         banner.className = 'cookie-banner'; 
@@ -173,11 +191,12 @@ function injectUI() {
         banner.innerHTML = `
             <div>
                 <h3 data-i18n="cookieTitle">Privacy</h3>
-                <p data-i18n="cookieText">Cookies help us improve.</p>
-                <div style="margin-bottom:15px; font-size:12px;">
-                    <a href="terms.html" style="color:var(--accent)">Terms</a>
+                <p data-i18n="cookieText">We use cookies.</p>
+                <div class="legal-links">
+                    <a href="privacypolicy.html" target="_blank" data-i18n="privacy">Privacy</a> | 
+                    <a href="Terms-of-Service.html" target="_blank" data-i18n="terms">Terms</a>
                 </div>
-                <div style="display:flex;gap:10px;justify-content:center;">
+                <div class="cookie-actions">
                     <button class="btn-reject" onclick="window.handleCookieChoice('reject')" data-i18n="cookieReject">Deny</button>
                     <button class="btn-accept" onclick="window.handleCookieChoice('accept')" data-i18n="cookieAccept">Accept</button>
                 </div>
@@ -187,7 +206,7 @@ function injectUI() {
 }
 
 // ==========================================
-// 3. Logic Functions
+// 3. Logic Functions (الوظائف)
 // ==========================================
 window.toggleTheme = function() {
     const body = document.body; 
@@ -206,12 +225,8 @@ window.toggleTheme = function() {
 
 window.navigateTo = function(url) {
     const loader = document.getElementById('globalLoader');
-    if(loader) { 
-        loader.style.display = 'flex'; 
-        setTimeout(() => { window.location.href = url; }, 500); 
-    } else {
-        window.location.href = url;
-    }
+    if(loader) { loader.style.display = 'flex'; setTimeout(() => { window.location.href = url; }, 500); }
+    else window.location.href = url;
 };
 
 window.toggleLangModal = function() { 
@@ -220,7 +235,7 @@ window.toggleLangModal = function() {
 };
 
 // ==========================================
-// 4. Translation Dictionary (Complete)
+// 4. Translation Dictionary (الترجمة الكاملة)
 // ==========================================
 const translations = {
     en: { 
@@ -279,6 +294,7 @@ window.handleCookieChoice = function(choice) {
     localStorage.setItem('skydata_cookie_consent', choice === 'accept' ? 'accepted' : 'rejected');
 };
 
+// OneSignal Notification
 function initNotifications() {
     const script = document.createElement('script');
     script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
