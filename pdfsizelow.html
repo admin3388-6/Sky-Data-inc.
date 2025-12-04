@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+<meta charset="UTF-8">
+<title>🗜️ SkyData PDF Compressor PRO</title>
+<style>
+body { margin:0; font-family:Arial; text-align:center; direction:rtl; background:#f0f2f5;}
+.card { margin:40px auto; width:90%; max-width:480px; background:white; padding:25px; border-radius:18px; box-shadow:0 4px 15px rgba(0,0,0,.12);}
+input, select, button { margin:10px 0; padding:10px; width:90%; font-size:16px; border-radius:8px; border:1px solid #bbb;}
+button { cursor:pointer; background:#2979ff; color:white; border:none; border-radius:10px;}
+button:hover{background:#1565c0;}
+#progress-container { width:100%; background:#d0d7de; height:28px; border-radius:12px; margin-top:15px; overflow:hidden; display:none;}
+#progress-bar { width:0%; height:100%; background:linear-gradient(90deg,#2196F3,#42a5f5); transition:width .15s linear;}
+#status { font-weight:bold; margin-top:10px; }
+#eta { margin-top:5px; color:#555; }
+#results { margin-top:10px; font-size:14px; }
+#download-btn { display:none; margin-top:15px; padding:10px 20px; font-size:16px; background:#28a745; color:white; border:none; border-radius:10px; cursor:pointer; }
+#download-btn:hover{background:#218838;}
+</style>
+</head>
+<body>
+<div class="card">
+<h2>🗜️ SkyData PDF Compressor PRO</h2>
+<input type="file" id="file" accept="application/pdf">
+<select id="quality">
+<option value="high">عالي</option>
+<option value="medium">متوسط</option>
+<option value="low">اقتصادي</option>
+</select>
+<button onclick="uploadFile()">ضغط الملف</button>
+
+<div id="progress-container"><div id="progress-bar"></div></div>
+<div id="status"></div>
+<div id="eta"></div>
+<div id="results"></div>
+<button id="download-btn">📥 تحميل الملف المضغوط</button>
+</div>
+
+<script>
+let compressedBlob = null;
+
+function formatTime(s){
+  if(s<60) return `${s.toFixed(1)} ثانية`;
+  if(s<3600) return `${(s/60).toFixed(1)} دقيقة`;
+  return `${(s/3600).toFixed(1)} ساعة`;
+}
+
+async function uploadFile(){
+  const fileInput = document.getElementById('file');
+  const file = fileInput.files[0];
+  const quality = document.getElementById('quality').value;
+  const progress = document.getElementById('progress-container');
+  const bar = document.getElementById('progress-bar');
+  const status = document.getElementById('status');
+  const eta = document.getElementById('eta');
+  const results = document.getElementById('results');
+  const downloadBtn = document.getElementById('download-btn');
+
+  if(!file){alert("اختر ملف PDF"); return;}
+  if(file.size > 40*1024*1024){alert("❌ حجم الملف أكبر من 40MB"); return;}
+
+  progress.style.display='block';
+  bar.style.width='0%';
+  status.innerText="⏳ بدء رفع وضغط الملف...";
+  eta.innerText="";
+  results.innerHTML="";
+  downloadBtn.style.display='none';
+
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('quality', quality);
+
+  const start = performance.now();
+  try {
+    const res = await fetch('https://size-pdf-production.up.railway.app/compress', {method:'POST', body:formData});
+    if(!res.ok){ alert("خطأ في الضغط"); return; }
+
+    const blob = await res.blob();
+    const elapsed = (performance.now()-start)/1000;
+    eta.innerText=`⏱️ الوقت المستغرق: ${formatTime(elapsed)}`;
+
+    const origMB = (file.size/1024/1024).toFixed(2);
+    const newMB = (blob.size/1024/1024).toFixed(2);
+    const saved = ((file.size-blob.size)/file.size*100).toFixed(1);
+
+    results.innerHTML=`<p>📄 ${file.name}: <span style="color:red;">${origMB}MB</span> → <span style="color:green;">${newMB}MB</span> | تم إزالة ${saved}%</p>`;
+    compressedBlob = blob;
+
+    bar.style.width='100%';
+    status.innerText="✅ تم الانتهاء!";
+    downloadBtn.style.display='inline-block';
+    downloadBtn.onclick = function(){
+      const url = URL.createObjectURL(compressedBlob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `skydata_${file.name}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    };
+  } catch(err){
+    console.error(err);
+    results.innerHTML="<p style='color:red'>❌ حدث خطأ أثناء الضغط</p>";
+  }
+}
+</script>
+</body>
+</html>
