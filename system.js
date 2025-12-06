@@ -12,15 +12,6 @@ const styles = `
         --shadow: 0 10px 40px rgba(0,0,0,0.5);
         --btn-glass: rgba(255, 255, 255, 0.1);
     }
-
-    [data-theme="light"] {
-        --primary: #4e54c8; --accent: #2962ff;
-        --bg-dark: #f4f7f6; --text-white: #1a1a2e;
-        --text-muted: #555555; --glass: rgba(255, 255, 255, 0.6);
-        --border: rgba(0, 0, 0, 0.08); --card-bg: #ffffff;
-        --sidebar-bg: #ffffff; --shadow: 0 10px 30px rgba(0,0,0,0.08);
-        --btn-glass: rgba(0, 0, 0, 0.05);
-    }
     
     * { -webkit-tap-highlight-color: transparent; outline: none; box-sizing: border-box; transition: 0.3s; }
     html, body { width: 100%; overflow-x: hidden; margin: 0; padding: 0; }
@@ -28,7 +19,7 @@ const styles = `
     body { font-family: 'Outfit', sans-serif; background-color: var(--bg-dark); color: var(--text-white); }
     body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
 
-    /* أزرار النظام العائمة (تمت إعادتها) */
+    /* أزرار النظام */
     .system-controls { position: fixed; top: 20px; right: 20px; z-index: 99999; display: flex; gap: 10px; }
     .icon-btn { background: var(--card-bg); width: 45px; height: 45px; border-radius: 50%; box-shadow: var(--shadow); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.3s; border: 1px solid var(--border); color: var(--text-white); backdrop-filter: blur(10px); }
     .icon-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
@@ -37,19 +28,17 @@ const styles = `
     .support-float { position: fixed; bottom: 20px; right: 20px; width: 50px; height: 50px; border-radius: 50%; background: var(--card-bg); color: var(--text-white); display: flex; align-items: center; justify-content: center; text-decoration: none; border: 1px solid var(--border); box-shadow: var(--shadow); z-index: 99990; transition: 0.3s; font-size: 20px; backdrop-filter: blur(10px); }
     .support-float:hover { background: var(--primary); border-color: var(--primary); transform: scale(1.1); }
 
-    /* Loader */
+    /* Loader & Modals */
     .global-loader { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--bg-dark); z-index: 999999; display: none; justify-content: center; align-items: center; flex-direction: column; }
     .spinner { width: 50px; height: 50px; border: 3px solid var(--border); border-left-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
     
-    /* Language Modal */
     .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 99998; backdrop-filter: blur(5px); justify-content: center; align-items: center; padding: 20px; }
     .language-modal { background: var(--card-bg); padding: 25px; border-radius: 20px; width: 100%; max-width: 320px; text-align: center; border: 1px solid var(--border); box-shadow: var(--shadow); }
     .language-modal h3 { color: var(--text-white); margin-bottom: 20px; }
     .lang-option { display: flex; align-items: center; gap: 15px; padding: 12px; margin: 10px 0; background: var(--btn-glass); border-radius: 12px; cursor: pointer; transition: 0.2s; border: 1px solid transparent; color: var(--text-white); }
     .lang-option:hover { border-color: var(--primary); background: rgba(78, 84, 200, 0.1); }
     .close-btn { margin-top:15px; width:100%; padding:12px; border:none; background: var(--primary); color: white; border-radius: 8px; cursor:pointer; font-weight:bold; transition: 0.3s; }
-
-    /* Cookies */
+    
     .cookie-banner { position: fixed; bottom: -400px; left: 0; width: 100%; background: var(--card-bg); backdrop-filter: blur(20px); padding: 25px; box-shadow: 0 -5px 30px rgba(0,0,0,0.15); z-index: 99997; transition: bottom 0.5s ease; text-align: center; border-top: 3px solid var(--primary); color: var(--text-white); display: none; }
     .cookie-banner.visible { display: flex; bottom: 0; }
     .btn-accept { background: var(--primary); color: white; border: none; padding: 10px 25px; border-radius: 50px; cursor: pointer; font-weight: bold; }
@@ -63,34 +52,19 @@ styleSheet.innerText = styles;
 document.head.appendChild(styleSheet);
 
 function injectUI() {
-    // 1. أزرار التحكم (تمت إعادتها)
     if (!document.querySelector('.system-controls')) {
         const controls = document.createElement('div');
         controls.className = 'system-controls';
-        controls.innerHTML = `
-            <div class="icon-btn" onclick="window.toggleTheme()"><i class="fas fa-moon" id="themeIcon"></i></div>
-            <div class="icon-btn" onclick="window.toggleLangModal()"><i class="fas fa-globe"></i></div>
-        `;
+        controls.innerHTML = `<div class="icon-btn" onclick="window.toggleLangModal()"><i class="fas fa-globe"></i></div>`;
         document.body.appendChild(controls);
     }
-    // 2. زر الدعم
     if (!document.querySelector('.support-float')) {
         const supportBtn = document.createElement('a'); supportBtn.href = "support.html"; supportBtn.className = "support-float"; supportBtn.innerHTML = `<i class="fas fa-headset"></i>`; document.body.appendChild(supportBtn);
     }
-    // 3. اللودر
     if (!document.getElementById('globalLoader')) { const loader = document.createElement('div'); loader.className = 'global-loader'; loader.id = 'globalLoader'; loader.innerHTML = `<div class="spinner"></div>`; document.body.appendChild(loader); }
-    // 4. نافذة اللغة
     if (!document.getElementById('langModal')) { const modal = document.createElement('div'); modal.className = 'modal-overlay'; modal.id = 'langModal'; modal.onclick=(e)=>{if(e.target===modal)window.toggleLangModal()}; modal.innerHTML = `<div class="language-modal"><h3 data-i18n="settingsTitle">Language</h3><div class="lang-option" onclick="window.changeLanguage('en')">English</div><div class="lang-option" onclick="window.changeLanguage('ar')">العربية</div><div class="lang-option" onclick="window.changeLanguage('ru')">Русский</div><button class="close-btn" onclick="window.toggleLangModal()">Close</button></div>`; document.body.appendChild(modal); }
-    // 5. الكوكيز
     if (!document.getElementById('cookieBanner')) { const banner = document.createElement('div'); banner.className = 'cookie-banner'; banner.id = 'cookieBanner'; banner.innerHTML = `<div><h3 style="color:var(--accent); margin-bottom:10px;">Privacy</h3><div style="display:flex;gap:10px;justify-content:center;"><button class="btn-reject" onclick="window.handleCookieChoice('reject')">Close</button><button class="btn-accept" onclick="window.handleCookieChoice('accept')">Accept</button></div></div>`; document.body.appendChild(banner); }
 }
-
-window.toggleTheme = function() {
-    const body = document.body; const icon = document.getElementById('themeIcon');
-    const currentTheme = body.getAttribute('data-theme'); const newTheme = currentTheme === 'light' ? 'dark' : 'light';
-    body.setAttribute('data-theme', newTheme); localStorage.setItem('skydata_theme', newTheme);
-    if(icon) { icon.className = newTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon'; icon.style.color = newTheme === 'light' ? 'orange' : 'white'; }
-};
 
 window.navigateTo = function(url) {
     const loader = document.getElementById('globalLoader');
@@ -100,40 +74,61 @@ window.navigateTo = function(url) {
 window.toggleLangModal = function() { const modal = document.getElementById('langModal'); if(modal) modal.style.display = (modal.style.display === 'flex') ? 'none' : 'flex'; };
 window.handleCookieChoice = function(choice) { document.getElementById('cookieBanner').classList.remove('visible'); localStorage.setItem('skydata_cookie_consent', choice); };
 
-// الترجمة (تمت إضافة البوت)
+// قاموس الترجمة الشامل (تم تحديثه ليشمل صفحة البوت)
 const translations = {
     en: { 
-        settingsTitle: "Language",
-        navHome: "Home", navDash: "Dashboard", navTools: "Tools", navAI: "AI", navDev: "Dev", navSec: "Security", navSet: "Settings", 
+        settingsTitle: "Language", navHome: "Home", navDash: "Dashboard", navTools: "Tools", navAI: "AI", navDev: "Dev", navSec: "Security", navSet: "Settings", 
         heroTitle: "NEXT GEN DIGITAL", heroDesc: "Advanced Web Tools & AI.", heroBtnLogin: "Access Console", heroBtnDash: "Go to Dashboard", 
-        statUptime: "Uptime", statUsers: "Users", statSecure: "Encrypted", 
-        servicesTitle: "Services", cardWebTitle: "Web Tools", cardWebDesc: "Converters.", cardAITitle: "AI Solutions", cardAIDesc: "Automation.", cardSecTitle: "Security", cardSecDesc: "Protection.", 
-        cardBotHost: "Minecraft Bot", cardBotDesc: "Aternos Hosting", // <-- New
-        loginTitle: "Login", googleBtn: "Google", linkedinBtn: "LinkedIn", githubBtn: "GitHub", termsText: "Agree to Terms", 
-        profileTitle: "Profile", nameLabel: "NAME", emailLabel: "EMAIL", rankLabel: "RANK", logout: "Logout", 
-        gameTitle: "Play & Earn", gameDesc: "Collect XP", rankTitle: "Leaderboard", rankDesc: "Top 100"
+        statUptime: "Uptime", statUsers: "Users", statSecure: "Encrypted", servicesTitle: "Services", cardWebTitle: "Web Tools", cardWebDesc: "Converters.", 
+        cardAITitle: "AI Solutions", cardAIDesc: "Automation.", cardSecTitle: "Security", cardSecDesc: "Protection.", cardBotHost: "Minecraft Bot", cardBotDesc: "Aternos Hosting", 
+        loginTitle: "Login", googleBtn: "Google", linkedinBtn: "LinkedIn", githubBtn: "GitHub", termsText: "Agree to Terms", profileTitle: "Profile", nameLabel: "NAME", emailLabel: "EMAIL", rankLabel: "RANK", logout: "Logout", 
+        gameTitle: "Play & Earn", gameDesc: "Collect XP", rankTitle: "Leaderboard", rankDesc: "Top 100",
+        // Bot Page Translations
+        botTitle: "Minecraft Bot Hosting", botSubtitle: "24/7 AFK & Management Bots.",
+        plan1Name: "Samer Mod", plan2Name: "Pro Agent", plan3Name: "Super Agent",
+        perMonth: "/mo",
+        feat1: "Java & Bedrock Support", feat2: "24/7 Uptime", feat3: "Basic Security", feat4: "Name: Agent_skydata",
+        featPro1: "Custom Bot Name", featPro2: "Join 5 Servers", featPro3: "AI Logic", featPro4: "Anti-Cheat", featPro5: "Custom Commands",
+        featSup1: "100% Better Performance", featSup2: "Join 15 Servers", featSup3: "Priority Support", featSup4: "Auto-Maintenance", featSup5: "Max Stability",
+        buyBtn: "Buy Now", detailsBtn: "View Details", contactSales: "Contact Sales", compareBtn: "Compare All Plans",
+        compareTitle: "Plan Comparison", featTable: "Feature", tier1Table: "Samer", tier2Table: "Pro", tier3Table: "Super",
+        joinDiscord: "Join Discord to Buy"
     },
     ar: { 
-        settingsTitle: "اللغة",
-        navHome: "الرئيسية", navDash: "لوحة التحكم", navTools: "أدوات", navAI: "ذكاء", navDev: "تطوير", navSec: "أمان", navSet: "إعدادات", 
+        settingsTitle: "اللغة", navHome: "الرئيسية", navDash: "لوحة التحكم", navTools: "أدوات", navAI: "ذكاء", navDev: "تطوير", navSec: "أمان", navSet: "إعدادات", 
         heroTitle: "حلول رقمية", heroDesc: "أدوات متقدمة.", heroBtnLogin: "دخول", heroBtnDash: "لوحة التحكم", 
-        statUptime: "تشغيل", statUsers: "مستخدم", statSecure: "تشفير", 
-        servicesTitle: "خدماتنا", cardWebTitle: "أدوات الويب", cardWebDesc: "تحويل.", cardAITitle: "ذكاء اصطناعي", cardAIDesc: "توليد.", cardSecTitle: "حماية", cardSecDesc: "أمان.", 
-        cardBotHost: "بوت ماينكرافت", cardBotDesc: "استضافة اتيرنوس", // <-- New
-        loginTitle: "دخول", googleBtn: "جوجل", linkedinBtn: "لينكد إن", githubBtn: "غيت هاب", termsText: "موافق", 
-        profileTitle: "الملف", nameLabel: "الاسم", emailLabel: "البريد", rankLabel: "الرتبة", logout: "خروج",
-        gameTitle: "العب واربح", gameDesc: "اجمع نقاط", rankTitle: "الصدارة", rankDesc: "أفضل 100"
+        statUptime: "تشغيل", statUsers: "مستخدم", statSecure: "تشفير", servicesTitle: "خدماتنا", cardWebTitle: "أدوات الويب", cardWebDesc: "تحويل.", 
+        cardAITitle: "ذكاء اصطناعي", cardAIDesc: "توليد.", cardSecTitle: "حماية", cardSecDesc: "أمان.", cardBotHost: "بوت ماينكرافت", cardBotDesc: "استضافة اتيرنوس", 
+        loginTitle: "دخول", googleBtn: "جوجل", linkedinBtn: "لينكد إن", githubBtn: "غيت هاب", termsText: "موافق", profileTitle: "الملف", nameLabel: "الاسم", emailLabel: "البريد", rankLabel: "الرتبة", logout: "خروج", 
+        gameTitle: "العب واربح", gameDesc: "اجمع نقاط", rankTitle: "الصدارة", rankDesc: "أفضل 100",
+        // ترجمة صفحة البوت
+        botTitle: "استضافة بوتات ماينكرافت", botSubtitle: "بوتات 24/7 ضد الأفك وإدارة.",
+        plan1Name: "سامر مود", plan2Name: "العميل المحترف", plan3Name: "العميل الخارق",
+        perMonth: "/شهر",
+        feat1: "دعم جافا وبيدروك", feat2: "تشغيل 24/7", feat3: "حماية أساسية", feat4: "الاسم: Agent_skydata",
+        featPro1: "اسم بوت مخصص", featPro2: "دخول 5 سيرفرات", featPro3: "منطق ذكي", featPro4: "نظام منع الغش", featPro5: "أوامر مخصصة",
+        featSup1: "أداء أفضل 100%", featSup2: "دخول 15 سيرفر", featSup3: "دعم فني خاص", featSup4: "صيانة تلقائية", featSup5: "استقرار تام",
+        buyBtn: "شراء الآن", detailsBtn: "عرض التفاصيل", contactSales: "تواصل للشراء", compareBtn: "مقارنة الخطط",
+        compareTitle: "مقارنة الميزات", featTable: "الميزة", tier1Table: "سامر", tier2Table: "محترف", tier3Table: "خارق",
+        joinDiscord: "انضم للديسكورد للشراء"
     },
     ru: { 
-        settingsTitle: "Язык",
-        navHome: "Главная", navDash: "Панель", navTools: "Тулзы", navAI: "AI", navDev: "Код", navSec: "Защита", navSet: "Настройки", 
-        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Веб и AI.", heroBtnLogin: "Войти", heroBtnDash: "Панель", 
-        statUptime: "Аптайм", statUsers: "Юзеры", statSecure: "Шифрование", 
-        servicesTitle: "Услуги", cardWebTitle: "Веб", cardWebDesc: "Анализ.", cardAITitle: "AI", cardAIDesc: "Ген.", cardSecTitle: "Защита", cardSecDesc: "DDoS.", 
-        cardBotHost: "Майнкрафт Бот", cardBotDesc: "Атернос Хост", // <-- New
-        loginTitle: "Вход", googleBtn: "Google", linkedinBtn: "LinkedIn", githubBtn: "GitHub", termsText: "Согласен", 
-        profileTitle: "Профиль", nameLabel: "ИМЯ", emailLabel: "EMAIL", rankLabel: "РАНГ", logout: "Выйти",
-        gameTitle: "Играть", gameDesc: "Опыт", rankTitle: "Лидеры", rankDesc: "Топ 100"
+        settingsTitle: "Язык", navHome: "Главная", navDash: "Панель", navTools: "Тулзы", navAI: "AI", navDev: "Код", navSec: "Защита", navSet: "Настройки", 
+        heroTitle: "ЦИФРОВЫЕ РЕШЕНИЯ", heroDesc: "Веб и AI.", heroBtnLogin: "Вход", heroBtnDash: "Панель", 
+        statUptime: "Аптайм", statUsers: "Юзеры", statSecure: "Шифрование", servicesTitle: "Услуги", cardWebTitle: "Веб", cardWebDesc: "Анализ.", 
+        cardAITitle: "AI", cardAIDesc: "Ген.", cardSecTitle: "Защита", cardSecDesc: "DDoS.", cardBotHost: "Майнкрафт Бот", cardBotDesc: "Атернос Хост", 
+        loginTitle: "Вход", googleBtn: "Google", linkedinBtn: "LinkedIn", githubBtn: "GitHub", termsText: "Согласен", profileTitle: "Профиль", nameLabel: "ИМЯ", emailLabel: "EMAIL", rankLabel: "РАНГ", logout: "Выйти", 
+        gameTitle: "Играть", gameDesc: "Опыт", rankTitle: "Лидеры", rankDesc: "Топ 100",
+        // Bot Page RU
+        botTitle: "Хостинг Ботов Майнкрафт", botSubtitle: "24/7 Анти-АФК боты.",
+        plan1Name: "Самер Мод", plan2Name: "Про Агент", plan3Name: "Супер Агент",
+        perMonth: "/мес",
+        feat1: "Java и Bedrock", feat2: "24/7 Аптайм", feat3: "Базовая защита", feat4: "Имя: Agent_skydata",
+        featPro1: "Свое имя бота", featPro2: "5 Серверов", featPro3: "AI Логика", featPro4: "Анти-Чит", featPro5: "Свои команды",
+        featSup1: "100% Производительность", featSup2: "15 Серверов", featSup3: "Приоритетная поддержка", featSup4: "Авто-сервис", featSup5: "Стабильность",
+        buyBtn: "Купить", detailsBtn: "Детали", contactSales: "Связаться", compareBtn: "Сравнить планы",
+        compareTitle: "Сравнение", featTable: "Функция", tier1Table: "Самер", tier2Table: "Про", tier3Table: "Супер",
+        joinDiscord: "В Discord для покупки"
     }
 };
 
@@ -144,15 +139,24 @@ window.changeLanguage = function(lang) {
     document.getElementById('langModal').style.display = 'none';
 };
 
+// OneSignal Notification
+function initNotifications() {
+    const script = document.createElement('script');
+    script.src = "https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js";
+    script.defer = true;
+    document.head.appendChild(script);
+    window.OneSignalDeferred = window.OneSignalDeferred || [];
+    window.OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({ appId: "201dc615-587a-4e1c-a979-8b9d80667386", notifyButton: { enable: false }, allowLocalhostAsSecureOrigin: true });
+    });
+}
+
 (function init() {
     window.addEventListener('DOMContentLoaded', () => {
         injectUI();
-        const savedTheme = localStorage.getItem('skydata_theme') || 'dark';
-        document.body.setAttribute('data-theme', savedTheme);
-        const icon = document.getElementById('themeIcon');
-        if(icon) { icon.className = savedTheme === 'light' ? 'fas fa-sun' : 'fas fa-moon'; icon.style.color = savedTheme === 'light' ? 'orange' : 'white'; }
         const savedLang = localStorage.getItem('skydata_lang') || 'en';
         window.changeLanguage(savedLang);
         if (!localStorage.getItem('skydata_cookie_consent')) setTimeout(() => document.getElementById('cookieBanner').classList.add('visible'), 1500);
+        initNotifications();
     });
 })();
