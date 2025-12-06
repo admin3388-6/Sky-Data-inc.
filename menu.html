@@ -9,113 +9,73 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        /* نفس التصميم تماماً */
+        /* نفس الستايل */
         :root { --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4; }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; scroll-behavior: smooth; }
         body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
         #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.6; }
-
-        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; opacity: 0; transition: 0.3s; backdrop-filter: blur(3px); }
-        .sidebar-overlay.active { display: block; opacity: 1; }
-        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1); z-index: 1000; overflow: hidden; white-space: nowrap; }
-        .sidebar:hover { width: 260px; align-items: flex-start; padding-left: 20px; }
-        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; filter: drop-shadow(0 0 10px var(--accent)); align-self: center; transition: 0.3s; }
-        .sidebar:hover .logo-icon, .sidebar.open .logo-icon { align-self: center; margin-left: 0; }
-        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
-        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; transition: 0.3s; }
-        .nav-item span { opacity: 0; transform: translateX(-20px); transition: 0.3s ease-in-out; pointer-events: none; }
-        .sidebar:hover .nav-item span, .sidebar.open .nav-item span { opacity: 1; transform: translateX(0); pointer-events: auto; }
-        .nav-item:hover, .nav-item.active { color: var(--text); background: var(--glass); border: 1px solid var(--border); box-shadow: 0 0 15px rgba(78, 84, 200, 0.2); }
-        .nav-item:hover i { color: var(--accent); transform: scale(1.1); }
-
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: var(--sidebar-bg); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; z-index: 1000; }
+        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; }
+        .nav-item { color: var(--text-muted); padding: 15px; width: 100%; text-align: center; transition: 0.3s; cursor: pointer; }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: rgba(255,255,255,0.05); border-left: 3px solid var(--primary); }
+        .nav-item i { font-size: 22px; }
         .main-content { margin-left: 80px; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; gap: 30px; }
-        
-        .card { background: rgba(10, 10, 18, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; position: relative; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
-        h1 { color: white; margin-bottom: 30px; font-weight: 300; font-size: 2rem; }
-        
-        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; text-align: left; border-inline-start: 4px solid var(--primary); display: flex; align-items: center; justify-content: space-between; transition: 0.3s; }
-        .info-row:hover { background: rgba(255,255,255,0.06); transform: translateX(5px); }
-        .info-row b { color: var(--text-muted); font-size: 12px; text-transform: uppercase; display: block; margin-bottom: 5px; letter-spacing: 1px; }
-        .info-row span { color: white; font-weight: 600; font-size: 16px; }
-        
-        .action-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; width: 100%; max-width: 600px; }
-        .action-card { background: var(--glass); border: 1px solid var(--border); padding: 30px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; position: relative; overflow: hidden; backdrop-filter: blur(10px); }
-        .action-card:hover { transform: translateY(-10px); }
-        .action-card::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, rgba(255,255,255,0.05), transparent); opacity: 0; transition: 0.4s; }
-        .action-card:hover::before { opacity: 1; }
-        .action-icon { font-size: 40px; margin-bottom: 15px; display: block; }
-        .action-title { font-size: 18px; font-weight: bold; color: white; }
-        .action-desc { font-size: 12px; color: var(--text-muted); margin-top: 5px; }
-
-        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px 30px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; font-size: 16px; transition: 0.3s; box-shadow: 0 4px 15px rgba(255, 75, 75, 0.2); }
-        button.logout:hover { background: #d43f3f; transform: translateY(-2px); box-shadow: 0 6px 20px rgba(255, 75, 75, 0.3); }
-
-        @media (max-width: 768px) {
-            .sidebar { width: 0; padding: 0; border: none; }
-            .sidebar.open { width: 260px; padding: 20px; border-right: 1px solid var(--border); }
-            .main-content { margin-left: 0; padding-top: 80px; }
-            .toggle-menu { display: block; position: fixed; top: 20px; left: 20px; z-index: 2000; font-size: 24px; cursor: pointer; background: rgba(0,0,0,0.6); padding: 10px 15px; border-radius: 12px; color: white; backdrop-filter: blur(5px); border: 1px solid var(--border); }
-            .action-grid { grid-template-columns: 1fr; }
-        }
-        @media (min-width: 769px) { .toggle-menu { display: none; } }
+        .card { background: var(--card-bg); border: 1px solid var(--border); padding: 40px; border-radius: 24px; width: 100%; max-width: 600px; text-align: center; position: relative; box-shadow: var(--shadow); }
+        .info-row { background: rgba(255,255,255,0.03); padding: 15px; margin: 15px 0; border-radius: 12px; display: flex; justify-content: space-between; border-left: 4px solid var(--primary); }
+        .info-row span { font-weight: bold; color: var(--text); } .info-row b { color: var(--text-muted); font-size: 12px; display: block; }
+        .action-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 20px; width: 100%; max-width: 600px; }
+        .action-card { background: var(--glass); border: 1px solid var(--border); padding: 20px; border-radius: 20px; text-align: center; cursor: pointer; transition: 0.4s; backdrop-filter: blur(10px); }
+        .action-card:hover { transform: translateY(-5px); border-color: var(--accent); background: rgba(255,255,255,0.05); }
+        button.logout { background: #ff4b4b; color: white; border: none; padding: 15px; border-radius: 10px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } }
     </style>
 </head>
 <body>
-
     <canvas id="canvas-bg"></canvas>
-    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
-    <div class="toggle-menu" onclick="toggleSidebar()"><i class="fas fa-bars"></i></div>
 
-    <nav class="sidebar" id="mySidebar">
+    <nav class="sidebar">
         <div class="logo-icon"><i class="fas fa-infinity"></i></div>
-        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> <span data-i18n="navHome">Home</span></a>
-        <a href="#" class="nav-item active"><i class="fas fa-user-astronaut"></i> <span data-i18n="navDash">Dashboard</span></a>
-        <a href="index.html#tools" class="nav-item"><i class="fas fa-tools"></i> <span data-i18n="navTools">Web Tools</span></a>
-        <a href="index.html#ai" class="nav-item"><i class="fas fa-brain"></i> <span data-i18n="navAI">AI Services</span></a>
-        <div style="flex-grow: 1;"></div>
-        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span data-i18n="navSet">Settings</span></a>
+        <div class="nav-item" onclick="window.location.href='index.html'"><i class="fas fa-home"></i></div>
+        <div class="nav-item active"><i class="fas fa-user-astronaut"></i></div>
+        <div class="nav-item"><i class="fas fa-cog"></i></div>
     </nav>
 
     <div class="main-content">
         <div class="card">
-            <h1 data-i18n="profileTitle">User Profile</h1>
-            
-            <div id="content" style="opacity: 0; transition: opacity 0.5s;">
-                <div class="info-row">
-                    <div><b data-i18n="nameLabel">NAME</b><span id="name">Loading...</span></div>
-                    <i class="fas fa-user" style="color:var(--primary); opacity:0.7;"></i>
-                </div>
-                <div class="info-row">
-                    <div><b data-i18n="emailLabel">EMAIL</b><span id="email">Loading...</span></div>
-                    <i class="fas fa-envelope" style="color:var(--primary); opacity:0.7;"></i>
-                </div>
-                <div class="info-row" style="border-inline-start-color: #00c853;">
-                    <div><b data-i18n="rankLabel">RANK</b><span id="rank" style="color: #00c853;">...</span></div>
-                    <i class="fas fa-star" style="color:#00c853; opacity:0.7;"></i>
-                </div>
+            <h1 data-i18n="profileTitle" style="color:var(--text); margin-bottom:30px;">Profile</h1>
+            <div id="content" style="display:none;">
+                <div class="info-row"><div><b data-i18n="nameLabel">NAME</b><span id="name"></span></div><i class="fas fa-user" style="color:var(--primary)"></i></div>
+                <div class="info-row"><div><b data-i18n="emailLabel">EMAIL</b><span id="email"></span></div><i class="fas fa-envelope" style="color:var(--primary)"></i></div>
+                <div class="info-row" style="border-color:gold"><div><b data-i18n="rankLabel">RANK</b><span id="rank" style="color:gold"></span></div><i class="fas fa-star" style="color:gold"></i></div>
                 <button id="logoutBtn" class="logout" data-i18n="logout">Logout</button>
             </div>
         </div>
 
         <div class="action-grid">
-            <div class="action-card game-card" onclick="window.navigateTo('game.html')">
-                <i class="fas fa-gamepad action-icon" style="color:#00e676;"></i>
-                <div class="action-title">Play & Earn</div>
-                <div class="action-desc">Collect XP & Rewards</div>
+            <div class="action-card" onclick="window.navigateTo('game.html')">
+                <i class="fas fa-gamepad" style="font-size:35px; color:#00e676; margin-bottom:10px;"></i>
+                <div style="font-size:16px; font-weight:bold; color:var(--text);" data-i18n="gameTitle">Play</div>
             </div>
-            <div class="action-card rank-card" onclick="window.navigateTo('ranking.html')">
-                <i class="fas fa-trophy action-icon" style="color:#ffd700;"></i>
-                <div class="action-title">Leaderboard</div>
-                <div class="action-desc">Top 100 Players</div>
+            <div class="action-card" onclick="window.navigateTo('ranking.html')">
+                <i class="fas fa-trophy" style="font-size:35px; color:#ffd700; margin-bottom:10px;"></i>
+                <div style="font-size:16px; font-weight:bold; color:var(--text);" data-i18n="rankTitle">Rank</div>
+            </div>
+            
+            <div class="action-card" onclick="window.navigateTo('bot.html')">
+                <div style="display:flex; justify-content:center; gap:5px; margin-bottom:10px;">
+                    <i class="fas fa-robot" style="font-size:30px; color:#55cdfc;"></i>
+                    <i class="fas fa-cube" style="font-size:30px; color:#43a047;"></i>
+                </div>
+                <div style="font-size:16px; font-weight:bold; color:var(--text);" data-i18n="cardBotHost">Bot</div>
             </div>
         </div>
     </div>
 
     <script type="module" src="./system.js"></script>
-
     <script type="module">
         import { supabase } from './supabase.js';
 
+        // History
         window.onload = function() {
             if (window.history && window.history.pushState) {
                 window.history.pushState('forward', null, './menu.html');
@@ -123,78 +83,41 @@
             }
         };
 
-        window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
-        window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
+        // Canvas
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
 
-        // Animation
-        const canvas = document.getElementById('canvas-bg');
-        const ctx = canvas.getContext('2d');
-        let width, height, particles = [];
-        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
-        window.addEventListener('resize', resize); resize();
-        class Particle { constructor(){this.x=Math.random()*width;this.y=Math.random()*height;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2;} update(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>width)this.vx*=-1;if(this.y<0||this.y>height)this.vy*=-1;} draw(){ctx.fillStyle='rgba(140,155,255,0.3)';ctx.beginPath();ctx.arc(this.x,this.y,this.size,0,Math.PI*2);ctx.fill();} }
-        for(let i=0;i<60;i++) particles.push(new Particle());
-        function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
-        animate();
-
-        // ✅✅ المنطق الفوري (Instant Render)
+        // Auth
         async function initDashboard() {
-            // 1. تحقق من وجود جلسة (من الكاش فوراً)
-            const { data: { session } } = await supabase.auth.getSession();
+            if (window.location.hash && window.location.hash.includes('access_token')) return;
+            const { data: { user } } = await supabase.auth.getUser();
+            if (!user) { window.location.replace("login.html"); return; }
             
-            if (!session) {
-                // إذا لم يكن مسجلاً، انتظر قليلاً للتأكد أنه ليس عائداً من جوجل
-                if (!window.location.hash.includes('access_token')) {
-                     window.location.replace("login.html");
-                }
-                return;
-            }
-
-            // 2. ⚡ عرض البيانات فوراً من الجلسة (بدون انتظار قاعدة البيانات)
-            const user = session.user;
-            const content = document.getElementById("content");
-            
-            // نملأ البيانات بما لدينا الآن (الاسم والإيميل)
+            // Instant Display
+            document.getElementById("content").style.display = "block";
             document.getElementById("name").textContent = user.user_metadata.full_name || user.email.split('@')[0];
             document.getElementById("email").textContent = user.email;
-            document.getElementById("rank").textContent = "Loading..."; // الرتبة تأتي لاحقاً
             
-            // نظهر الصفحة فوراً
-            content.style.opacity = "1";
-
-            // 3. جلب البيانات الكاملة في الخلفية (Background Sync)
-            syncWithDatabase(user);
+            syncDB(user);
         }
 
-        async function syncWithDatabase(user) {
+        async function syncDB(user) {
             try {
-                // محاولة القراءة
-                let { data, error } = await supabase.from('users').select('*').eq('id', user.id).single();
-                
-                // إذا لم نجد، ننشئ (Self-Healing)
+                let { data } = await supabase.from('users').select('*').eq('id', user.id).single();
                 if (!data) {
-                    console.log("Repairing profile...");
-                    const { data: newData } = await supabase.from('users').insert([{
-                        id: user.id, email: user.email, name: user.user_metadata.full_name || "User", rank: 'free', xp: 0
-                    }]).select().single();
-                    data = newData;
+                    const { data: n } = await supabase.from('users').insert([{id: user.id, email: user.email, name: user.user_metadata.full_name, rank: 'free', xp: 0}]).select().single();
+                    data = n;
                 }
-
-                // تحديث الواجهة بالبيانات الحقيقية
-                if (data) {
+                if(data) {
                     document.getElementById("name").textContent = data.name;
-                    document.getElementById("rank").innerHTML = (data.rank || 'free').toUpperCase();
-                    if (data.rank === 'pro') document.getElementById("rank").innerHTML += ' <i class="fas fa-crown" style="color: gold; margin: 0 5px;"></i>';
+                    document.getElementById("rank").innerHTML = (data.rank || 'free').toUpperCase() + (data.rank==='pro'?' <i class="fas fa-crown" style="color:gold"></i>':'');
                 }
-            } catch (e) { console.error("Sync error:", e); }
+            } catch(e){}
         }
 
         document.getElementById("logoutBtn").onclick = async () => {
             await supabase.auth.signOut();
             window.location.replace("login.html");
         };
-
-        // البدء فوراً
         initDashboard();
     </script>
 </body>

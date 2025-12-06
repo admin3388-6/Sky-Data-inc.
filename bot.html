@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bot Hosting - Sky Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flag-icon-css/6.6.6/css/flag-icons.min.css">
+    
+    <style>
+        /* استيراد المتغيرات من النظام */
+        :root { 
+            --bg-dark: #0a0a12; --glass: rgba(255, 255, 255, 0.03); 
+            --border: rgba(255, 255, 255, 0.08); --primary: #4e54c8; 
+            --accent: #00d2ff; --text: #ffffff; --text-muted: #8b9bb4;
+            --minecraft-green: #55cdfc; /* لون سماوي مستقبلي */
+            --tier-basic: #a0a0a0;
+            --tier-pro: #ffd700;
+            --tier-super: #ff3d00;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text); overflow-x: hidden; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.5; }
+
+        /* Sidebar */
+        .sidebar-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 999; display: none; backdrop-filter: blur(3px); }
+        .sidebar-overlay.active { display: block; }
+        .sidebar { position: fixed; left: 0; top: 0; height: 100vh; width: 80px; background: rgba(10, 10, 18, 0.95); backdrop-filter: blur(20px); border-right: 1px solid var(--border); display: flex; flex-direction: column; align-items: center; padding: 30px 0; transition: width 0.4s; z-index: 1000; overflow: hidden; white-space: nowrap; }
+        .sidebar:hover { width: 260px; align-items: flex-start; padding-left: 20px; }
+        .logo-icon { font-size: 28px; color: var(--accent); margin-bottom: 50px; transition: 0.3s; }
+        .sidebar:hover .logo-icon { margin-left: 0; }
+        .nav-item { display: flex; align-items: center; gap: 20px; color: var(--text-muted); text-decoration: none; padding: 15px 12px; margin: 5px 0; width: 100%; transition: 0.3s; border-radius: 12px; }
+        .nav-item i { font-size: 22px; min-width: 30px; text-align: center; }
+        .nav-item:hover, .nav-item.active { color: var(--text); background: rgba(255,255,255,0.05); border-left: 3px solid var(--primary); }
+        .nav-item span { opacity: 0; transition: 0.3s; }
+        .sidebar:hover .nav-item span { opacity: 1; }
+
+        /* Main Content */
+        .main-content { margin-left: 80px; padding: 40px 20px; min-height: 100vh; display: flex; flex-direction: column; align-items: center; }
+
+        /* Header Section */
+        .page-header { text-align: center; margin-bottom: 50px; animation: slideDown 0.8s ease; }
+        .page-header h1 { font-size: 3rem; margin-bottom: 10px; background: linear-gradient(to right, #fff, var(--minecraft-green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .page-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* Pricing Grid */
+        .pricing-grid { 
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); 
+            gap: 30px; width: 100%; max-width: 1200px; margin-bottom: 60px;
+        }
+
+        /* Card Design (3D Effect) */
+        .plan-card {
+            background: rgba(20, 20, 30, 0.6); border: 1px solid var(--border);
+            border-radius: 20px; padding: 0; overflow: hidden;
+            position: relative; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+            display: flex; flex-direction: column;
+        }
+        .plan-card:hover { transform: translateY(-15px) scale(1.02); border-color: var(--accent); box-shadow: 0 20px 50px rgba(0, 210, 255, 0.15); }
+        
+        /* Tier Header */
+        .plan-header { padding: 30px; text-align: center; position: relative; overflow: hidden; }
+        .plan-header::before { content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0.1; z-index: 0; }
+        .tier-icon { font-size: 50px; margin-bottom: 15px; position: relative; z-index: 1; filter: drop-shadow(0 0 15px currentColor); }
+        .tier-name { font-size: 1.5rem; font-weight: 900; text-transform: uppercase; letter-spacing: 2px; position: relative; z-index: 1; }
+        
+        /* Tier Colors */
+        .tier-1 .plan-header { border-bottom: 2px solid var(--tier-basic); }
+        .tier-1 .tier-icon, .tier-1 .tier-name { color: var(--tier-basic); }
+        
+        .tier-2 { border: 1px solid var(--tier-pro); box-shadow: 0 0 20px rgba(255, 215, 0, 0.1); }
+        .tier-2 .plan-header { border-bottom: 2px solid var(--tier-pro); background: linear-gradient(to bottom, rgba(255, 215, 0, 0.05), transparent); }
+        .tier-2 .tier-icon, .tier-2 .tier-name { color: var(--tier-pro); }
+        
+        .tier-3 .plan-header { border-bottom: 2px solid var(--tier-super); }
+        .tier-3 .tier-icon, .tier-3 .tier-name { color: var(--tier-super); }
+
+        /* Badges */
+        .badge-off { position: absolute; top: 15px; right: 15px; background: #ff4b4b; color: white; font-size: 12px; font-weight: bold; padding: 4px 10px; border-radius: 20px; box-shadow: 0 2px 10px rgba(255,75,75,0.4); animation: pulse 2s infinite; }
+
+        /* Price */
+        .plan-price { padding: 20px; text-align: center; }
+        .price-tag { font-size: 2.5rem; font-weight: bold; color: white; }
+        .price-tag span { font-size: 1rem; color: var(--text-muted); font-weight: normal; }
+        .old-price { text-decoration: line-through; color: #666; font-size: 1.2rem; margin-right: 10px; }
+
+        /* Features List */
+        .plan-features { padding: 0 30px 30px; flex-grow: 1; }
+        .feature { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 15px; color: #ccc; font-size: 14px; line-height: 1.4; }
+        .feature i { color: var(--minecraft-green); margin-top: 3px; }
+        .feature.highlight { color: white; font-weight: bold; }
+        .feature.highlight i { color: var(--tier-pro); }
+
+        /* Button */
+        .plan-footer { padding: 30px; text-align: center; }
+        .buy-btn { 
+            width: 100%; padding: 15px; border: none; border-radius: 12px; 
+            font-weight: bold; font-size: 16px; cursor: pointer; transition: 0.3s;
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            text-decoration: none;
+        }
+        .tier-1 .buy-btn { background: rgba(255,255,255,0.1); color: white; border: 1px solid #555; }
+        .tier-2 .buy-btn { background: var(--tier-pro); color: black; box-shadow: 0 5px 20px rgba(255, 215, 0, 0.3); }
+        .tier-3 .buy-btn { background: var(--tier-super); color: white; box-shadow: 0 5px 20px rgba(255, 61, 0, 0.3); }
+        .buy-btn:hover { transform: scale(1.05); filter: brightness(1.1); }
+
+        /* Video Section */
+        .video-section { width: 100%; max-width: 900px; margin-bottom: 60px; text-align: center; }
+        .video-container { 
+            position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; 
+            border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+            background: black;
+        }
+        .video-container video { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+
+        /* Discord Section */
+        .discord-section { 
+            width: 100%; max-width: 900px; background: #5865F2; border-radius: 20px; 
+            padding: 40px; text-align: center; position: relative; overflow: hidden;
+            box-shadow: 0 10px 40px rgba(88, 101, 242, 0.3); margin-bottom: 50px;
+        }
+        .discord-content { position: relative; z-index: 1; }
+        .discord-bg { position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 10%, transparent 10%); background-size: 30px 30px; opacity: 0.2; }
+        .discord-btn { 
+            background: white; color: #5865F2; padding: 15px 40px; border-radius: 50px; 
+            font-weight: 900; font-size: 18px; text-decoration: none; display: inline-flex; 
+            align-items: center; gap: 10px; margin-top: 20px; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .discord-btn:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.3); }
+
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        @media (max-width: 768px) { .sidebar { display: none; } .main-content { margin-left: 0; } .toggle-menu { display: block; } }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-bg"></canvas>
+    
+    <div class="toggle-menu" onclick="toggleSidebar()" style="position:fixed; top:20px; left:20px; z-index:2000; font-size:24px; cursor:pointer; background:rgba(0,0,0,0.6); padding:10px 15px; border-radius:12px; border:1px solid var(--border); display:none;">
+        <i class="fas fa-bars" style="color:white;"></i>
+    </div>
+
+    <div class="sidebar-overlay" onclick="closeSidebar()"></div>
+
+    <nav class="sidebar" id="mySidebar">
+        <div class="logo-icon"><i class="fas fa-infinity"></i></div>
+        <a href="menu.html" class="nav-item"><i class="fas fa-th-large"></i> <span>Dashboard</span></a>
+        <a href="#" class="nav-item active"><i class="fas fa-robot"></i> <span>Bot Hosting</span></a>
+        <a href="index.html" class="nav-item"><i class="fas fa-home"></i> <span>Home</span></a>
+        <div style="flex-grow: 1;"></div>
+        <a href="#" class="nav-item"><i class="fas fa-cog"></i> <span>Settings</span></a>
+    </nav>
+
+    <div class="main-content">
+        
+        <header class="page-header">
+            <h1><i class="fas fa-cube"></i> Minecraft Bot Hosting</h1>
+            <p>Deploy advanced AFK & Management bots instantly. Java & Bedrock supported.</p>
+        </header>
+
+        <div class="pricing-grid">
+            
+            <div class="plan-card tier-1">
+                <div class="plan-header">
+                    <i class="fas fa-robot tier-icon"></i>
+                    <div class="tier-name">Samer Mod</div>
+                </div>
+                <div class="plan-price">
+                    <div class="price-tag">$2 <span>/month</span></div>
+                </div>
+                <div class="plan-features">
+                    <div class="feature"><i class="fas fa-check"></i> Java & Bedrock Support</div>
+                    <div class="feature"><i class="fas fa-check"></i> Lightweight Version</div>
+                    <div class="feature"><i class="fas fa-check"></i> Anti-AFK System</div>
+                    <div class="feature"><i class="fas fa-shield-alt"></i> Default Security</div>
+                    <div class="feature"><i class="fas fa-server"></i> Hosted by Sky Data</div>
+                    <div class="feature"><i class="fas fa-user-tag"></i> Name: <b>Agent_skydata</b></div>
+                    <div class="feature"><i class="fas fa-tools"></i> 24/7 Maintenance</div>
+                </div>
+                <div class="plan-footer">
+                    <a href="https://discord.gg/6m3c2up4p3" target="_blank" class="buy-btn">
+                        Get Started <i class="fas fa-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="plan-card tier-2">
+                <div class="badge-off">30% OFF</div>
+                <div class="plan-header">
+                    <i class="fas fa-gem tier-icon"></i>
+                    <div class="tier-name">Pro Agent</div>
+                </div>
+                <div class="plan-price">
+                    <div class="price-tag">
+                        <span class="old-price">$15</span> $8 <span>/month</span>
+                    </div>
+                </div>
+                <div class="plan-features">
+                    <div class="feature highlight"><i class="fas fa-star"></i> All Samer Mod features</div>
+                    <div class="feature highlight"><i class="fas fa-pen"></i> <b>Custom Bot Name</b></div>
+                    <div class="feature"><i class="fas fa-network-wired"></i> <b>5 Servers</b> Simultaneously</div>
+                    <div class="feature"><i class="fas fa-brain"></i> <b>AI Powered</b> Logic</div>
+                    <div class="feature"><i class="fas fa-shield-virus"></i> Advanced Anti-Kick/Ban</div>
+                    <div class="feature"><i class="fas fa-ban"></i> <b>Anti-Cheat System</b> (No Hackers)</div>
+                    <div class="feature"><i class="fas fa-terminal"></i> Custom Commands</div>
+                    <div class="feature"><i class="fas fa-running"></i> Custom Movements</div>
+                    <div class="feature"><i class="fas fa-server"></i> High Stability</div>
+                </div>
+                <div class="plan-footer">
+                    <a href="https://discord.gg/6m3c2up4p3" target="_blank" class="buy-btn">
+                        Buy Now <i class="fas fa-shopping-cart"></i>
+                    </a>
+                </div>
+            </div>
+
+            <div class="plan-card tier-3">
+                <div class="plan-header">
+                    <i class="fas fa-dragon tier-icon"></i>
+                    <div class="tier-name">Super Agent</div>
+                </div>
+                <div class="plan-price">
+                    <div class="price-tag">$25 <span>/month</span></div>
+                </div>
+                <div class="plan-features">
+                    <div class="feature highlight"><i class="fas fa-crown"></i> <b>100% Better Performance</b></div>
+                    <div class="feature"><i class="fas fa-network-wired"></i> <b>15 Servers</b> Simultaneously</div>
+                    <div class="feature"><i class="fas fa-headset"></i> <b>Priority 24/7 Support</b></div>
+                    <div class="feature"><i class="fas fa-wrench"></i> Auto-Maintenance</div>
+                    <div class="feature"><i class="fas fa-tachometer-alt"></i> Max Smoothness</div>
+                    <div class="feature"><i class="fas fa-layer-group"></i> Ultimate Stability</div>
+                    <div class="feature"><i class="fas fa-check-double"></i> Best Version Available</div>
+                </div>
+                <div class="plan-footer">
+                    <a href="https://discord.gg/6m3c2up4p3" target="_blank" class="buy-btn">
+                        Contact Sales <i class="fab fa-discord"></i>
+                    </a>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="video-section">
+            <h2 style="margin-bottom: 20px; color: white;">Bot Capabilities Demo</h2>
+            <div class="video-container">
+                <video controls poster="https://via.placeholder.com/900x500/0a0a12/4e54c8?text=Bot+Demo+Preview">
+                    <source src="demo_bot_preview.mp4" type="video/mp4">
+                    Your browser does not support the video tag.
+                </video>
+            </div>
+        </div>
+
+        <div class="discord-section">
+            <div class="discord-bg"></div>
+            <div class="discord-content">
+                <i class="fab fa-discord" style="font-size: 60px; color: white; margin-bottom: 15px;"></i>
+                <h2 style="color: white; margin-bottom: 10px;">Join Sky Data Community</h2>
+                <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">
+                    To purchase the <b>Super Agent</b> plan or get support, join our Discord server.<br>
+                    Channel: <b>#bot-hosting-plans</b>
+                </p>
+                <a href="https://discord.gg/6m3c2up4p3" target="_blank" class="discord-btn">
+                    Join Server <i class="fas fa-external-link-alt"></i>
+                </a>
+            </div>
+        </div>
+
+    </div>
+
+    <script type="module" src="./system.js"></script>
+    <script>
+        // Sidebar Logic (Mobile)
+        window.toggleSidebar = () => { document.getElementById('mySidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('active'); };
+        window.closeSidebar = () => { document.getElementById('mySidebar').classList.remove('open'); document.querySelector('.sidebar-overlay').classList.remove('active'); };
+
+        // Background Animation (Reused for consistency)
+        const canvas = document.getElementById('canvas-bg'); const ctx = canvas.getContext('2d');
+        let width, height, particles = [];
+        function resize() { width = canvas.width = window.innerWidth; height = canvas.height = window.innerHeight; }
+        window.addEventListener('resize', resize); resize();
+        class Particle { constructor(){this.x=Math.random()*width;this.y=Math.random()*height;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2} u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>width)this.vx*=-1;if(this.y<0||this.y>height)this.vy*=-1} d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()} }
+        for(let i=0;i<60;i++) particles.push(new Particle());
+        function animate() { ctx.clearRect(0,0,width,height); particles.forEach(p=>{p.u();p.d()}); requestAnimationFrame(animate); }
+        animate();
+    </script>
+</body>
+</html>
