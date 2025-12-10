@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Sky Data - استخراج الصور</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.min.js"></script>
+    <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.10.377/pdf.worker.min.js';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root { --bg-dark: #0a0a12; --glass: rgba(20, 20, 30, 0.8); --border: rgba(255, 255, 255, 0.1); --primary: #00e676; --text: #fff; }
+        body { background: var(--bg-dark); color: var(--text); font-family: 'Cairo'; margin: 0; padding: 20px; }
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
+        
+        .header { margin-bottom: 30px; }
+        .back-btn { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; }
+
+        .container { max-width: 600px; margin: 0 auto; background: var(--glass); padding: 40px; border-radius: 20px; border: 1px solid var(--border); backdrop-filter: blur(10px); text-align: center; }
+        
+        .upload-zone { border: 2px dashed #444; padding: 30px; border-radius: 10px; cursor: pointer; transition: 0.3s; margin-bottom: 20px; }
+        .upload-zone:hover { border-color: var(--primary); background: rgba(0, 230, 118, 0.05); }
+        
+        .options { margin: 20px 0; border: 1px solid #333; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.3); }
+        label { margin-left: 15px; cursor: pointer; }
+        
+        button { width: 100%; padding: 15px; background: var(--primary); color: #000; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 16px; margin-top: 10px; }
+        button:disabled { background: #555; cursor: not-allowed; }
+        
+        #progress-container { margin-top: 20px; background: #222; border-radius: 5px; height: 10px; overflow: hidden; display: none; }
+        #progress-fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s; }
+        #status { margin-top: 10px; font-size: 14px; color: #ccc; }
+    </style>
+</head>
+<body>
+    <canvas id="canvas-bg"></canvas>
+    <div class="header"><a href="pdftools.html" class="back-btn">رجوع</a></div>
+
+    <div class="container">
+        <h2 style="color:var(--primary)">📦 استخراج الصور من PDF</h2>
+        
+        <div class="upload-zone" onclick="document.getElementById('pdfFile').click()">
+            <i class="fas fa-file-import" style="font-size:40px; margin-bottom:10px;"></i>
+            <p>اضغط لاختيار ملف PDF</p>
+            <input type="file" id="pdfFile" accept="application/pdf" style="display:none">
+        </div>
+        <p id="fileName" style="color:#aaa;"></p>
+
+        <div class="options">
+            <p style="font-weight:bold; margin-bottom:10px;">الجودة المطلوبة:</p>
+            <input type="radio" name="q" id="q1" value="3.0"><label for="q1">عالية (بطيء)</label>
+            <input type="radio" name="q" id="q2" value="2.0" checked><label for="q2">متوسطة</label>
+            <input type="radio" name="q" id="q3" value="1.0"><label for="q3">اقتصادية (سريع)</label>
+        </div>
+
+        <button id="processButton" disabled onclick="startProcessing()">🚀 استخراج وضغط (ZIP)</button>
+
+        <div id="progress-container"><div id="progress-fill"></div></div>
+        <div id="status"></div>
+    </div>
+
+    <script>
+        // الخلفية
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
+
+        const fileInput = document.getElementById('pdfFile');
+        const btn = document.getElementById('processButton');
+        
+        fileInput.addEventListener('change', () => {
+            if(fileInput.files.length > 0) {
+                document.getElementById('fileName').innerText = fileInput.files[0].name;
+                btn.disabled = false;
+            }
+        });
+
+        async function startProcessing() {
+            const file = fileInput.files[0];
+            const scale = parseFloat(document.querySelector('input[name="q"]:checked').value);
+            
+            btn.disabled = true;
+            document.getElementById('progress-container').style.display = 'block';
+            const bar = document.getElementById('progress-fill');
+            const status = document.getElementById('status');
+            
+            status.innerText = "جاري قراءة الملف...";
+            
+            try {
+                const buffer = await file.arrayBuffer();
+                const pdf = await pdfjsLib.getDocument(buffer).promise;
+                const zip = new JSZip();
+                
+                for(let i=1; i<=pdf.numPages; i++) {
+                    status.innerText = `جاري استخراج الصفحة ${i} من ${pdf.numPages}...`;
+                    bar.style.width = `${(i/pdf.numPages)*90}%`;
+                    
+                    const page = await pdf.getPage(i);
+                    const viewport = page.getViewport({scale: scale});
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    canvas.height = viewport.height;
+                    canvas.width = viewport.width;
+                    
+                    await page.render({canvasContext: ctx, viewport: viewport}).promise;
+                    
+                    const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
+                    zip.file(`page_${i}.png`, blob);
+                }
+                
+                status.innerText = "📦 جاري ضغط الملفات...";
+                bar.style.width = "95%";
+                
+                const content = await zip.generateAsync({type:"blob"});
+                saveAs(content, "skydata_extracted.zip");
+                
+                status.innerText = "✅ تم التحميل بنجاح!";
+                bar.style.width = "100%";
+                
+            } catch(e) {
+                status.innerText = "❌ حدث خطأ: " + e.message;
+            }
+            btn.disabled = false;
+        }
+    </script>
+</body>
+</html>
