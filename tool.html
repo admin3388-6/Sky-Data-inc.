@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>Sky Data - Web Tools</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        /* --- المتغيرات والتأسيس --- */
+        :root { 
+            --bg-dark: #0a0a12; 
+            --glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.1); 
+            --primary: #4e54c8; 
+            --accent: #00d2ff; 
+            --text: #ffffff; 
+            --text-muted: #8b9bb4; 
+            --danger: #ff4b4b;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: var(--bg-dark); 
+            color: var(--text); 
+            overflow-x: hidden; 
+            font-family: 'Outfit', sans-serif; 
+        }
+        body[dir="rtl"] { font-family: 'Cairo', sans-serif; }
+
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; pointer-events: none; }
+
+        /* --- الهيدر --- */
+        .header { 
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 15px 5%; background: rgba(5, 5, 8, 0.95); 
+            backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); 
+            position: fixed; top: 0; width: 100%; z-index: 100; 
+        }
+        .logo { font-size: 20px; font-weight: 800; color: white; text-decoration: none; display: flex; align-items: center; gap: 10px; }
+        
+        .home-btn {
+            padding: 8px 20px; border-radius: 50px; background: rgba(255,255,255,0.05);
+            color: white; text-decoration: none; font-size: 14px; transition: 0.3s;
+            border: 1px solid var(--border); display: flex; align-items: center; gap: 8px;
+        }
+        .home-btn:hover { background: var(--primary); border-color: var(--primary); }
+
+        /* --- المحتوى الرئيسي --- */
+        .main-content { margin-top: 120px; padding: 20px 5%; display: flex; flex-direction: column; align-items: center; gap: 40px; }
+        
+        .page-header { text-align: center; max-width: 800px; animation: fadeIn 1s ease; }
+        .page-header h1 { 
+            font-size: clamp(2rem, 5vw, 3.5rem); margin-bottom: 15px; 
+            background: linear-gradient(to right, #fff, var(--accent)); 
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent; 
+        }
+        .page-header p { color: var(--text-muted); font-size: 1.1rem; }
+
+        /* --- شبكة الأدوات --- */
+        .tools-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 25px; 
+            width: 100%; 
+            max-width: 1200px; 
+        }
+
+        .tool-card {
+            background: rgba(20, 20, 30, 0.6);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            transition: 0.3s;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+            text-decoration: none;
+        }
+        
+        .tool-card:hover {
+            transform: translateY(-8px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 40px rgba(0, 210, 255, 0.1);
+        }
+
+        /* تمييز خاص لأداة الـ PDF */
+        .tool-card.featured {
+            border-color: var(--primary);
+            background: linear-gradient(145deg, rgba(78, 84, 200, 0.1), rgba(20, 20, 30, 0.8));
+        }
+        .tool-card.featured::before {
+            content: 'Recommended';
+            position: absolute; top: 15px; right: 15px;
+            background: var(--primary); color: white;
+            padding: 4px 10px; border-radius: 20px;
+            font-size: 10px; font-weight: bold;
+        }
+
+        .tool-icon {
+            width: 60px; height: 60px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 15px;
+            display: flex; justify-content: center; align-items: center;
+            font-size: 28px; color: var(--accent);
+            margin-bottom: 20px;
+            transition: 0.3s;
+        }
+        .tool-card:hover .tool-icon { background: var(--accent); color: black; transform: scale(1.1); }
+        .tool-card.featured .tool-icon { color: #ff4b4b; } 
+        .tool-card.featured:hover .tool-icon { background: #ff4b4b; color: white; }
+
+        .tool-title { color: white; font-size: 1.4rem; font-weight: 700; margin-bottom: 10px; }
+        .tool-desc { color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 20px; }
+        
+        .arrow-link { margin-top: auto; color: var(--accent); font-weight: bold; font-size: 0.9rem; display: flex; align-items: center; gap: 5px; }
+        .tool-card:hover .arrow-link { gap: 10px; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+    <canvas id="canvas-bg"></canvas>
+
+    <div class="header">
+        <a href="index.html" class="logo"><i class="fas fa-toolbox"></i> SKY TOOLS</a>
+        <a href="index.html" class="home-btn">
+            <i class="fas fa-home"></i> الرئيسية
+        </a>
+    </div>
+
+    <div class="main-content">
+        <div class="page-header">
+            <h1>مركز أدوات المطورين</h1>
+            <p>مجموعة أدوات احترافية لتحسين إنتاجيتك، جميعها في مكان واحد.</p>
+        </div>
+
+        <div class="tools-grid">
+            
+            <a href="Alltools/pdftools.html" class="tool-card featured">
+                <div class="tool-icon"><i class="fas fa-file-pdf"></i></div>
+                <h3 class="tool-title">أدوات PDF الاحترافية</h3>
+                <p class="tool-desc">دمج، تقسيم، ضغط، وتحويل ملفات PDF بسهولة وبدون رفع الملفات للسيرفر.</p>
+                <div class="arrow-link">فتح الأداة <i class="fas fa-arrow-left"></i></div>
+            </a>
+
+            <a href="#" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-key"></i></div>
+                <h3 class="tool-title">مولد كلمات سر</h3>
+                <p class="tool-desc">إنشاء كلمات مرور قوية ومعقدة لحماية حساباتك من الاختراق.</p>
+                <div class="arrow-link">فتح الأداة <i class="fas fa-arrow-left"></i></div>
+            </a>
+
+            <a href="#" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-qrcode"></i></div>
+                <h3 class="tool-title">صانع QR Code</h3>
+                <p class="tool-desc">حول أي رابط أو نص إلى رمز استجابة سريعة (QR) قابل للتخصيص.</p>
+                <div class="arrow-link">فتح الأداة <i class="fas fa-arrow-left"></i></div>
+            </a>
+
+            <a href="#" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-globe"></i></div>
+                <h3 class="tool-title">كشف الـ IP</h3>
+                <p class="tool-desc">معرفة عنوان IP الخاص بك وموقعك الجغرافي وتفاصيل الاتصال.</p>
+                <div class="arrow-link">فتح الأداة <i class="fas fa-arrow-left"></i></div>
+            </a>
+
+            <a href="#" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-code"></i></div>
+                <h3 class="tool-title">منسق أكواد JSON</h3>
+                <p class="tool-desc">ترتيب وتنسيق أكواد البرمجة لتسهيل قراءتها واكتشاف الأخطاء.</p>
+                <div class="arrow-link">فتح الأداة <i class="fas fa-arrow-left"></i></div>
+            </a>
+
+             <a href="#" class="tool-card">
+                <div class="tool-icon"><i class="fas fa-palette"></i></div>
+                <h3 class="tool-title">عجلة الألوان</h3>
+                <p class="tool-desc">اختر تدرجات لونية متناسقة لتصميماتك مع أكواد Hex و RGB.</p>
+                <div class="arrow-link">فتح الأداة <i class="fas fa-arrow-left"></i></div>
+            </a>
+
+        </div>
+    </div>
+
+    <script>
+        // تأثير الخلفية
+        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
+    </script>
+</body>
+</html>
