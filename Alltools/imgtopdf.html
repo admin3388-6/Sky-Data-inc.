@@ -2,141 +2,63 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Sky Data - صور إلى PDF</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <style>
-        :root { --bg-dark: #0a0a12; --glass: rgba(20, 20, 30, 0.8); --border: rgba(255, 255, 255, 0.1); --primary: #ff4b4b; --text: #fff; }
-        body { background: var(--bg-dark); color: var(--text); font-family: 'Cairo'; margin: 0; padding: 20px; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
-        
-        .header { margin-bottom: 30px; }
-        .back-btn { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; }
+        body { background: #0a0a12; color: white; font-family: 'Cairo'; margin: 0; padding: 15px; }
+        .header { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .back-btn { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 14px; }
 
-        .container { max-width: 800px; margin: 0 auto; background: var(--glass); padding: 40px; border-radius: 20px; border: 1px solid var(--border); backdrop-filter: blur(10px); }
+        .container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(20, 20, 30, 0.8); padding: 25px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
         
-        .upload-area { border: 2px dashed #555; padding: 40px; border-radius: 15px; text-align: center; cursor: pointer; transition: 0.3s; margin-bottom: 30px; }
-        .upload-area:hover { border-color: var(--primary); background: rgba(255, 75, 75, 0.05); }
+        .upload-area { border: 2px dashed #555; padding: 30px; border-radius: 15px; margin-bottom: 20px; position: relative; }
+        .upload-area input { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; }
         
-        .controls { display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap; }
-        select, input { padding: 12px; background: #111; border: 1px solid #444; color: white; border-radius: 8px; flex: 1; }
-        
-        .btn { padding: 15px 30px; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: white; font-size: 16px; transition: 0.3s; width: 100%; margin-top: 10px; }
-        .btn-primary { background: var(--primary); box-shadow: 0 0 15px rgba(255, 75, 75, 0.3); }
-        .btn-preview { background: #4e54c8; }
-        
-        .progress-bar { height: 8px; background: #333; margin-top: 20px; border-radius: 4px; overflow: hidden; display: none; }
-        .fill { height: 100%; width: 0%; background: var(--primary); transition: width 0.3s; }
-        
-        /* Modal for preview */
-        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 1000; align-items: center; justify-content: center; }
-        .modal-content { background: #1a1a1a; padding: 20px; border-radius: 15px; max-width: 90%; max-height: 90%; overflow-y: auto; text-align: center; }
-        .preview-grid { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; }
-        .preview-item { width: 100px; background: #222; padding: 5px; border-radius: 5px; }
-        .preview-item img { width: 100%; border-radius: 4px; }
-        .close-modal { position: absolute; top: 20px; right: 20px; color: white; font-size: 30px; cursor: pointer; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; font-weight: bold; color: white; font-size: 16px; margin-top: 10px; background: #ff4b4b; cursor: pointer; }
+        #status { margin-top: 15px; font-size: 14px; color: #aaa; }
+        #fileCount { font-size: 14px; margin-bottom: 10px; color: #00e676; }
     </style>
 </head>
 <body>
-    <canvas id="canvas-bg"></canvas>
     <div class="header"><a href="pdftools.html" class="back-btn">رجوع</a></div>
-
     <div class="container">
-        <h2 style="text-align:center; color:var(--primary)">🖼️ تحويل الصور إلى PDF</h2>
-        
-        <div class="upload-area" onclick="document.getElementById('imageUpload').click()">
-            <i class="fas fa-images" style="font-size:50px; color:#fff; margin-bottom:15px;"></i>
-            <p>اضغط لاختيار الصور (JPG, PNG)</p>
-            <input type="file" id="imageUpload" multiple accept="image/*" style="display:none">
+        <h2>🖼️ صور إلى PDF</h2>
+        <div class="upload-area">
+            <i class="fas fa-images" style="font-size:40px; margin-bottom:10px;"></i>
+            <p>اضغط لاختيار الصور</p>
+            <input type="file" id="imageUpload" multiple accept="image/*">
         </div>
-        <p id="fileCount" style="text-align:center; color:#888;"></p>
-
-        <div class="controls">
-            <select id="pageFormat">
-                <option value="A4">حجم A4 (الافتراضي)</option>
-                <option value="Letter">حجم رسالة (Letter)</option>
-            </select>
-            <select id="imageQuality">
-                <option value="1.0">دقة كاملة (100%)</option>
-                <option value="0.8" selected>دقة عالية (80%)</option>
-                <option value="0.6">دقة متوسطة (60%)</option>
-            </select>
-        </div>
-
-        <button class="btn btn-preview" onclick="showPreview()">👁️ معاينة وتدوير</button>
-        <button class="btn btn-primary" id="convertBtn">🚀 تحويل وتنزيل</button>
-
-        <div class="progress-bar"><div class="fill" id="fill"></div></div>
-        <div id="status" style="text-align:center; margin-top:15px; color:#aaa;"></div>
+        <div id="fileCount"></div>
+        <button class="btn" id="convertBtn">تحويل وتنزيل</button>
+        <div id="status"></div>
     </div>
-
-    <div class="modal" id="previewModal">
-        <span class="close-modal" onclick="document.getElementById('previewModal').style.display='none'">&times;</span>
-        <div class="modal-content">
-            <h3>المعاينة</h3>
-            <div class="preview-grid" id="previewGrid"></div>
-        </div>
-    </div>
-
     <script>
-        // الخلفية
-        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
-
         let selectedFiles = [];
-        
         document.getElementById('imageUpload').addEventListener('change', (e) => {
             selectedFiles = Array.from(e.target.files);
             document.getElementById('fileCount').innerText = `تم اختيار ${selectedFiles.length} صورة`;
         });
-
-        function showPreview() {
-            if(selectedFiles.length === 0) return alert("اختر صوراً أولاً");
-            const grid = document.getElementById('previewGrid');
-            grid.innerHTML = '';
-            document.getElementById('previewModal').style.display = 'flex';
-            
-            selectedFiles.forEach(file => {
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const div = document.createElement('div');
-                    div.className = 'preview-item';
-                    div.innerHTML = `<img src="${e.target.result}">`;
-                    grid.appendChild(div);
-                }
-                reader.readAsDataURL(file);
-            });
-        }
-
         document.getElementById('convertBtn').addEventListener('click', async () => {
             if(selectedFiles.length === 0) return alert("اختر صوراً أولاً");
-            
             const { jsPDF } = window.jspdf;
-            const doc = new jsPDF({ format: document.getElementById('pageFormat').value });
-            const quality = parseFloat(document.getElementById('imageQuality').value);
-            const bar = document.getElementById('fill');
+            const doc = new jsPDF();
             const status = document.getElementById('status');
+            status.innerText = "جاري التحويل...";
             
-            document.querySelector('.progress-bar').style.display = 'block';
-
             for(let i=0; i<selectedFiles.length; i++) {
-                status.innerText = `جاري معالجة الصورة ${i+1}...`;
-                bar.style.width = `${((i+1)/selectedFiles.length)*100}%`;
-                
                 const imgData = await readFile(selectedFiles[i]);
                 const imgProps = doc.getImageProperties(imgData);
                 const pdfWidth = doc.internal.pageSize.getWidth();
                 const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                
                 if(i > 0) doc.addPage();
-                doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight, undefined, 'FAST');
+                doc.addImage(imgData, 'JPEG', 0, 0, pdfWidth, pdfHeight);
             }
-            
-            status.innerText = "✅ تم التحويل! جاري التنزيل...";
-            doc.save("skydata_images.pdf");
+            status.innerText = "تم!";
+            doc.save("images.pdf");
         });
-
         function readFile(file) {
             return new Promise(resolve => {
                 const reader = new FileReader();

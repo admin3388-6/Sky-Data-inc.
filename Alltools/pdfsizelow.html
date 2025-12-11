@@ -2,101 +2,48 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
     <title>Sky Data - ضغط PDF</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --bg-dark: #0a0a12; --glass: rgba(20, 20, 30, 0.7); --border: rgba(255, 255, 255, 0.1); --primary: #00d2ff; }
-        body { background: var(--bg-dark); color: white; font-family: 'Cairo'; margin: 0; padding: 20px; }
-        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
-        
-        .header { margin-bottom: 40px; }
-        .back-btn { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 8px 15px; border-radius: 20px; }
-        
-        .card { max-width: 500px; margin: 0 auto; background: var(--glass); padding: 40px; border-radius: 24px; border: 1px solid var(--border); backdrop-filter: blur(10px); text-align: center; }
-        
-        .file-label { display: block; border: 2px dashed #444; padding: 30px; border-radius: 15px; margin: 20px 0; cursor: pointer; transition: 0.3s; }
-        .file-label:hover { border-color: var(--primary); background: rgba(0, 210, 255, 0.05); }
-        
-        select { width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #444; color: white; border-radius: 8px; margin-bottom: 15px; }
-        
-        button { width: 100%; padding: 15px; background: var(--primary); border: none; border-radius: 10px; font-weight: bold; cursor: pointer; color: #000; font-size: 16px; margin-top: 10px; }
-        button:hover { filter: brightness(1.2); }
-        
-        #progress-container { height: 6px; background: #333; margin-top: 20px; border-radius: 3px; display: none; }
-        #progress-bar { height: 100%; width: 0%; background: var(--primary); box-shadow: 0 0 10px var(--primary); transition: width 0.2s; }
-        
-        #results { margin-top: 20px; font-size: 14px; }
+        body { background: #0a0a12; color: white; font-family: 'Cairo'; margin: 0; padding: 15px; }
+        .header { display: flex; justify-content: flex-end; margin-bottom: 20px; }
+        .back-btn { text-decoration: none; color: white; background: rgba(255,255,255,0.1); padding: 5px 15px; border-radius: 20px; font-size: 14px; }
+        .container { width: 100%; max-width: 500px; margin: 0 auto; background: rgba(20, 20, 30, 0.8); padding: 25px 20px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); text-align: center; }
+        .upload-label { display: block; border: 2px dashed #444; padding: 25px; border-radius: 15px; margin: 20px 0; cursor: pointer; }
+        .btn { width: 100%; padding: 12px; background: #00d2ff; border: none; border-radius: 10px; font-weight: bold; color: black; font-size: 16px; margin-top: 10px; }
     </style>
 </head>
 <body>
-    <canvas id="canvas-bg"></canvas>
     <div class="header"><a href="pdftools.html" class="back-btn">رجوع</a></div>
-
-    <div class="card">
-        <h2 style="color:var(--primary)">🗜️ ضغط ملفات PDF</h2>
-        
-        <label class="file-label">
-            <i class="fas fa-file-pdf" style="font-size:40px; margin-bottom:10px; display:block;"></i>
-            <span>اضغط لاختيار الملف</span>
-            <input type="file" id="file" accept="application/pdf" style="display:none" onchange="document.querySelector('.file-label span').innerText = this.files[0].name">
+    <div class="container">
+        <h2>🗜️ ضغط ملفات PDF</h2>
+        <label class="upload-label">
+            <i class="fas fa-file-pdf" style="font-size:30px; margin-bottom:10px; display:block;"></i>
+            <span id="fName">اضغط لاختيار الملف</span>
+            <input type="file" id="file" accept="application/pdf" style="display:none" onchange="document.getElementById('fName').innerText = this.files[0].name">
         </label>
-
-        <select id="quality">
-            <option value="high">جودة عالية (ضغط خفيف)</option>
-            <option value="medium" selected>جودة متوسطة (موصى به)</option>
-            <option value="low">حجم اقتصادي (ضغط قوي)</option>
-        </select>
-        
-        <button onclick="uploadFile()">🚀 ابدأ الضغط</button>
-
-        <div id="progress-container"><div id="progress-bar"></div></div>
-        <div id="status" style="margin-top:10px; color:#aaa;"></div>
-        <div id="results"></div>
-        <button id="download-btn" style="display:none; background:#00e676; margin-top:15px;">📥 تحميل الملف</button>
+        <button class="btn" onclick="uploadFile()">ضغط الملف</button>
+        <div id="status" style="margin-top:15px; font-size:14px;"></div>
+        <button id="dlBtn" class="btn" style="background:#00e676; display:none;">تحميل</button>
     </div>
-
     <script>
-        // الخلفية
-        const c=document.getElementById('canvas-bg'),x=c.getContext('2d');let w,h,p=[];function r(){w=c.width=window.innerWidth;h=c.height=window.innerHeight}window.addEventListener('resize',r);r();class P{constructor(){this.x=Math.random()*w;this.y=Math.random()*h;this.vx=(Math.random()-0.5)*0.5;this.vy=(Math.random()-0.5)*0.5;this.size=Math.random()*2}u(){this.x+=this.vx;this.y+=this.vy;if(this.x<0||this.x>w)this.vx*=-1;if(this.y<0||this.y>h)this.vy*=-1}d(){x.fillStyle='rgba(140,155,255,0.3)';x.beginPath();x.arc(this.x,this.y,this.size,0,Math.PI*2);x.fill()}}for(let i=0;i<60;i++)p.push(new P());function a(){x.clearRect(0,0,w,h);p.forEach(e=>{e.u();e.d()});requestAnimationFrame(a)}a();
-
         let compressedBlob = null;
         async function uploadFile(){
             const file = document.getElementById('file').files[0];
-            if(!file){ alert("يرجى اختيار ملف"); return; }
-            
-            document.getElementById('progress-container').style.display = 'block';
-            document.getElementById('status').innerText = "جاري الرفع والمعالجة...";
-            document.getElementById('progress-bar').style.width = '50%';
-            
-            const formData = new FormData();
-            formData.append('file', file);
-            formData.append('quality', document.getElementById('quality').value);
-
+            if(!file) return alert("اختر ملفاً");
+            document.getElementById('status').innerText = "جاري الضغط (قد يستغرق وقتاً)...";
+            const formData = new FormData(); formData.append('file', file); formData.append('quality', 'medium');
             try {
                 const res = await fetch('https://size-pdf-production.up.railway.app/compress', {method:'POST', body:formData});
-                if(!res.ok) throw new Error("فشل");
-                
+                if(!res.ok) throw new Error();
                 compressedBlob = await res.blob();
-                document.getElementById('progress-bar').style.width = '100%';
-                
-                const origMB = (file.size/1024/1024).toFixed(2);
-                const newMB = (compressedBlob.size/1024/1024).toFixed(2);
-                const saved = ((file.size-compressedBlob.size)/file.size*100).toFixed(1);
-                
-                document.getElementById('status').innerText = "✅ تم الضغط!";
-                document.getElementById('results').innerHTML = `<p style="color:#ccc">من <span style="color:#ff4b4b">${origMB}MB</span> إلى <span style="color:#00e676">${newMB}MB</span> (وفرت ${saved}%)</p>`;
-                
-                const btn = document.getElementById('download-btn');
+                document.getElementById('status').innerText = "تم الضغط بنجاح!";
+                const btn = document.getElementById('dlBtn');
                 btn.style.display = 'block';
-                btn.onclick = () => {
-                    const url = URL.createObjectURL(compressedBlob);
-                    const a = document.createElement('a');
-                    a.href = url; a.download = `skydata_${file.name}`; a.click();
-                }
-            } catch(e) {
-                document.getElementById('status').innerText = "❌ حدث خطأ، تأكد من الاتصال.";
-            }
+                btn.onclick = () => { const a = document.createElement('a'); a.href = URL.createObjectURL(compressedBlob); a.download = `compressed_${file.name}`; a.click(); }
+            } catch(e) { document.getElementById('status').innerText = "خطأ في الاتصال"; }
         }
     </script>
 </body>
