@@ -2,389 +2,188 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sky Weather - رادار الطقس العالمي</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Sky Weather</title>
     
-    <meta name="description" content="أداة طقس احترافية مجانية، رادار مباشر، توقعات 7 أيام، خرائط تفاعلية.">
-    <meta name="keywords" content="طقس, رادار, خرائط طقس, حالة الجو, Sky Data, Weather">
-
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700;900&family=Cairo:wght@400;700&display=swap" rel="stylesheet">
     
-    <script src="https://cdn.onesignal.com/sdks/OneSignalSDK.js" async=""></script>
-    <script>
-        window.OneSignal = window.OneSignal || [];
-        OneSignal.push(function() {
-            OneSignal.init({ appId: "YOUR-ONESIGNAL-APP-ID" });
-        });
-    </script>
-
     <style>
-        :root { 
-            --bg-dark: #0a0a12; 
-            --glass: rgba(20, 20, 35, 0.7); 
-            --border: rgba(255, 255, 255, 0.1); 
-            --primary: #00d2ff; 
-            --accent: #4e54c8; 
-            --danger: #ff4b4b;
-            --text: #ffffff;
-        }
-
+        :root { --bg-dark: #0a0a12; --glass: rgba(20, 20, 35, 0.7); --border: rgba(255, 255, 255, 0.1); --primary: #00d2ff; --accent: #4e54c8; --danger: #ff4b4b; --text: #ffffff;}
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { background-color: var(--bg-dark); color: var(--text); font-family: 'Cairo', sans-serif; overflow-x: hidden; }
 
-        /* --- Header --- */
-        .header { 
-            display: flex; justify-content: space-between; align-items: center; 
-            padding: 15px 5%; background: rgba(5, 5, 8, 0.95); 
-            border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; 
-        }
-        .logo { font-size: 20px; font-weight: 800; color: white; text-decoration: none; }
-        .back-btn { 
-            padding: 8px 20px; border-radius: 20px; background: rgba(255,255,255,0.1); 
-            color: white; text-decoration: none; font-size: 14px; transition: 0.3s; 
-        }
-        .back-btn:hover { background: var(--primary); color: black; }
+        .header { display: flex; justify-content: space-between; align-items: center; padding: 15px 5%; background: rgba(5, 5, 8, 0.95); border-bottom: 1px solid var(--border); position: fixed; top: 0; width: 100%; z-index: 1000; }
+        .logo { font-size: 18px; font-weight: 800; color: white; text-decoration: none; }
+        .back-btn { padding: 6px 15px; border-radius: 20px; background: rgba(255,255,255,0.1); color: white; text-decoration: none; font-size: 12px; }
 
-        /* --- Main Layout --- */
-        .container { margin-top: 100px; padding: 20px 5%; max-width: 1400px; margin-left: auto; margin-right: auto; }
+        .container { margin-top: 80px; padding: 15px; max-width: 100%; }
 
-        /* Search Bar */
-        .search-container { position: relative; max-width: 600px; margin: 0 auto 40px auto; }
-        .search-box {
-            width: 100%; padding: 15px 50px 15px 20px; background: #1a1a25; 
-            border: 2px solid var(--border); border-radius: 30px; color: white; 
-            font-size: 16px; font-family: 'Cairo'; transition: 0.3s;
-        }
-        .search-box:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 15px rgba(0, 210, 255, 0.3); }
-        .search-icon { position: absolute; right: 20px; top: 50%; transform: translateY(-50%); color: #888; }
+        /* البحث المتجاوب */
+        .search-container { position: relative; width: 100%; max-width: 600px; margin: 0 auto 20px auto; }
+        .search-box { width: 100%; padding: 12px 40px 12px 15px; background: #1a1a25; border: 1px solid var(--border); border-radius: 30px; color: white; font-size: 14px; font-family: 'Cairo'; }
+        .search-icon { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); color: #888; }
         
-        .search-results {
-            position: absolute; top: 110%; left: 0; width: 100%; background: #1a1a25; 
-            border-radius: 15px; border: 1px solid var(--border); z-index: 100; 
-            display: none; max-height: 300px; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
-        .result-item { padding: 12px 20px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; }
-        .result-item:hover { background: var(--primary); color: black; }
+        .search-results { position: absolute; top: 105%; left: 0; width: 100%; background: #1a1a25; border-radius: 15px; border: 1px solid var(--border); z-index: 100; display: none; max-height: 250px; overflow-y: auto; }
+        .result-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: space-between; font-size: 14px; }
 
-        /* --- Weather Grid --- */
-        .weather-dashboard { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+        /* الشبكة المتجاوبة */
+        .weather-dashboard { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 768px) { .weather-dashboard { grid-template-columns: 1fr 1fr; } }
+
+        .current-card { background: linear-gradient(145deg, rgba(78, 84, 200, 0.2), rgba(20, 20, 30, 0.8)); border: 1px solid var(--border); border-radius: 20px; padding: 20px; text-align: center; }
+        .temp-huge { font-size: 4rem; font-weight: 900; margin: 10px 0; background: linear-gradient(to bottom, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+        .location-title { font-size: 1.5rem; display: flex; align-items: center; justify-content: center; gap: 8px; }
         
-        @media (max-width: 900px) { .weather-dashboard { grid-template-columns: 1fr; } }
-
-        /* Current Weather Card */
-        .current-card {
-            background: linear-gradient(145deg, rgba(78, 84, 200, 0.2), rgba(20, 20, 30, 0.8));
-            border: 1px solid var(--border); border-radius: 25px; padding: 30px;
-            text-align: center; position: relative; backdrop-filter: blur(10px);
-        }
-        .temp-huge { font-size: 5rem; font-weight: 900; background: linear-gradient(to bottom, #fff, var(--primary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .location-title { font-size: 2rem; margin-bottom: 10px; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .weather-desc { font-size: 1.2rem; color: var(--primary); margin-bottom: 20px; }
+        .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 20px; }
+        .detail-item { background: rgba(255,255,255,0.05); padding: 10px; border-radius: 12px; display: flex; flex-direction: column; align-items: center; gap: 5px; font-size: 0.9rem; }
         
-        /* Details Grid */
-        .details-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 30px; }
-        .detail-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; display: flex; flex-direction: column; align-items: center; gap: 5px; }
-        .detail-item i { font-size: 20px; color: var(--accent); }
-        .detail-val { font-weight: bold; font-size: 1.1rem; }
-        .detail-label { font-size: 0.8rem; color: #888; }
+        .info-section { background: var(--glass); border: 1px solid var(--border); border-radius: 20px; padding: 20px; }
+        #map { width: 100%; height: 250px; border-radius: 15px; z-index: 1; border: 1px solid var(--border); }
 
-        /* Forecast & Map Section */
-        .info-section { background: var(--glass); border: 1px solid var(--border); border-radius: 25px; padding: 25px; height: 100%; }
-        
-        /* Map */
-        #map { width: 100%; height: 350px; border-radius: 20px; z-index: 1; border: 2px solid var(--border); }
+        .hourly-scroll { display: flex; overflow-x: auto; gap: 10px; padding: 15px 0; margin-top: 15px; }
+        .hourly-item { min-width: 70px; background: rgba(255,255,255,0.03); padding: 10px 5px; border-radius: 10px; text-align: center; font-size: 0.9rem; }
 
-        /* Hourly Scroll */
-        .hourly-scroll {
-            display: flex; overflow-x: auto; gap: 15px; padding: 20px 0; margin-top: 20px;
-            scrollbar-width: thin; scrollbar-color: var(--primary) transparent;
-        }
-        .hourly-item {
-            min-width: 80px; background: rgba(255,255,255,0.03); padding: 15px 10px;
-            border-radius: 15px; text-align: center; border: 1px solid transparent; transition: 0.3s;
-        }
-        .hourly-item:hover { border-color: var(--primary); background: rgba(0, 210, 255, 0.1); }
-
-        /* Red Alert Modal */
-        .alert-modal {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.9); z-index: 9999; display: none;
-            justify-content: center; align-items: center; backdrop-filter: blur(5px);
-        }
-        .alert-box {
-            background: #1a0000; border: 2px solid var(--danger); padding: 40px;
-            border-radius: 20px; text-align: center; max-width: 400px;
-            box-shadow: 0 0 50px rgba(255, 75, 75, 0.5); animation: shake 0.5s;
-        }
-        .alert-icon { font-size: 50px; color: var(--danger); margin-bottom: 20px; }
-        .alert-btn {
-            background: var(--danger); color: white; border: none; padding: 10px 30px;
-            border-radius: 50px; margin-top: 20px; cursor: pointer; font-weight: bold;
-        }
-
-        @keyframes shake { 0% { transform: translate(1px, 1px) rotate(0deg); } 10% { transform: translate(-1px, -2px) rotate(-1deg); } 20% { transform: translate(-3px, 0px) rotate(1deg); } 30% { transform: translate(3px, 2px) rotate(0deg); } 40% { transform: translate(1px, -1px) rotate(1deg); } 50% { transform: translate(-1px, 2px) rotate(-1deg); } 60% { transform: translate(-3px, 1px) rotate(0deg); } 70% { transform: translate(3px, 1px) rotate(-1deg); } 80% { transform: translate(-1px, -1px) rotate(1deg); } 90% { transform: translate(1px, 2px) rotate(0deg); } 100% { transform: translate(1px, -2px) rotate(-1deg); } }
+        /* Alert Modal */
+        .alert-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px; }
+        .alert-box { background: #1a0000; border: 2px solid var(--danger); padding: 30px; border-radius: 20px; text-align: center; width: 100%; max-width: 350px; }
+        .alert-btn { background: var(--danger); color: white; border: none; padding: 10px 30px; border-radius: 50px; margin-top: 20px; cursor: pointer; width: 100%; font-weight: bold; }
     </style>
 </head>
 <body>
-
     <div class="header">
         <a href="index.html" class="logo"><i class="fas fa-cloud-bolt"></i> SKY WEATHER</a>
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> الرئيسية</a>
+        <a href="index.html" class="back-btn">الرئيسية</a>
     </div>
 
     <div class="alert-modal" id="blockAlert">
         <div class="alert-box">
-            <i class="fas fa-ban alert-icon"></i>
+            <i class="fas fa-ban" style="font-size:40px; color:var(--danger); margin-bottom:15px;"></i>
             <h2 style="color:white; margin-bottom:10px;">محظور!</h2>
-            <p style="color:#ccc;">هذه المنطقة محظورة ولا يمكن البحث عنها في نظامنا.</p>
+            <p style="color:#ccc; font-size:14px;">هذه المنطقة محظورة ولا يمكن البحث عنها.</p>
             <button class="alert-btn" onclick="closeAlert()">حسناً</button>
         </div>
     </div>
 
     <div class="container">
-        
         <div class="search-container">
             <i class="fas fa-search search-icon"></i>
-            <input type="text" class="search-box" id="searchInput" placeholder="ابحث عن مدينتك (مثال: الرياض، القاهرة، لندن)..." autocomplete="off">
+            <input type="text" class="search-box" id="searchInput" placeholder="بحث (الرياض، القاهرة)..." autocomplete="off">
             <div class="search-results" id="searchResults"></div>
         </div>
 
         <div class="weather-dashboard">
-            
             <div class="current-card">
                 <div class="location-title">
                     <i class="fas fa-map-marker-alt" style="color:var(--primary)"></i>
-                    <span id="cityName">جاري تحديد الموقع...</span>
+                    <span id="cityName">تحديد الموقع...</span>
                 </div>
-                <div class="weather-desc" id="weatherDesc">--</div>
+                <div id="weatherDesc" style="color:var(--primary); margin-bottom:10px;">--</div>
                 <div class="temp-huge" id="currentTemp">--°</div>
-                
                 <div class="details-grid">
-                    <div class="detail-item">
-                        <i class="fas fa-wind"></i>
-                        <span class="detail-val" id="windSpeed">--</span>
-                        <span class="detail-label">الرياح (km/h)</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-tint"></i>
-                        <span class="detail-val" id="humidity">--</span>
-                        <span class="detail-label">الرطوبة %</span>
-                    </div>
-                    <div class="detail-item">
-                        <i class="fas fa-eye"></i>
-                        <span class="detail-val" id="visibility">--</span>
-                        <span class="detail-label">الرؤية (km)</span>
-                    </div>
+                    <div class="detail-item"><i class="fas fa-wind"></i><span id="windSpeed">--</span><span>الرياح</span></div>
+                    <div class="detail-item"><i class="fas fa-tint"></i><span id="humidity">--</span><span>الرطوبة</span></div>
+                    <div class="detail-item"><i class="fas fa-eye"></i><span id="visibility">--</span><span>الرؤية</span></div>
                 </div>
-
-                <div class="hourly-scroll" id="hourlyContainer">
-                    </div>
+                <div class="hourly-scroll" id="hourlyContainer"></div>
             </div>
 
             <div class="info-section">
-                <h3 style="margin-bottom:15px; color:var(--primary)"><i class="fas fa-map"></i> رادار السحب</h3>
+                <h3 style="margin-bottom:10px; color:var(--primary); font-size:1.1rem;"><i class="fas fa-map"></i> الرادار</h3>
                 <div id="map"></div>
-                
-                <h3 style="margin:25px 0 15px 0; color:var(--primary)"><i class="fas fa-calendar-alt"></i> توقعات الأيام القادمة</h3>
-                <div id="dailyForecast" style="display:flex; flex-direction:column; gap:10px;">
-                    </div>
+                <h3 style="margin:20px 0 10px 0; color:var(--primary); font-size:1.1rem;"><i class="fas fa-calendar-alt"></i> الأيام القادمة</h3>
+                <div id="dailyForecast" style="display:flex; flex-direction:column; gap:8px;"></div>
             </div>
-
         </div>
     </div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
-        // --- 1. System Check (Login & Init) ---
-        document.addEventListener('DOMContentLoaded', () => {
-            const isLoggedIn = localStorage.getItem('isLoggedIn'); // افتراض أن نظام الدخول يحفظ هذا
-            // if (!isLoggedIn) window.location.href = 'login.html'; // فعل هذا السطر إذا أردت إجبار الدخول
-            
-            initMap();
-            // بدء التطبيق بافتراضي (مثلاً مكة) أو موقع المستخدم
-            getWeather(21.4225, 39.8262, "مكة المكرمة"); 
-        });
+        document.addEventListener('DOMContentLoaded', () => { initMap(); getWeather(21.4225, 39.8262, "مكة المكرمة"); });
+        
+        const blockedTerms = ['israel', 'tel aviv', 'haifa', 'eilat', 'jerusalem', 'zion', 'إسرائيل', 'اسرائيل', 'تل أبيب', 'حيفا', 'إيلات', 'القدس الغربية', 'uae', 'dubai', 'abu dhabi', 'الامارات', 'دبي', 'أبو ظبي'];
+        function checkBlocked(query) { return blockedTerms.some(term => query.toLowerCase().includes(term)); }
+        function showAlert() { document.getElementById('blockAlert').style.display = 'flex'; }
+        function closeAlert() { document.getElementById('blockAlert').style.display = 'none'; document.getElementById('searchInput').value = ''; document.getElementById('searchResults').style.display = 'none'; }
 
-        // --- 2. Blacklist Logic ---
-        const blockedTerms = [
-            'israel', 'israil', 'tel aviv', 'haifa', 'eilat', 'jerusalem', 'zion', 
-            'إسرائيل', 'اسرائيل', 'تل أبيب', 'حيفا', 'إيلات', 'القدس الغربية', 
-            'uae', 'united arab emirates', 'dubai', 'abu dhabi', 'sharjah', 'ajman',
-            'الامارات', 'الإمارات', 'دبي', 'أبو ظبي', 'ابو ظبي', 'الشارقة', 'عجمان'
-        ];
-
-        function checkBlocked(query) {
-            const lowerQuery = query.toLowerCase();
-            return blockedTerms.some(term => lowerQuery.includes(term));
-        }
-
-        function showAlert() {
-            document.getElementById('blockAlert').style.display = 'flex';
-        }
-
-        function closeAlert() {
-            document.getElementById('blockAlert').style.display = 'none';
-            document.getElementById('searchInput').value = '';
-            document.getElementById('searchResults').style.display = 'none';
-        }
-
-        // --- 3. Search Logic ---
         const searchInput = document.getElementById('searchInput');
         const resultsBox = document.getElementById('searchResults');
         let debounceTimer;
 
         searchInput.addEventListener('input', (e) => {
             const query = e.target.value;
-            
-            if (checkBlocked(query)) {
-                showAlert();
-                return;
-            }
-
+            if (checkBlocked(query)) { showAlert(); return; }
             clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                if (query.length > 2) fetchLocations(query);
-            }, 500);
+            debounceTimer = setTimeout(() => { if (query.length > 2) fetchLocations(query); }, 500);
         });
 
         async function fetchLocations(query) {
-            // استخدام Open-Meteo Geocoding API المجاني
-            const url = `https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5&language=ar&format=json`;
-            
             try {
-                const res = await fetch(url);
+                const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${query}&count=5&language=ar&format=json`);
                 const data = await res.json();
-                
                 resultsBox.innerHTML = '';
                 if (data.results) {
                     resultsBox.style.display = 'block';
                     data.results.forEach(city => {
-                        // فلترة إضافية للدولة
-                        const country = city.country ? city.country.toLowerCase() : '';
-                        if (checkBlocked(city.name) || checkBlocked(country)) return;
-
+                        if (checkBlocked(city.name) || (city.country && checkBlocked(city.country.toLowerCase()))) return;
                         const item = document.createElement('div');
                         item.className = 'result-item';
-                        item.innerHTML = `<span>${city.name}</span> <span style="color:#888; font-size:12px;">${city.country || ''}</span>`;
-                        item.onclick = () => {
-                            getWeather(city.latitude, city.longitude, city.name);
-                            resultsBox.style.display = 'none';
-                            searchInput.value = city.name;
-                        };
+                        item.innerHTML = `<span>${city.name}</span> <span style="color:#888; font-size:11px;">${city.country || ''}</span>`;
+                        item.onclick = () => { getWeather(city.latitude, city.longitude, city.name); resultsBox.style.display = 'none'; searchInput.value = city.name; };
                         resultsBox.appendChild(item);
                     });
-                } else {
-                    resultsBox.style.display = 'none';
-                }
-            } catch (err) { console.error(err); }
+                } else { resultsBox.style.display = 'none'; }
+            } catch (err) {}
         }
 
-        // --- 4. Weather Logic (Open-Meteo) ---
-        // جدول رموز الطقس (WMO Codes)
         function getWeatherDesc(code) {
-            const codes = {
-                0: { text: "سماء صافية", icon: "fa-sun" },
-                1: { text: "غائم جزئياً", icon: "fa-cloud-sun" },
-                2: { text: "غائم جزئياً", icon: "fa-cloud-sun" },
-                3: { text: "غائم", icon: "fa-cloud" },
-                45: { text: "ضباب", icon: "fa-smog" },
-                48: { text: "ضباب كثيف", icon: "fa-smog" },
-                51: { text: "رذاذ خفيف", icon: "fa-cloud-rain" },
-                61: { text: "مطر خفيف", icon: "fa-cloud-showers-heavy" },
-                63: { text: "مطر متوسط", icon: "fa-cloud-showers-heavy" },
-                65: { text: "مطر غزير", icon: "fa-cloud-showers-water" },
-                80: { text: "زخات مطر", icon: "fa-cloud-showers-heavy" },
-                95: { text: "عاصفة رعدية", icon: "fa-bolt" }
-            };
-            return codes[code] || { text: "متقلب", icon: "fa-cloud" };
+            const codes = { 0: {text:"صافي", icon:"fa-sun"}, 1: {text:"غائم جزئياً", icon:"fa-cloud-sun"}, 3: {text:"غائم", icon:"fa-cloud"}, 45: {text:"ضباب", icon:"fa-smog"}, 61: {text:"مطر", icon:"fa-cloud-showers-heavy"}, 95: {text:"رعد", icon:"fa-bolt"} };
+            return codes[code] || {text:"متقلب", icon:"fa-cloud"};
         }
 
         async function getWeather(lat, lon, cityName) {
-            const url = `https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,visibility,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`;
-
             try {
-                const res = await fetch(url);
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=temperature_2m,relativehumidity_2m,visibility,weathercode&daily=weathercode,temperature_2m_max,temperature_2m_min&timezone=auto`);
                 const data = await res.json();
-                
-                updateUI(data, cityName);
-                updateMap(lat, lon);
-            } catch (err) {
-                console.error("Weather Error:", err);
-            }
+                updateUI(data, cityName); updateMap(lat, lon);
+            } catch (err) {}
         }
 
         function updateUI(data, name) {
             const current = data.current_weather;
             const desc = getWeatherDesc(current.weathercode);
-            
-            // تحديث البطاقة الرئيسية
             document.getElementById('cityName').innerText = name;
             document.getElementById('currentTemp').innerText = Math.round(current.temperature) + "°";
             document.getElementById('weatherDesc').innerHTML = `<i class="fas ${desc.icon}"></i> ${desc.text}`;
             document.getElementById('windSpeed').innerText = current.windspeed;
             
-            // بيانات الساعة الحالية من المصفوفة
             const hourIndex = new Date().getHours();
             document.getElementById('humidity').innerText = data.hourly.relativehumidity_2m[hourIndex];
-            document.getElementById('visibility').innerText = (data.hourly.visibility[hourIndex] / 1000).toFixed(1);
+            document.getElementById('visibility').innerText = (data.hourly.visibility[hourIndex]/1000).toFixed(1);
 
-            // تحديث الساعات القادمة
             const hourlyContainer = document.getElementById('hourlyContainer');
             hourlyContainer.innerHTML = '';
-            for(let i = hourIndex; i < hourIndex + 24; i += 3) { // كل 3 ساعات
+            for(let i = hourIndex; i < hourIndex + 24; i += 3) {
                 if (!data.hourly.time[i]) break;
                 const time = data.hourly.time[i].substring(11, 16);
-                const temp = Math.round(data.hourly.temperature_2m[i]);
-                const code = data.hourly.weathercode[i];
-                const icon = getWeatherDesc(code).icon;
-                
-                hourlyContainer.innerHTML += `
-                    <div class="hourly-item">
-                        <div style="font-size:12px; color:#aaa; margin-bottom:5px;">${time}</div>
-                        <i class="fas ${icon}" style="font-size:20px; color:var(--primary); margin-bottom:5px;"></i>
-                        <div style="font-weight:bold;">${temp}°</div>
-                    </div>
-                `;
+                hourlyContainer.innerHTML += `<div class="hourly-item"><div style="font-size:11px; color:#aaa;">${time}</div><i class="fas ${getWeatherDesc(data.hourly.weathercode[i]).icon}" style="margin:5px 0; color:var(--primary)"></i><div style="font-weight:bold;">${Math.round(data.hourly.temperature_2m[i])}°</div></div>`;
             }
 
-            // تحديث الأيام القادمة
             const dailyContainer = document.getElementById('dailyForecast');
             dailyContainer.innerHTML = '';
             for(let i = 0; i < 5; i++) {
-                const date = new Date(data.daily.time[i]).toLocaleDateString('ar-EG', {weekday: 'long'});
-                const max = Math.round(data.daily.temperature_2m_max[i]);
-                const min = Math.round(data.daily.temperature_2m_min[i]);
-                const icon = getWeatherDesc(data.daily.weathercode[i]).icon;
-                
-                dailyContainer.innerHTML += `
-                    <div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:10px; border-radius:10px;">
-                        <span style="width:80px;">${date}</span>
-                        <i class="fas ${icon}" style="color:var(--accent)"></i>
-                        <span>${max}° / <span style="color:#888">${min}°</span></span>
-                    </div>
-                `;
+                const date = new Date(data.daily.time[i]).toLocaleDateString('ar-EG', {weekday: 'short'});
+                dailyContainer.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; background:rgba(255,255,255,0.03); padding:8px; border-radius:8px; font-size:14px;"><span style="width:50px;">${date}</span><i class="fas ${getWeatherDesc(data.daily.weathercode[i]).icon}" style="color:var(--accent)"></i><span>${Math.round(data.daily.temperature_2m_max[i])}° <span style="color:#888; font-size:12px;">${Math.round(data.daily.temperature_2m_min[i])}°</span></span></div>`;
             }
         }
 
-        // --- 5. Map Logic (Leaflet) ---
         let map, marker;
         function initMap() {
-            // استخدام طبقة خريطة داكنة (Dark Matter) لتناسب التصميم
             map = L.map('map').setView([21.42, 39.82], 10);
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                attribution: '&copy; OpenStreetMap &copy; CARTO',
-                subdomains: 'abcd',
-                maxZoom: 19
-            }).addTo(map);
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', { maxZoom: 18 }).addTo(map);
         }
-
-        function updateMap(lat, lon) {
-            if(marker) map.removeLayer(marker);
-            map.setView([lat, lon], 10);
-            marker = L.marker([lat, lon]).addTo(map);
-        }
+        function updateMap(lat, lon) { if(marker) map.removeLayer(marker); map.setView([lat, lon], 10); marker = L.marker([lat, lon]).addTo(map); }
     </script>
 </body>
 </html>
