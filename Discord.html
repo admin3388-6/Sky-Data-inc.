@@ -2,71 +2,199 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Sky Data - Discord Bot</title>
+    <title>Sky Data - Discord Bot Control</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <style>
-        /* استخدام نفس ستايل موقعك الأصلي */
         :root {
             --bg-dark: #0a0b10;
             --card-bg: rgba(20, 22, 30, 0.8);
-            --accent: #5865F2;
+            --accent: #55cdfc;
+            --discord-color: #5865F2;
             --text-white: #ffffff;
             --text-muted: #a0a0a0;
             --border: rgba(255,255,255,0.1);
+            --success: #43b581;
+            --danger: #f04747;
         }
-        body { background: var(--bg-dark); color: white; font-family: 'Outfit', sans-serif; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .bot-card { background: var(--card-bg); padding: 40px; border-radius: 25px; border: 1px solid var(--border); text-align: center; backdrop-filter: blur(10px); width: 90%; max-width: 500px; }
-        .status-dot { height: 12px; width: 12px; border-radius: 50%; display: inline-block; margin-right: 5px; }
-        .online { background-color: #43b581; box-shadow: 0 0 10px #43b581; }
-        .offline { background-color: #f04747; }
-        .stat-box { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; }
-        .stat-item { background: rgba(255,255,255,0.05); padding: 15px; border-radius: 15px; }
-        .btn-back { margin-top: 20px; display: inline-block; color: var(--text-muted); text-decoration: none; font-size: 14px; }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
+        body { background-color: var(--bg-dark); color: var(--text-white); overflow: hidden; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        #canvas-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1; opacity: 0.4; }
+
+        .container { width: 90%; max-width: 500px; z-index: 10; }
+
+        .bot-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 30px;
+            padding: 40px;
+            text-align: center;
+            backdrop-filter: blur(15px);
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+            transition: 0.3s;
+        }
+
+        .bot-icon {
+            font-size: 60px;
+            color: var(--discord-color);
+            margin-bottom: 20px;
+            filter: drop-shadow(0 0 10px rgba(88, 101, 242, 0.5));
+        }
+
+        h1 { font-size: 24px; margin-bottom: 10px; letter-spacing: 1px; }
+        
+        .status-container {
+            margin: 20px 0;
+            padding: 10px 20px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 50px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .status-dot {
+            height: 12px;
+            width: 12px;
+            border-radius: 50%;
+            background-color: var(--text-muted);
+        }
+
+        .status-dot.online { background-color: var(--success); box-shadow: 0 0 12px var(--success); }
+        .status-dot.offline { background-color: var(--danger); box-shadow: 0 0 12px var(--danger); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 30px;
+        }
+
+        .stat-item {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--border);
+            padding: 20px;
+            border-radius: 20px;
+            transition: 0.3s;
+        }
+
+        .stat-item:hover { background: rgba(255,255,255,0.06); transform: translateY(-3px); }
+
+        .stat-value { font-size: 22px; font-weight: bold; color: var(--accent); display: block; }
+        .stat-label { font-size: 12px; color: var(--text-muted); text-transform: uppercase; margin-top: 5px; }
+
+        .back-btn {
+            margin-top: 30px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            transition: 0.3s;
+        }
+
+        .back-btn:hover { color: var(--text-white); }
+
+        /* Animation Loading */
+        .loading-pulse { animation: pulse 1.5s infinite; }
+        @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
     </style>
 </head>
 <body>
+    <canvas id="canvas-bg"></canvas>
 
-<div class="bot-card">
-    <i class="fab fa-discord" style="font-size: 50px; color: var(--accent); margin-bottom: 20px;"></i>
-    <h1>Discord Bot Control</h1>
-    
-    <p>Status: <span id="bot-status"><span class="status-dot offline"></span> Offline</span></p>
+    <div class="container">
+        <div class="bot-card">
+            <div class="bot-icon"><i class="fab fa-discord"></i></div>
+            <h1>Bot Dashboard</h1>
+            
+            <div class="status-container">
+                <span id="status-dot" class="status-dot"></span>
+                <span id="status-text" style="font-weight: 500;">Connecting...</span>
+            </div>
 
-    <div class="stat-box">
-        <div class="stat-item">
-            <small>Servers</small>
-            <div id="server-count" style="font-size: 20px; font-weight: bold;">0</div>
-        </div>
-        <div class="stat-item">
-            <small>Total Users</small>
-            <div id="user-count" style="font-size: 20px; font-weight: bold;">0</div>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <span id="server-count" class="stat-value">--</span>
+                    <span class="stat-label">Servers</span>
+                </div>
+                <div class="stat-item">
+                    <span id="user-count" class="stat-value">--</span>
+                    <span class="stat-label">Total Users</span>
+                </div>
+            </div>
+
+            <a href="index.html" class="back-btn">
+                <i class="fas fa-arrow-left"></i> Back to Home
+            </a>
         </div>
     </div>
 
-    <a href="index.html" class="btn-back"><i class="fas fa-arrow-left"></i> Back to Home</a>
-</div>
-
-<script>
-    async function fetchBotData() {
-        try {
-            // رابط الـ API الخاص بك من Railway
-            const response = await fetch('https://2k-discord-bot-production.up.railway.app/stats');
-            const data = await response.json();
-
-            if(data.status === "Online") {
-                document.getElementById('bot-status').innerHTML = '<span class="status-dot online"></span> Online';
-                document.getElementById('server-count').innerText = data.server_count;
-                document.getElementById('user-count').innerText = data.user_count;
+    <script>
+        // 1. إعداد خلفية الـ Canvas (نفس شكل موقعك)
+        const c = document.getElementById('canvas-bg'), x = c.getContext('2d');
+        let w, h, p = [];
+        function r() { w = c.width = window.innerWidth; h = c.height = window.innerHeight; }
+        window.addEventListener('resize', r); r();
+        class Particle {
+            constructor(){
+                this.x=Math.random()*w; this.y=Math.random()*h;
+                this.vx=(Math.random()-0.5)*0.5; this.vy=(Math.random()-0.5)*0.5;
             }
-        } catch (error) {
-            console.error("Could not fetch bot data:", error);
+            update(){
+                this.x+=this.vx; this.y+=this.vy;
+                if(this.x<0||this.x>w)this.vx*=-1; if(this.y<0||this.y>h)this.vy*=-1;
+            }
+            draw(){
+                x.fillStyle='rgba(140,155,255,0.3)';
+                x.beginPath(); x.arc(this.x,this.y,2,0,Math.PI*2); x.fill();
+            }
         }
-    }
+        for(let i=0;i<50;i++) p.push(new Particle());
+        function anim() { x.clearRect(0,0,w,h); p.forEach(e=>{e.update();e.draw()}); requestAnimationFrame(anim); }
+        anim();
 
-    // تحديث البيانات كل 30 ثانية
-    fetchBotData();
-    setInterval(fetchBotData, 30000);
-</script>
+        // 2. وظيفة جلب البيانات من البوت في Railway
+        async function updateBotStats() {
+            const statusDot = document.getElementById('status-dot');
+            const statusText = document.getElementById('status-text');
+            const serverCount = document.getElementById('server-count');
+            const userCount = document.getElementById('user-count');
 
+            try {
+                // ملاحظة: تأكد أنك أضفت CORS في ملف main.py كما ذكرنا سابقاً
+                const response = await fetch('https://2k-discord-bot-production.up.railway.app/stats');
+                
+                if (!response.ok) throw new Error('Offline');
+
+                const data = await response.json();
+
+                // تحديث الواجهة عند النجاح
+                statusDot.className = 'status-dot online';
+                statusText.innerText = 'Online';
+                statusText.style.color = '#43b581';
+                serverCount.innerText = data.server_count;
+                userCount.innerText = data.user_count;
+
+            } catch (error) {
+                // تحديث الواجهة عند الفشل
+                statusDot.className = 'status-dot offline';
+                statusText.innerText = 'Offline';
+                statusText.style.color = '#f04747';
+                serverCount.innerText = '0';
+                userCount.innerText = '0';
+                console.error("Fetch error:", error);
+            }
+        }
+
+        // تشغيل الجلب فوراً وكل 15 ثانية للتحديث الحي
+        updateBotStats();
+        setInterval(updateBotStats, 15000);
+    </script>
 </body>
 </html>
