@@ -2,120 +2,127 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2K Control Panel</title>
+    <title>Sky Data | Professional Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0a0b10; color: white; font-family: sans-serif; padding: 20px; text-align: right; }
-        .card { background: #14161e; padding: 25px; border-radius: 15px; border: 1px solid #333; margin-bottom: 20px; position: relative; }
-        .locked { opacity: 0.5; pointer-events: none; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; transition: 0.2s; }
-        .btn-blue { background: #5865F2; color: white; }
-        .btn-green { background: #2ecc71; color: white; }
-        .btn-orange { background: #e67e22; color: white; }
-        select, input, textarea { width: 100%; padding: 10px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 8px; margin-top: 5px; }
-        .lock-btn { position: absolute; top: 15px; left: 15px; background: #333; padding: 5px 10px; border-radius: 5px; cursor: pointer; color: #55cdfc; z-index: 10; }
-        h2 { border-bottom: 1px solid #333; padding-bottom: 10px; margin-bottom: 15px; }
+        :root { --primary: #7289da; --danger: #ff4757; --success: #2ed573; --bg: #0f1016; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', Tahoma; padding: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(350px, 1fr)); gap: 20px; }
+        .card { background: #1a1c26; padding: 25px; border-radius: 15px; border: 1px solid #333; }
+        h2 { color: var(--primary); margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        .input-group { margin-bottom: 15px; }
+        label { display: block; margin-bottom: 8px; font-size: 14px; color: #aaa; }
+        input, select, textarea { width: 100%; padding: 12px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 8px; }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.3s; margin-top: 10px; }
+        .btn-primary { background: var(--primary); color: white; }
+        .btn-success { background: var(--success); color: white; }
+        .toggle-box { display: flex; justify-content: space-between; align-items: center; background: #252836; padding: 10px; border-radius: 8px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
 
-    <div class="card">
-        <div class="lock-btn" onclick="toggleLock()"><i id="lock-icon" class="fas fa-lock"></i> فك القفل</div>
-        <h2><i class="fas fa-image"></i> إعدادات الترحيب (محمية)</h2>
-        <div id="welcome-section" class="locked">
-            <label>قناة الترحيب المختارة:</label>
-            <select id="welcomeChannelSelect"><option>تحميل القنوات...</option></select>
-            <p style="font-size: 12px; color: #888; margin-top: 10px;">* ملاحظة: يتم استخدام صورتك المرفوعة مسبقاً بإحداثيات 2K تلقائياً.</p>
-            <button class="btn btn-blue" onclick="saveWelcome()">حفظ قناة الترحيب</button>
+    <h1 style="text-align: center; margin-bottom: 40px;"><i class="fas fa-shield-halved"></i> مركز تحكم Sky Data المطور</h1>
+
+    <div class="grid">
+        <div class="card">
+            <h2><i class="fas fa-cog"></i> الإعدادات العامة والترحيب</h2>
+            <div class="input-group">
+                <label>قناة الترحيب (صورة 2K الأصلية):</label>
+                <select id="welcomeChannel"></select>
+            </div>
+            <div class="toggle-box">
+                <span>نظام مكافحة السبام (Timeout 5m)</span>
+                <input type="checkbox" id="antiSpam" checked>
+            </div>
+            <div class="toggle-box">
+                <span>الرد الذكي (الأي بي + كلمات ترحيب)</span>
+                <input type="checkbox" id="smartReply" checked>
+            </div>
+            <button class="btn btn-primary" onclick="updateConfig()">حفظ الإعدادات</button>
+        </div>
+
+        <div class="card">
+            <h2><i class="fas fa-paper-plane"></i> مركز الإرسال الذكي</h2>
+            <label>القناة المستهدفة:</label>
+            <select id="targetChannel"></select>
+            
+            <div style="margin-top: 20px;">
+                <label>نوع الإرسال:</label>
+                <select id="msgType" onchange="toggleInputs()">
+                    <option value="normal">رسالة نصية عادية (قوالب جاهزة)</option>
+                    <option value="embed">إيمباد احترافي (Embed)</option>
+                </select>
+            </div>
+
+            <div id="normalInputs">
+                <label>اختر قالب جاهز:</label>
+                <select onchange="document.getElementById('textContent').value = this.value">
+                    <option value="">رسالة فارغة...</option>
+                    <option value="📢 تنبيه هام لجميع الأعضاء، يرجى قراءة القوانين!">قالب تنبيه</option>
+                    <option value="🎮 تم بدء فعالية جديدة الآن، شاركونا في غرف الصوت!">قالب فعاليات</option>
+                    <option value="✨ شكر خاص لكل من يدعم السيرفر اليوم!">قالب شكر</option>
+                </select>
+                <textarea id="textContent" rows="4" placeholder="اكتب نصك هنا..."></textarea>
+            </div>
+
+            <div id="embedInputs" style="display: none;">
+                <input type="text" id="embTitle" placeholder="عنوان الإيمباد">
+                <textarea id="embDesc" rows="3" placeholder="وصف الإيمباد"></textarea>
+                <input type="text" id="embFooter" placeholder="تذييل الصفحة (Footer)">
+                <input type="color" id="embColor" value="#7289da">
+            </div>
+
+            <button class="btn btn-success" onclick="sendMessage()">إرسال الآن</button>
         </div>
     </div>
 
-    <div class="card">
-        <h2><i class="fas fa-ticket-alt"></i> نظام التذاكر</h2>
-        <button class="btn btn-green" onclick="setupTicket()">إرسال لوحة فتح التكت بالسيرفر</button>
-    </div>
+    <script>
+        const API = "https://your-bot-link.railway.app"; // ضع رابط البوت هنا
 
-    <div class="card">
-        <h2><i class="fas fa-paper-plane"></i> التحكم بالرسائل</h2>
-        <label>اختر القناة:</label>
-        <select id="msgChannelSelect"><option>تحميل القنوات...</option></select>
-        
-        <hr style="border: 0.5px solid #333; margin: 20px 0;">
-        
-        <div style="background: #1c1f2b; padding: 15px; border-radius: 10px;">
-            <h4 style="margin: 0 0 10px 0;">أ) إرسال رسالة عادية:</h4>
-            <textarea id="normalMsg" rows="2" placeholder="اكتب رسالتك العادية هنا..."></textarea>
-            <button class="btn btn-orange" onclick="sendNormalMsg()">إرسال رسالة نصية</button>
-        </div>
+        function toggleInputs() {
+            const isNormal = document.getElementById('msgType').value === 'normal';
+            document.getElementById('normalInputs').style.display = isNormal ? 'block' : 'none';
+            document.getElementById('embedInputs').style.display = isNormal ? 'none' : 'block';
+        }
 
-        <div style="background: #1c1f2b; padding: 15px; border-radius: 10px; margin-top: 15px;">
-            <h4 style="margin: 0 0 10px 0;">ب) إرسال إيمباد (Embed):</h4>
-            <input type="text" id="embTitle" placeholder="عنوان الإيمباد">
-            <textarea id="embDesc" rows="3" placeholder="وصف الإيمباد"></textarea>
-            <label>اللون:</label>
-            <input type="color" id="embColor" value="#5865F2">
-            <button class="btn btn-blue" onclick="sendEmbed()">إرسال إيمباد</button>
-        </div>
-    </div>
+        async function updateConfig() {
+            const data = {
+                welcome_channel: document.getElementById('welcomeChannel').value,
+                anti_spam: document.getElementById('antiSpam').checked,
+                smart_reply: document.getElementById('smartReply').checked
+            };
+            await fetch(`${API}/update_config`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+            alert("تم تحديث الضبط!");
+        }
 
-<script>
-    const API = "https://2k-discord-bot-production.up.railway.app";
-    let isLocked = true;
+        async function sendMessage() {
+            const type = document.getElementById('msgType').value;
+            let data = { 
+                channel_id: document.getElementById('targetChannel').value,
+                type: type 
+            };
+            
+            if(type === 'normal') {
+                data.content = document.getElementById('textContent').value;
+            } else {
+                data.title = document.getElementById('embTitle').value;
+                data.desc = document.getElementById('embDesc').value;
+                data.footer = document.getElementById('embFooter').value;
+                data.color = document.getElementById('embColor').value;
+            }
 
-    function toggleLock() {
-        isLocked = !isLocked;
-        document.getElementById('welcome-section').classList.toggle('locked');
-        document.getElementById('lock-icon').className = isLocked ? "fas fa-lock" : "fas fa-lock-open";
-    }
+            await fetch(`${API}/send_advanced`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data)});
+            alert("تم الإرسال!");
+        }
 
-    async function setupTicket() {
-        await fetch(`${API}/setup_ticket`, {method:'POST'});
-        alert("✅ تم إرسال لوحة التكت!");
-    }
-
-    async function sendNormalMsg() {
-        const payload = {
-            channel_id: document.getElementById('msgChannelSelect').value,
-            message: document.getElementById('normalMsg').value
-        };
-        const res = await fetch(`${API}/send_normal_msg`, {
-            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-        });
-        if(res.ok) alert("✅ تم إرسال الرسالة العادية!");
-    }
-
-    async function sendEmbed() {
-        const payload = {
-            channel_id: document.getElementById('msgChannelSelect').value,
-            title: document.getElementById('embTitle').value,
-            description: document.getElementById('embDesc').value,
-            color: document.getElementById('embColor').value
-        };
-        const res = await fetch(`${API}/send_embed`, {
-            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-        });
-        if(res.ok) alert("✅ تم إرسال الإيمباد!");
-    }
-
-    async function saveWelcome() {
-        const payload = { channel_id: document.getElementById('welcomeChannelSelect').value };
-        await fetch(`${API}/save_welcome`, {
-            method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
-        });
-        alert("✅ تم حفظ قناة الترحيب!");
-    }
-
-    async function load() {
-        try {
-            const res = await fetch(`${API}/get_channels`);
+        async function init() {
+            const res = await fetch(`${API}/get_status`);
             const data = await res.json();
-            const opts = data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            document.getElementById('welcomeChannelSelect').innerHTML = opts;
-            document.getElementById('msgChannelSelect').innerHTML = opts;
-        } catch(e) { console.log("Error loading channels"); }
-    }
-    load();
-</script>
+            const opts = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+            document.getElementById('welcomeChannel').innerHTML = opts;
+            document.getElementById('targetChannel').innerHTML = opts;
+        }
+        init();
+    </script>
 </body>
 </html>
