@@ -3,214 +3,76 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sky Data Control Panel</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
+    <title>2K Control Panel</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --bg: #0a0b10; 
-            --card: rgba(20, 22, 30, 0.95);
-            --accent: #55cdfc; 
-            --discord: #5865F2;
-            --border: rgba(255,255,255,0.1); 
-            --input: #161720;
-        }
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background: var(--bg); color: white; padding: 20px; }
-        
-        .container { max-width: 800px; margin: 0 auto; }
-        .card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; }
-        
-        h2 { margin-bottom: 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
-        .form-group { margin-bottom: 15px; text-align: right; }
-        label { display: block; margin-bottom: 8px; color: #a0a0a0; font-size: 14px; }
-        
-        input, textarea, select { 
-            width: 100%; padding: 12px; background: var(--input); 
-            border: 1px solid var(--border); border-radius: 12px; 
-            color: white; outline: none;
-        }
-
-        /* Welcome Editor */
-        #canvas-container { 
-            position: relative; width: 100%; background: #000; 
-            border-radius: 15px; overflow: hidden; margin: 15px 0;
-            touch-action: none; border: 2px solid var(--border);
-        }
-        #bg-img { width: 100%; display: block; pointer-events: none; user-select: none; }
-        #drag-circle { 
-            position: absolute; width: 50px; height: 50px; 
-            border: 2px solid var(--accent); border-radius: 50%; 
-            background: rgba(85, 205, 252, 0.3); cursor: move;
-            display: flex; align-items: center; justify-content: center;
-            z-index: 10;
-        }
-
-        .btn { 
-            width: 100%; padding: 15px; background: var(--discord); 
-            border: none; border-radius: 12px; color: white; 
-            font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
-        .btn:disabled { background: #333; opacity: 0.7; }
-        
-        .status-bar { font-size: 12px; color: #55cdfc; margin-top: 10px; }
+        body { background: #0a0b10; color: white; font-family: sans-serif; padding: 20px; text-align: right; }
+        .card { background: #14161e; padding: 20px; border-radius: 15px; margin-bottom: 20px; border: 1px solid #333; transition: 0.3s; }
+        .locked { opacity: 0.5; pointer-events: none; filter: grayscale(0.5); }
+        .btn { width: 100%; padding: 12px; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; margin-top: 10px; }
+        .btn-blue { background: #5865F2; color: white; }
+        .btn-green { background: #2ecc71; color: white; }
+        #canvas-container { position: relative; width: 100%; border-radius: 10px; overflow: hidden; margin-top: 10px; }
+        #bg-img { width: 100%; display: block; }
+        #drag-circle { position: absolute; width: 40px; height: 40px; border: 2px solid #55cdfc; border-radius: 50%; background: rgba(85,205,252,0.3); cursor: move; top: 196px; left: 627px; }
+        .lock-btn { background: #333; color: #55cdfc; padding: 5px 15px; border-radius: 5px; cursor: pointer; float: left; }
     </style>
 </head>
 <body>
 
-<div class="container">
     <div class="card">
-        <h2><i class="fas fa-image"></i> محرر الترحيب الاحترافي</h2>
-        
-        <div class="form-group">
-            <label>قناة الترحيب:</label>
-            <select id="welcomeChannelSelect"><option>جاري التحميل...</option></select>
-        </div>
-
-        <div class="form-group">
-            <label>خلفية الترحيب (ارفع صورتك):</label>
-            <input type="file" id="welcomeBgInput" accept="image/*">
-        </div>
-
-        <div class="form-group">
-            <label>اسحب الدائرة لتحديد مكان البروفايل (دقة بكسل):</label>
+        <div class="lock-btn" onclick="toggleLock()"><i id="lock-icon" class="fas fa-lock"></i> فك القفل للتعديل</div>
+        <h2><i class="fas fa-image"></i> إعدادات الترحيب</h2>
+        <div id="welcome-controls" class="locked">
+            <select id="welcomeChannelSelect"><option>تحميل القنوات...</option></select>
             <div id="canvas-container">
                 <img id="bg-img" src="https://i.ibb.co/m5m8Z8Y/welcome-bg.jpg">
-                <div id="drag-circle"><i class="fas fa-user"></i></div>
+                <div id="drag-circle"></div>
             </div>
-            <div id="pos-info" class="status-bar">الإحداثيات الحالية: X: 0, Y: 0</div>
+            <button class="btn btn-blue" onclick="saveWelcome()">حفظ التغييرات</button>
         </div>
-
-        <button class="btn" id="saveWelcomeBtn" onclick="saveWelcomeSettings()">حفظ إعدادات الترحيب</button>
     </div>
 
     <div class="card">
-        <h2><i class="fas fa-paper-plane"></i> إرسال إيمباد (Embed)</h2>
-        
-        <div class="form-group">
-            <label>إرسال إلى:</label>
-            <select id="embedChannelSelect"><option>جاري التحميل...</option></select>
-        </div>
-
-        <div class="form-group">
-            <label>العنوان:</label>
-            <input type="text" id="embedTitle">
-        </div>
-
-        <div class="form-group">
-            <label>الوصف:</label>
-            <textarea id="embedDesc" rows="4"></textarea>
-        </div>
-
-        <div class="form-group">
-            <label>اللون:</label>
-            <input type="color" id="embedColor" value="#5865F2">
-        </div>
-
-        <button class="btn" onclick="sendEmbed()">إرسال الإيمباد</button>
+        <h2><i class="fas fa-ticket-alt"></i> نظام التذاكر</h2>
+        <p>اضغط الزر أدناه لإرسال رسالة التكت في الغرفة المخصصة:</p>
+        <button class="btn btn-green" onclick="setupTicket()">إرسال لوحة التكت الآن</button>
     </div>
-</div>
 
 <script>
-    const API_BOT = "https://2k-discord-bot-production.up.railway.app";
-    const IMGBB_KEY = "f0ff703738276bb67fcc6b7f0a6778d5";
+    const API = "https://2k-discord-bot-production.up.railway.app";
+    let locked = true;
 
-    let isDragging = false;
-    const dragCircle = document.getElementById("drag-circle");
-    const container = document.getElementById("canvas-container");
-    const bgImg = document.getElementById("bg-img");
-
-    // وظائف السحب
-    const startDrag = () => isDragging = true;
-    const endDrag = () => isDragging = false;
-    const move = (e) => {
-        if (!isDragging) return;
-        e.preventDefault();
-        const rect = container.getBoundingClientRect();
-        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
-        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
-
-        let x = clientX - rect.left - (dragCircle.offsetWidth / 2);
-        let y = clientY - rect.top - (dragCircle.offsetHeight / 2);
-
-        x = Math.max(0, Math.min(x, rect.width - dragCircle.offsetWidth));
-        y = Math.max(0, Math.min(y, rect.height - dragCircle.offsetHeight));
-
-        dragCircle.style.left = x + "px";
-        dragCircle.style.top = y + "px";
-        
-        // عرض الإحداثيات للمستخدم للشفافية
-        document.getElementById('pos-info').innerText = `الإحداثيات المحسوبة: X: ${Math.round(x)}, Y: ${Math.round(y)}`;
-    };
-
-    container.addEventListener("mousedown", startDrag);
-    container.addEventListener("touchstart", startDrag);
-    window.addEventListener("mouseup", endDrag);
-    window.addEventListener("touchend", endDrag);
-    window.addEventListener("mousemove", move);
-    window.addEventListener("touchmove", move, { passive: false });
-
-    // رفع الصورة
-    document.getElementById('welcomeBgInput').addEventListener('change', async (e) => {
-        const file = e.target.files[0];
-        if(!file) return;
-        const formData = new FormData();
-        formData.append("image", file);
-        
-        try {
-            const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
-            const data = await res.json();
-            bgImg.src = data.data.url;
-            alert("تم رفع الصورة وتحديث المعاينة!");
-        } catch(err) { alert("فشل الرفع"); }
-    });
-
-    // جلب القنوات
-    async function loadChannels() {
-        try {
-            const res = await fetch(`${API_BOT}/get_channels`);
-            const data = await res.json();
-            const options = data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-            document.getElementById('welcomeChannelSelect').innerHTML = options;
-            document.getElementById('embedChannelSelect').innerHTML = options;
-        } catch (e) { console.error("Channels load failed"); }
+    function toggleLock() {
+        locked = !locked;
+        document.getElementById('welcome-controls').className = locked ? "locked" : "";
+        document.getElementById('lock-icon').className = locked ? "fas fa-lock" : "fas fa-lock-open";
     }
 
-    // حفظ الترحيب
-    async function saveWelcomeSettings() {
-        const ratioX = bgImg.naturalWidth / bgImg.clientWidth;
-        const ratioY = bgImg.naturalHeight / bgImg.clientHeight;
-        
+    async function setupTicket() {
+        await fetch(`${API}/setup_ticket_panel`, {method: 'POST'});
+        alert("✅ تم إرسال رسالة فتح التذاكر في الغرفة!");
+    }
+
+    async function saveWelcome() {
         const payload = {
             channel_id: document.getElementById('welcomeChannelSelect').value,
-            x: parseFloat(dragCircle.style.left || 0) * ratioX,
-            y: parseFloat(dragCircle.style.top || 0) * ratioY,
-            bg_url: bgImg.src
+            bg_url: document.getElementById('bg-img').src
         };
-
-        await fetch(`${API_BOT}/save_welcome_settings`, {
-            method: "POST", headers: {"Content-Type": "application/json"},
+        await fetch(`${API}/save_welcome_settings`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
             body: JSON.stringify(payload)
         });
-        alert("✅ تم الحفظ بنجاح!");
+        alert("✅ تم الحفظ!");
     }
 
-    // إرسال إيمباد
-    async function sendEmbed() {
-        const payload = {
-            channel_id: document.getElementById('embedChannelSelect').value,
-            title: document.getElementById('embedTitle').value,
-            description: document.getElementById('embedDesc').value,
-            color: document.getElementById('embedColor').value
-        };
-        await fetch(`${API_BOT}/send_embed`, {
-            method: "POST", headers: {"Content-Type": "application/json"},
-            body: JSON.stringify(payload)
-        });
-        alert("✅ تم الإرسال!");
+    async function load() {
+        const res = await fetch(`${API}/get_channels`);
+        const data = await res.json();
+        document.getElementById('welcomeChannelSelect').innerHTML = data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
     }
-
-    loadChannels();
+    load();
 </script>
 </body>
 </html>
