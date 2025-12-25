@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sky Data - Bot Control Center</title>
+    <title>Sky Data Control Panel</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;500;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -16,25 +16,22 @@
             --input: #161720;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Outfit', sans-serif; }
-        body { background: var(--bg); color: white; padding: 20px; line-height: 1.6; }
+        body { background: var(--bg); color: white; padding: 20px; }
         
-        .container { max-width: 700px; margin: 0 auto; }
-        .card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; backdrop-filter: blur(10px); }
+        .container { max-width: 800px; margin: 0 auto; }
+        .card { background: var(--card); padding: 25px; border-radius: 20px; border: 1px solid var(--border); margin-bottom: 25px; }
         
-        h2 { margin-bottom: 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; font-size: 1.5rem; }
-        h3 { margin-bottom: 15px; font-size: 1.1rem; color: #eee; }
-
+        h2 { margin-bottom: 20px; color: var(--accent); display: flex; align-items: center; gap: 10px; }
         .form-group { margin-bottom: 15px; text-align: right; }
         label { display: block; margin-bottom: 8px; color: #a0a0a0; font-size: 14px; }
         
         input, textarea, select { 
             width: 100%; padding: 12px; background: var(--input); 
             border: 1px solid var(--border); border-radius: 12px; 
-            color: white; outline: none; transition: 0.3s;
+            color: white; outline: none;
         }
-        input:focus, select:focus { border-color: var(--accent); }
 
-        /* Welcome Editor Styles */
+        /* Welcome Editor */
         #canvas-container { 
             position: relative; width: 100%; background: #000; 
             border-radius: 15px; overflow: hidden; margin: 15px 0;
@@ -42,81 +39,75 @@
         }
         #bg-img { width: 100%; display: block; pointer-events: none; user-select: none; }
         #drag-circle { 
-            position: absolute; width: 60px; height: 60px; 
-            border: 3px solid var(--accent); border-radius: 50%; 
+            position: absolute; width: 50px; height: 50px; 
+            border: 2px solid var(--accent); border-radius: 50%; 
             background: rgba(85, 205, 252, 0.3); cursor: move;
             display: flex; align-items: center; justify-content: center;
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); z-index: 10;
+            z-index: 10;
         }
 
         .btn { 
             width: 100%; padding: 15px; background: var(--discord); 
             border: none; border-radius: 12px; color: white; 
             font-weight: bold; cursor: pointer; transition: 0.3s;
-            display: flex; align-items: center; justify-content: center; gap: 10px;
         }
-        .btn:hover { background: #4752c4; transform: translateY(-2px); }
-        .btn:disabled { background: #333; cursor: not-allowed; opacity: 0.7; }
-
-        .preview-text { font-size: 11px; color: var(--accent); margin-top: 5px; }
+        .btn:disabled { background: #333; opacity: 0.7; }
+        
+        .status-bar { font-size: 12px; color: #55cdfc; margin-top: 10px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="card">
-        <h2><i class="fas fa-magic"></i> مُحرر نظام الترحيب</h2>
+        <h2><i class="fas fa-image"></i> محرر الترحيب الاحترافي</h2>
         
         <div class="form-group">
-            <label>1. اختر قناة الترحيب:</label>
-            <select id="welcomeChannelSelect"><option>جاري تحميل القنوات...</option></select>
+            <label>قناة الترحيب:</label>
+            <select id="welcomeChannelSelect"><option>جاري التحميل...</option></select>
         </div>
 
         <div class="form-group">
-            <label>2. ارفع خلفية الترحيب (اختياري):</label>
+            <label>خلفية الترحيب (ارفع صورتك):</label>
             <input type="file" id="welcomeBgInput" accept="image/*">
         </div>
 
         <div class="form-group">
-            <label>3. اسحب الدائرة لتحديد مكان صورة العضو بدقة:</label>
+            <label>اسحب الدائرة لتحديد مكان البروفايل (دقة بكسل):</label>
             <div id="canvas-container">
                 <img id="bg-img" src="https://i.ibb.co/m5m8Z8Y/welcome-bg.jpg">
                 <div id="drag-circle"><i class="fas fa-user"></i></div>
             </div>
-            <p class="preview-text">سيتم تلقائياً إضافة المنشن، اسم السيرفر، وعدد الأعضاء في الرسالة.</p>
+            <div id="pos-info" class="status-bar">الإحداثيات الحالية: X: 0, Y: 0</div>
         </div>
 
-        <button class="btn" id="saveWelcomeBtn" onclick="saveWelcomeSettings()">
-            <i class="fas fa-save"></i> حفظ إعدادات الترحيب
-        </button>
+        <button class="btn" id="saveWelcomeBtn" onclick="saveWelcomeSettings()">حفظ إعدادات الترحيب</button>
     </div>
 
     <div class="card">
         <h2><i class="fas fa-paper-plane"></i> إرسال إيمباد (Embed)</h2>
         
         <div class="form-group">
-            <label>إرسال إلى قناة:</label>
-            <select id="embedChannelSelect"><option>جاري تحميل القنوات...</option></select>
+            <label>إرسال إلى:</label>
+            <select id="embedChannelSelect"><option>جاري التحميل...</option></select>
         </div>
 
         <div class="form-group">
-            <label>عنوان الإيمباد:</label>
-            <input type="text" id="embedTitle" placeholder="أدخل العنوان...">
+            <label>العنوان:</label>
+            <input type="text" id="embedTitle">
         </div>
 
         <div class="form-group">
-            <label>محتوى الرسالة:</label>
-            <textarea id="embedDesc" rows="4" placeholder="اكتب رسالتك هنا..."></textarea>
+            <label>الوصف:</label>
+            <textarea id="embedDesc" rows="4"></textarea>
         </div>
 
         <div class="form-group">
-            <label>لون الإيمباد:</label>
-            <input type="color" id="embedColor" value="#5865F2" style="height: 45px; padding: 5px;">
+            <label>اللون:</label>
+            <input type="color" id="embedColor" value="#5865F2">
         </div>
 
-        <button class="btn" id="sendEmbedBtn" onclick="sendEmbed()">
-            <i class="fas fa-share-square"></i> إرسال الآن
-        </button>
+        <button class="btn" onclick="sendEmbed()">إرسال الإيمباد</button>
     </div>
 </div>
 
@@ -124,12 +115,12 @@
     const API_BOT = "https://2k-discord-bot-production.up.railway.app";
     const IMGBB_KEY = "f0ff703738276bb67fcc6b7f0a6778d5";
 
-    // إعدادات المحرر البصري
+    let isDragging = false;
     const dragCircle = document.getElementById("drag-circle");
     const container = document.getElementById("canvas-container");
     const bgImg = document.getElementById("bg-img");
-    let isDragging = false;
 
+    // وظائف السحب
     const startDrag = () => isDragging = true;
     const endDrag = () => isDragging = false;
     const move = (e) => {
@@ -147,6 +138,9 @@
 
         dragCircle.style.left = x + "px";
         dragCircle.style.top = y + "px";
+        
+        // عرض الإحداثيات للمستخدم للشفافية
+        document.getElementById('pos-info').innerText = `الإحداثيات المحسوبة: X: ${Math.round(x)}, Y: ${Math.round(y)}`;
     };
 
     container.addEventListener("mousedown", startDrag);
@@ -156,14 +150,10 @@
     window.addEventListener("mousemove", move);
     window.addEventListener("touchmove", move, { passive: false });
 
-    // رفع خلفية الترحيب
+    // رفع الصورة
     document.getElementById('welcomeBgInput').addEventListener('change', async (e) => {
         const file = e.target.files[0];
         if(!file) return;
-        const btn = document.getElementById('saveWelcomeBtn');
-        btn.disabled = true;
-        btn.innerText = "جاري الرفع...";
-
         const formData = new FormData();
         formData.append("image", file);
         
@@ -171,8 +161,8 @@
             const res = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_KEY}`, { method: "POST", body: formData });
             const data = await res.json();
             bgImg.src = data.data.url;
-        } catch(err) { alert("خطأ في رفع الصورة"); }
-        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-save"></i> حفظ إعدادات الترحيب'; }
+            alert("تم رفع الصورة وتحديث المعاينة!");
+        } catch(err) { alert("فشل الرفع"); }
     });
 
     // جلب القنوات
@@ -183,10 +173,10 @@
             const options = data.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
             document.getElementById('welcomeChannelSelect').innerHTML = options;
             document.getElementById('embedChannelSelect').innerHTML = options;
-        } catch (e) { console.error("Error loading channels"); }
+        } catch (e) { console.error("Channels load failed"); }
     }
 
-    // حفظ إعدادات الترحيب بدقة Ratio
+    // حفظ الترحيب
     async function saveWelcomeSettings() {
         const ratioX = bgImg.naturalWidth / bgImg.clientWidth;
         const ratioY = bgImg.naturalHeight / bgImg.clientHeight;
@@ -198,19 +188,14 @@
             bg_url: bgImg.src
         };
 
-        const btn = document.getElementById('saveWelcomeBtn');
-        btn.disabled = true;
-        try {
-            await fetch(`${API_BOT}/save_welcome_settings`, {
-                method: "POST", headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload)
-            });
-            alert("✅ تم حفظ إعدادات الترحيب بنجاح!");
-        } catch(e) { alert("❌ فشل الاتصال بالبوت"); }
-        finally { btn.disabled = false; }
+        await fetch(`${API_BOT}/save_welcome_settings`, {
+            method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
+        alert("✅ تم الحفظ بنجاح!");
     }
 
-    // إرسال الإيمباد
+    // إرسال إيمباد
     async function sendEmbed() {
         const payload = {
             channel_id: document.getElementById('embedChannelSelect').value,
@@ -218,19 +203,11 @@
             description: document.getElementById('embedDesc').value,
             color: document.getElementById('embedColor').value
         };
-
-        if(!payload.description) return alert("اكتب محتوى الرسالة!");
-
-        const btn = document.getElementById('sendEmbedBtn');
-        btn.disabled = true;
-        try {
-            const res = await fetch(`${API_BOT}/send_embed`, {
-                method: "POST", headers: {"Content-Type": "application/json"},
-                body: JSON.stringify(payload)
-            });
-            if(res.ok) alert("✅ تم إرسال الإيمباد!");
-        } catch(e) { alert("❌ خطأ في الإرسال"); }
-        finally { btn.disabled = false; }
+        await fetch(`${API_BOT}/send_embed`, {
+            method: "POST", headers: {"Content-Type": "application/json"},
+            body: JSON.stringify(payload)
+        });
+        alert("✅ تم الإرسال!");
     }
 
     loadChannels();
