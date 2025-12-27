@@ -2,78 +2,121 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>Sky Data | Pro Panel</title>
+    <title>Sky Data Ultimate Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        body { background: #0a0b10; color: white; font-family: sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 260px; background: #11141d; height: 100vh; padding: 20px; border-left: 1px solid #222; }
-        .main { flex: 1; padding: 40px; }
+        :root { --main: #00d2ff; --bg: #0a0b10; --card: #141720; }
+        body { background: var(--bg); color: white; font-family: 'Outfit', sans-serif; margin: 0; display: flex; }
+        .sidebar { width: 280px; background: var(--card); height: 100vh; padding: 25px; border-left: 1px solid #222; }
+        .main { flex: 1; padding: 40px; overflow-y: auto; }
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .stat-card { background: #1a1e29; padding: 25px; border-radius: 15px; border-bottom: 4px solid #00d2ff; }
-        .panel { background: #1a1e29; padding: 25px; border-radius: 20px; margin-top: 30px; }
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 10px; cursor: pointer; font-weight: bold; margin-top: 10px; }
-        .btn-primary { background: #00d2ff; color: #000; }
-        input, select { width: 100%; padding: 12px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 10px; margin-top: 10px; }
+        .stat-card { background: linear-gradient(145deg, #1a1e29, #11141b); padding: 30px; border-radius: 20px; border: 1px solid #333; text-align: center; }
+        .stat-card h2 { color: var(--main); font-size: 35px; margin: 10px 0; }
+        .panel { background: var(--card); border-radius: 25px; padding: 30px; margin-top: 30px; border: 1px solid #222; }
+        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 15px; }
+        .btn-main { background: var(--main); color: #000; }
+        input, select, textarea { width: 100%; padding: 15px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 12px; margin-top: 10px; }
+        .user-list { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        .user-list td { padding: 12px; border-bottom: 1px solid #222; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2><i class="fas fa-robot"></i> Sky Data</h2>
-        <p><i class="fas fa-check-circle" style="color: #2ed573;"></i> البوت نشط الآن</p>
+        <h2 style="color: var(--main);"><i class="fas fa-crown"></i> Sky Data Elite</h2>
+        <hr style="border: 0.1px solid #333; margin: 20px 0;">
+        <nav>
+            <p><i class="fas fa-chart-pie"></i> الإحصائيات العامة</p>
+            <p><i class="fas fa-users"></i> قائمة المتصدرين</p>
+            <p><i class="fas fa-image"></i> إعدادات الترحيب</p>
+            <p><i class="fas fa-paper-plane"></i> التحكم بالرسائل</p>
+        </nav>
     </div>
 
     <div class="main">
-        <h1>الإحصائيات الحية</h1>
+        <h1>مرحباً بك في مركز التحكم المطلق</h1>
+        
         <div class="stat-grid">
-            <div class="stat-card"><h3>الأعضاء</h3><h2 id="membersCount">0</h2></div>
-            <div class="stat-card"><h3>متصلون</h3><h2 id="onlineCount">0</h2></div>
-            <div class="stat-card"><h3>سيرفرات</h3><h2 id="serversCount">0</h2></div>
+            <div class="stat-card"><h3>إجمالي الأعضاء</h3><h2 id="totalMembers">0</h2></div>
+            <div class="stat-card"><h3>متصلون الآن</h3><h2 id="onlineNow">0</h2></div>
+            <div class="stat-card"><h3>السيرفرات</h3><h2 id="totalServers">0</h2></div>
         </div>
 
         <div class="panel">
-            <h2><i class="fas fa-image"></i> إعدادات الترحيب والصورة</h2>
-            <label>ارفع صورة الخلفية (ImgBB):</label>
-            <input type="file" id="imageInput">
-            <button class="btn btn-primary" onclick="uploadImg()">رفع وتحديث الصورة</button>
-            
-            <label style="display:block; margin-top:20px;">اختيار قناة الترحيب:</label>
-            <select id="welcomeChSelect"></select>
-            <button class="btn btn-primary" onclick="saveConfig()">حفظ القناة</button>
+            <h2><i class="fas fa-image"></i> تخصيص نظام الترحيب الذكي</h2>
+            <label>قناة الترحيب:</label>
+            <select id="welcomeCh"></select>
+            <label>تغيير صورة الخلفية (رابط ImgBB):</label>
+            <input type="text" id="bgUrl" placeholder="ضع رابط الصورة المباشر هنا...">
+            <button class="btn btn-main" onclick="saveConfig()">حفظ التعديلات</button>
+        </div>
+
+        <div class="panel">
+            <h2><i class="fas fa-trophy"></i> قائمة متصدري التفاعل (Top 10)</h2>
+            <table class="user-list" id="topUsers">
+                </table>
+        </div>
+
+        <div class="panel">
+            <h2><i class="fas fa-comment-dots"></i> إرسال رسالة فورية عبر البوت</h2>
+            <label>اختر القناة:</label>
+            <select id="targetCh"></select>
+            <textarea id="msgText" rows="3" placeholder="اكتب رسالتك هنا..."></textarea>
+            <button class="btn btn-main" onclick="sendMsg()">إرسال الرسالة الآن</button>
         </div>
     </div>
 
 <script>
     const API = "https://2k-discord-bot-production.up.railway.app";
-    const BB_KEY = "f0ff703738276bb67fcc6b7f0a6778d5";
 
-    async function uploadImg() {
-        const file = document.getElementById('imageInput').files[0];
-        const formData = new FormData();
-        formData.append("image", file);
-        const res = await fetch(`https://api.imgbb.com/1/upload?key=${BB_KEY}`, { method: "POST", body: formData });
+    async function fetchData() {
+        const res = await fetch(`${API}/api/full_stats`);
         const data = await res.json();
-        const url = data.data.url;
-        await fetch(`${API}/api/update`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ bg: url }) });
-        alert("تم تحديث صورة الترحيب!");
+        
+        document.getElementById('totalMembers').innerText = data.members;
+        document.getElementById('onlineNow').innerText = data.online;
+        document.getElementById('totalServers').innerText = data.servers;
+        
+        const chList = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        document.getElementById('welcomeCh').innerHTML = chList;
+        document.getElementById('targetCh').innerHTML = chList;
+        document.getElementById('bgUrl').value = data.config.bg;
+
+        let userHtml = "";
+        data.top_users.forEach((u, index) => {
+            userHtml += `<tr><td>#${index+1}</td><td>ID: ${u[0]}</td><td>Lvl: ${u[1].level}</td><td>XP: ${u[1].xp}</td></tr>`;
+        });
+        document.getElementById('topUsers').innerHTML = userHtml;
     }
 
     async function saveConfig() {
-        const ch = document.getElementById('welcomeChSelect').value;
-        await fetch(`${API}/api/update`, { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({ welcome_ch: ch }) });
-        alert("تم الحفظ!");
+        const payload = {
+            welcome_ch: document.getElementById('welcomeCh').value,
+            bg: document.getElementById('bgUrl').value
+        };
+        await fetch(`${API}/api/action`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({ type: 'config', payload: payload })
+        });
+        alert("✅ تم حفظ الإعدادات!");
     }
 
-    async function loadStats() {
-        const res = await fetch(`${API}/api/stats`);
-        const data = await res.json();
-        document.getElementById('membersCount').innerText = data.members;
-        document.getElementById('onlineCount').innerText = data.online;
-        document.getElementById('serversCount').innerText = data.servers;
-        document.getElementById('welcomeChSelect').innerHTML = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    async function sendMsg() {
+        const data = {
+            channel_id: document.getElementById('targetCh').value,
+            content: document.getElementById('msgText').value,
+            type: 'send'
+        };
+        await fetch(`${API}/api/action`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify(data)
+        });
+        alert("✅ تم الإرسال!");
     }
 
-    loadStats();
-    setInterval(loadStats, 10000);
+    fetchData();
+    setInterval(fetchData, 10000);
 </script>
 </body>
 </html>
