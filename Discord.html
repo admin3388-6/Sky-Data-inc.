@@ -6,15 +6,14 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         :root { --main: #00d2ff; --bg: #0a0b10; --card: #141720; }
-        body { background: var(--bg); color: white; font-family: 'Outfit', sans-serif; margin: 0; display: flex; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; }
         .sidebar { width: 280px; background: var(--card); height: 100vh; padding: 25px; border-left: 1px solid #222; }
         .main { flex: 1; padding: 40px; overflow-y: auto; }
         .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .stat-card { background: linear-gradient(145deg, #1a1e29, #11141b); padding: 30px; border-radius: 20px; border: 1px solid #333; text-align: center; }
-        .stat-card h2 { color: var(--main); font-size: 35px; margin: 10px 0; }
+        .stat-card { background: #1a1e29; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #333; }
+        .stat-card h2 { color: var(--main); font-size: 35px; }
         .panel { background: var(--card); border-radius: 25px; padding: 30px; margin-top: 30px; border: 1px solid #222; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 12px; cursor: pointer; font-weight: bold; font-size: 16px; transition: 0.3s; margin-top: 15px; }
-        .btn-main { background: var(--main); color: #000; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--main); color: #000; font-weight: bold; cursor: pointer; margin-top: 15px; }
         input, select, textarea { width: 100%; padding: 15px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 12px; margin-top: 10px; }
         .user-list { width: 100%; border-collapse: collapse; margin-top: 20px; }
         .user-list td { padding: 12px; border-bottom: 1px solid #222; }
@@ -23,100 +22,73 @@
 <body>
     <div class="sidebar">
         <h2 style="color: var(--main);"><i class="fas fa-crown"></i> Sky Data Elite</h2>
-        <hr style="border: 0.1px solid #333; margin: 20px 0;">
-        <nav>
-            <p><i class="fas fa-chart-pie"></i> الإحصائيات العامة</p>
-            <p><i class="fas fa-users"></i> قائمة المتصدرين</p>
-            <p><i class="fas fa-image"></i> إعدادات الترحيب</p>
-            <p><i class="fas fa-paper-plane"></i> التحكم بالرسائل</p>
+        <nav style="margin-top: 30px;">
+            <p><i class="fas fa-chart-line"></i> لوحة الإحصائيات</p>
+            <p><i class="fas fa-cog"></i> الإعدادات</p>
         </nav>
     </div>
 
     <div class="main">
-        <h1>مرحباً بك في مركز التحكم المطلق</h1>
+        <h1>مركز التحكم بالبوت</h1>
         
         <div class="stat-grid">
-            <div class="stat-card"><h3>إجمالي الأعضاء</h3><h2 id="totalMembers">0</h2></div>
-            <div class="stat-card"><h3>متصلون الآن</h3><h2 id="onlineNow">0</h2></div>
-            <div class="stat-card"><h3>السيرفرات</h3><h2 id="totalServers">0</h2></div>
-        </div>
-
-        <div class="panel">
-            <h2><i class="fas fa-image"></i> تخصيص نظام الترحيب الذكي</h2>
-            <label>قناة الترحيب:</label>
-            <select id="welcomeCh"></select>
-            <label>تغيير صورة الخلفية (رابط ImgBB):</label>
-            <input type="text" id="bgUrl" placeholder="ضع رابط الصورة المباشر هنا...">
-            <button class="btn btn-main" onclick="saveConfig()">حفظ التعديلات</button>
+            <div class="stat-card"><h3>الأعضاء</h3><h2 id="totalMembers">0</h2></div>
+            <div class="stat-card"><h3>متصلون</h3><h2 id="onlineNow">0</h2></div>
+            <div class="stat-card"><h3>خوادم</h3><h2 id="totalServers">1</h2></div>
         </div>
 
         <div class="panel">
             <h2><i class="fas fa-trophy"></i> قائمة متصدري التفاعل (Top 10)</h2>
-            <table class="user-list" id="topUsers">
-                </table>
+            <table class="user-list" id="topUsers"></table>
         </div>
 
         <div class="panel">
-            <h2><i class="fas fa-comment-dots"></i> إرسال رسالة فورية عبر البوت</h2>
-            <label>اختر القناة:</label>
+            <h2><i class="fas fa-paper-plane"></i> إرسال رسالة للسيرفر</h2>
             <select id="targetCh"></select>
-            <textarea id="msgText" rows="3" placeholder="اكتب رسالتك هنا..."></textarea>
-            <button class="btn btn-main" onclick="sendMsg()">إرسال الرسالة الآن</button>
+            <textarea id="msgText" placeholder="اكتب رسالتك هنا..."></textarea>
+            <button class="btn" onclick="sendMsg()">إرسال الآن</button>
         </div>
     </div>
 
-<script>
-    const API = "https://2k-discord-bot-production.up.railway.app";
+    <script>
+        // ضع رابط الـ API الخاص بك هنا
+        const API = "https://2k-discord-bot-production.up.railway.app";
 
-    async function fetchData() {
-        const res = await fetch(`${API}/api/full_stats`);
-        const data = await res.json();
-        
-        document.getElementById('totalMembers').innerText = data.members;
-        document.getElementById('onlineNow').innerText = data.online;
-        document.getElementById('totalServers').innerText = data.servers;
-        
-        const chList = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-        document.getElementById('welcomeCh').innerHTML = chList;
-        document.getElementById('targetCh').innerHTML = chList;
-        document.getElementById('bgUrl').value = data.config.bg;
+        async function fetchData() {
+            try {
+                const res = await fetch(`${API}/api/full_stats`);
+                const data = await res.json();
+                
+                document.getElementById('totalMembers').innerText = data.members;
+                document.getElementById('onlineNow').innerText = data.online;
+                
+                const chList = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                document.getElementById('targetCh').innerHTML = chList;
 
-        let userHtml = "";
-        data.top_users.forEach((u, index) => {
-            userHtml += `<tr><td>#${index+1}</td><td>ID: ${u[0]}</td><td>Lvl: ${u[1].level}</td><td>XP: ${u[1].xp}</td></tr>`;
-        });
-        document.getElementById('topUsers').innerHTML = userHtml;
-    }
+                let userHtml = "<tr><th>الرتبة</th><th>المعرف</th><th>المستوى</th><th>XP</th></tr>";
+                data.top_users.forEach((u, index) => {
+                    userHtml += `<tr><td>#${index+1}</td><td>${u[0]}</td><td>${u[1].level}</td><td>${u[1].xp}</td></tr>`;
+                });
+                document.getElementById('topUsers').innerHTML = userHtml;
+            } catch (e) { console.log("خطأ في جلب البيانات"); }
+        }
 
-    async function saveConfig() {
-        const payload = {
-            welcome_ch: document.getElementById('welcomeCh').value,
-            bg: document.getElementById('bgUrl').value
-        };
-        await fetch(`${API}/api/action`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({ type: 'config', payload: payload })
-        });
-        alert("✅ تم حفظ الإعدادات!");
-    }
+        async function sendMsg() {
+            const payload = {
+                channel_id: document.getElementById('targetCh').value,
+                content: document.getElementById('msgText').value,
+                type: 'send'
+            };
+            await fetch(`${API}/api/action`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify(payload)
+            });
+            alert("تم الإرسال!");
+        }
 
-    async function sendMsg() {
-        const data = {
-            channel_id: document.getElementById('targetCh').value,
-            content: document.getElementById('msgText').value,
-            type: 'send'
-        };
-        await fetch(`${API}/api/action`, {
-            method: 'POST',
-            headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify(data)
-        });
-        alert("✅ تم الإرسال!");
-    }
-
-    fetchData();
-    setInterval(fetchData, 10000);
-</script>
+        fetchData();
+        setInterval(fetchData, 10000);
+    </script>
 </body>
 </html>
