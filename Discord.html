@@ -2,93 +2,234 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sky Data Ultimate Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { --main: #00d2ff; --bg: #0a0b10; --card: #141720; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; }
-        .sidebar { width: 280px; background: var(--card); height: 100vh; padding: 25px; border-left: 1px solid #222; }
+        :root { 
+            --main: #00d2ff; 
+            --bg: #0a0b10; 
+            --card: #141720; 
+            --accent: #1a1e29;
+        }
+        
+        body { 
+            background: var(--bg); 
+            color: white; 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            margin: 0; 
+            display: flex; 
+            min-height: 100vh;
+        }
+
+        /* Sidebar التعديل الجمالي */
+        .sidebar { 
+            width: 280px; 
+            background: var(--card); 
+            padding: 25px; 
+            border-left: 1px solid #222;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .sidebar h2 { color: var(--main); text-align: center; margin-bottom: 30px; }
+        .sidebar p { padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; color: #888; }
+        .sidebar p:hover { background: var(--accent); color: var(--main); }
+        .sidebar p i { margin-left: 10px; }
+
         .main { flex: 1; padding: 40px; overflow-y: auto; }
-        .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; }
-        .stat-card { background: #1a1e29; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #333; }
-        .stat-card h2 { color: var(--main); font-size: 35px; }
-        .panel { background: var(--card); border-radius: 25px; padding: 30px; margin-top: 30px; border: 1px solid #222; }
-        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--main); color: #000; font-weight: bold; cursor: pointer; margin-top: 15px; }
-        input, select, textarea { width: 100%; padding: 15px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 12px; margin-top: 10px; }
+
+        /* الشبكة الإحصائية */
+        .stat-grid { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
+            gap: 20px; 
+        }
+        
+        .stat-card { 
+            background: var(--accent); 
+            padding: 30px; 
+            border-radius: 20px; 
+            text-align: center; 
+            border: 1px solid #333; 
+            transition: 0.3s;
+        }
+        .stat-card:hover { border-color: var(--main); transform: translateY(-5px); }
+        .stat-card h3 { margin: 0; color: #888; font-size: 16px; }
+        .stat-card h2 { color: var(--main); font-size: 35px; margin: 10px 0 0 0; }
+
+        /* الألواح */
+        .panel { 
+            background: var(--card); 
+            border-radius: 25px; 
+            padding: 30px; 
+            margin-top: 30px; 
+            border: 1px solid #222; 
+        }
+        .panel h2 { font-size: 20px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
+
+        /* المدخلات والأزرار */
+        .btn { 
+            width: 100%; 
+            padding: 15px; 
+            border-radius: 12px; 
+            border: none; 
+            background: var(--main); 
+            color: #000; 
+            font-weight: bold; 
+            cursor: pointer; 
+            margin-top: 15px; 
+            font-size: 16px;
+        }
+        .btn:active { transform: scale(0.98); }
+        
+        input, select, textarea { 
+            width: 100%; 
+            padding: 15px; 
+            background: #0a0b10; 
+            border: 1px solid #333; 
+            color: white; 
+            border-radius: 12px; 
+            margin-top: 10px; 
+            box-sizing: border-box;
+        }
+
+        /* الجدول */
         .user-list { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .user-list td { padding: 12px; border-bottom: 1px solid #222; }
+        .user-list th { text-align: right; color: var(--main); padding: 10px; border-bottom: 2px solid #222; }
+        .user-list td { padding: 12px; border-bottom: 1px solid #222; font-size: 14px; }
+        
+        .loader { color: var(--main); text-align: center; padding: 20px; }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2 style="color: var(--main);"><i class="fas fa-crown"></i> Sky Data Elite</h2>
-        <nav style="margin-top: 30px;">
+        <h2><i class="fas fa-crown"></i> Sky Data Elite</h2>
+        <nav>
             <p><i class="fas fa-chart-line"></i> لوحة الإحصائيات</p>
+            <p><i class="fas fa-users"></i> قائمة المتصدرين</p>
             <p><i class="fas fa-cog"></i> الإعدادات</p>
         </nav>
     </div>
 
     <div class="main">
-        <h1>مركز التحكم بالبوت</h1>
+        <h1><i class="fas fa-terminal"></i> مركز التحكم المطلق</h1>
         
         <div class="stat-grid">
-            <div class="stat-card"><h3>الأعضاء</h3><h2 id="totalMembers">0</h2></div>
-            <div class="stat-card"><h3>متصلون</h3><h2 id="onlineNow">0</h2></div>
-            <div class="stat-card"><h3>خوادم</h3><h2 id="totalServers">1</h2></div>
+            <div class="stat-card"><h3>إجمالي الأعضاء</h3><h2 id="totalMembers">--</h2></div>
+            <div class="stat-card"><h3>متصلون الآن</h3><h2 id="onlineNow">--</h2></div>
+            <div class="stat-card"><h3>الخوادم</h3><h2 id="totalServers">1</h2></div>
         </div>
 
         <div class="panel">
-            <h2><i class="fas fa-trophy"></i> قائمة متصدري التفاعل (Top 10)</h2>
-            <table class="user-list" id="topUsers"></table>
+            <h2><i class="fas fa-trophy"></i> أفضل 10 متفاعلين (Top 10)</h2>
+            <div id="table-container">
+                <table class="user-list">
+                    <thead>
+                        <tr>
+                            <th>الرتبة</th>
+                            <th>المعرف (ID)</th>
+                            <th>المستوى</th>
+                            <th>XP</th>
+                        </tr>
+                    </thead>
+                    <tbody id="topUsers">
+                        <tr><td colspan="4" class="loader">جاري جلب البيانات...</td></tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <div class="panel">
-            <h2><i class="fas fa-paper-plane"></i> إرسال رسالة للسيرفر</h2>
-            <select id="targetCh"></select>
-            <textarea id="msgText" placeholder="اكتب رسالتك هنا..."></textarea>
-            <button class="btn" onclick="sendMsg()">إرسال الآن</button>
+            <h2><i class="fas fa-paper-plane"></i> إرسال رسالة فورية عبر البوت</h2>
+            <label>اختر القناة المستهدفة:</label>
+            <select id="targetCh">
+                <option>جاري تحميل القنوات...</option>
+            </select>
+            <label style="display:block; margin-top:15px;">نص الرسالة:</label>
+            <textarea id="msgText" rows="4" placeholder="اكتب رسالتك هنا..."></textarea>
+            <button class="btn" onclick="sendMsg()">إرسال الرسالة الآن</button>
         </div>
     </div>
 
     <script>
-        // ضع رابط الـ API الخاص بك هنا
+        // رابط الـ API الخاص بك
         const API = "https://2k-discord-bot-production.up.railway.app";
 
         async function fetchData() {
             try {
                 const res = await fetch(`${API}/api/full_stats`);
+                if (!res.ok) throw new Error("API Error");
                 const data = await res.json();
                 
-                document.getElementById('totalMembers').innerText = data.members;
-                document.getElementById('onlineNow').innerText = data.online;
+                // تحديث الإحصائيات مع التحقق من وجود البيانات
+                document.getElementById('totalMembers').innerText = data.members || 0;
+                document.getElementById('onlineNow').innerText = data.online || 0;
+                document.getElementById('totalServers').innerText = data.servers || 1;
                 
-                const chList = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-                document.getElementById('targetCh').innerHTML = chList;
+                // تحديث قائمة القنوات
+                if (data.channels && data.channels.length > 0) {
+                    const chList = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+                    document.getElementById('targetCh').innerHTML = chList;
+                }
 
-                let userHtml = "<tr><th>الرتبة</th><th>المعرف</th><th>المستوى</th><th>XP</th></tr>";
-                data.top_users.forEach((u, index) => {
-                    userHtml += `<tr><td>#${index+1}</td><td>${u[0]}</td><td>${u[1].level}</td><td>${u[1].xp}</td></tr>`;
-                });
-                document.getElementById('topUsers').innerHTML = userHtml;
-            } catch (e) { console.log("خطأ في جلب البيانات"); }
+                // تحديث جدول المتصدرين
+                if (data.top_users && data.top_users.length > 0) {
+                    let userHtml = "";
+                    data.top_users.forEach((u, index) => {
+                        // u[0] هو الـ ID و u[1] هو بيانات المستخدم (level, xp)
+                        userHtml += `
+                        <tr>
+                            <td><b style="color:var(--main)">#${index+1}</b></td>
+                            <td>${u[0]}</td>
+                            <td>⭐ ${u[1].level || 0}</td>
+                            <td>${u[1].xp || 0}</td>
+                        </tr>`;
+                    });
+                    document.getElementById('topUsers').innerHTML = userHtml;
+                } else {
+                    document.getElementById('topUsers').innerHTML = "<tr><td colspan='4'>لا يوجد بيانات حالياً</td></tr>";
+                }
+
+            } catch (e) { 
+                console.error("خطأ في الاتصال بالبوت:", e);
+                document.getElementById('topUsers').innerHTML = "<tr><td colspan='4' style='color:red'>فشل الاتصال بالبوت.. تأكد أنه يعمل!</td></tr>";
+            }
         }
 
         async function sendMsg() {
+            const channelId = document.getElementById('targetCh').value;
+            const content = document.getElementById('msgText').value;
+
+            if(!content) return alert("الرجاء كتابة رسالة أولاً!");
+
             const payload = {
-                channel_id: document.getElementById('targetCh').value,
-                content: document.getElementById('msgText').value,
+                channel_id: channelId,
+                content: content,
                 type: 'send'
             };
-            await fetch(`${API}/api/action`, {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify(payload)
-            });
-            alert("تم الإرسال!");
+
+            try {
+                const response = await fetch(`${API}/api/action`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify(payload)
+                });
+                
+                if(response.ok) {
+                    alert("✅ تم إرسال الرسالة بنجاح!");
+                    document.getElementById('msgText').value = "";
+                } else {
+                    alert("❌ فشل الإرسال.. تأكد من صلاحيات البوت.");
+                }
+            } catch (error) {
+                alert("❌ خطأ في الاتصال بالخادم.");
+            }
         }
 
+        // تحديث أولي ثم كل 15 ثانية
         fetchData();
-        setInterval(fetchData, 10000);
+        setInterval(fetchData, 15000);
     </script>
 </body>
 </html>
