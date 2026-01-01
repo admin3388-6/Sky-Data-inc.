@@ -2,118 +2,37 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sky Data Ultimate Dashboard</title>
+    <title>Sky Data Elite Dashboard</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        :root { 
-            --main: #00d2ff; 
-            --bg: #0a0b10; 
-            --card: #141720; 
-            --accent: #1a1e29;
-        }
-        
-        body { 
-            background: var(--bg); 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            margin: 0; 
-            display: flex; 
-            min-height: 100vh;
-        }
-
-        /* Sidebar التعديل الجمالي */
-        .sidebar { 
-            width: 280px; 
-            background: var(--card); 
-            padding: 25px; 
-            border-left: 1px solid #222;
-            display: flex;
-            flex-direction: column;
-        }
-        
-        .sidebar h2 { color: var(--main); text-align: center; margin-bottom: 30px; }
-        .sidebar p { padding: 10px; border-radius: 8px; cursor: pointer; transition: 0.3s; color: #888; }
-        .sidebar p:hover { background: var(--accent); color: var(--main); }
-        .sidebar p i { margin-left: 10px; }
-
+        :root { --main: #00d2ff; --bg: #0a0b10; --card: #141720; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; display: flex; }
+        .sidebar { width: 280px; background: var(--card); height: 100vh; padding: 25px; border-left: 1px solid #222; }
         .main { flex: 1; padding: 40px; overflow-y: auto; }
-
-        /* الشبكة الإحصائية */
-        .stat-grid { 
-            display: grid; 
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); 
-            gap: 20px; 
-        }
-        
-        .stat-card { 
-            background: var(--accent); 
-            padding: 30px; 
-            border-radius: 20px; 
-            text-align: center; 
-            border: 1px solid #333; 
-            transition: 0.3s;
-        }
-        .stat-card:hover { border-color: var(--main); transform: translateY(-5px); }
-        .stat-card h3 { margin: 0; color: #888; font-size: 16px; }
-        .stat-card h2 { color: var(--main); font-size: 35px; margin: 10px 0 0 0; }
-
-        /* الألواح */
-        .panel { 
-            background: var(--card); 
-            border-radius: 25px; 
-            padding: 30px; 
-            margin-top: 30px; 
-            border: 1px solid #222; 
-        }
-        .panel h2 { font-size: 20px; margin-bottom: 20px; border-bottom: 1px solid #333; padding-bottom: 10px; }
-
-        /* المدخلات والأزرار */
-        .btn { 
-            width: 100%; 
-            padding: 15px; 
-            border-radius: 12px; 
-            border: none; 
-            background: var(--main); 
-            color: #000; 
-            font-weight: bold; 
-            cursor: pointer; 
-            margin-top: 15px; 
-            font-size: 16px;
-        }
-        .btn:active { transform: scale(0.98); }
-        
-        input, select, textarea { 
-            width: 100%; 
-            padding: 15px; 
-            background: #0a0b10; 
-            border: 1px solid #333; 
-            color: white; 
-            border-radius: 12px; 
-            margin-top: 10px; 
-            box-sizing: border-box;
-        }
-
-        /* الجدول */
-        .user-list { width: 100%; border-collapse: collapse; margin-top: 20px; }
-        .user-list th { text-align: right; color: var(--main); padding: 10px; border-bottom: 2px solid #222; }
-        .user-list td { padding: 12px; border-bottom: 1px solid #222; font-size: 14px; }
-        
-        .loader { color: var(--main); text-align: center; padding: 20px; }
+        .stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; }
+        .stat-card { background: #1a1e29; padding: 30px; border-radius: 20px; text-align: center; border: 1px solid #333; }
+        .stat-card h2 { color: var(--main); font-size: 35px; margin: 10px 0; }
+        .panel { background: var(--card); border-radius: 25px; padding: 30px; margin-top: 30px; border: 1px solid #222; }
+        .btn { width: 100%; padding: 15px; border-radius: 12px; border: none; background: var(--main); color: #000; font-weight: bold; cursor: pointer; margin-top: 15px; transition: 0.3s; }
+        .btn:hover { opacity: 0.8; }
+        input, select, textarea { width: 100%; padding: 15px; background: #0a0b10; border: 1px solid #333; color: white; border-radius: 12px; margin-top: 10px; box-sizing: border-box; }
+        .user-list { width: 100%; border-collapse: collapse; margin-top: 20px; text-align: right; }
+        .user-list th, .user-list td { padding: 12px; border-bottom: 1px solid #222; }
+        .user-list th { color: var(--main); }
     </style>
 </head>
 <body>
     <div class="sidebar">
-        <h2><i class="fas fa-crown"></i> Sky Data Elite</h2>
-        <nav>
+        <h2 style="color: var(--main);"><i class="fas fa-crown"></i> Sky Data Elite</h2>
+        <nav style="margin-top: 30px;">
             <p><i class="fas fa-chart-line"></i> لوحة الإحصائيات</p>
-            <p><i class="fas fa-users"></i> قائمة المتصدرين</p>
+            <p><i class="fas fa-bullhorn"></i> إعدادات الترحيب</p>
             <p><i class="fas fa-cog"></i> الإعدادات</p>
         </nav>
     </div>
 
     <div class="main">
-        <h1><i class="fas fa-terminal"></i> مركز التحكم المطلق</h1>
+        <h1><i class="fas fa-terminal"></i> مركز التحكم - Discord.html</h1>
         
         <div class="stat-grid">
             <div class="stat-card"><h3>إجمالي الأعضاء</h3><h2 id="totalMembers">--</h2></div>
@@ -122,114 +41,75 @@
         </div>
 
         <div class="panel">
-            <h2><i class="fas fa-trophy"></i> أفضل 10 متفاعلين (Top 10)</h2>
-            <div id="table-container">
-                <table class="user-list">
-                    <thead>
-                        <tr>
-                            <th>الرتبة</th>
-                            <th>المعرف (ID)</th>
-                            <th>المستوى</th>
-                            <th>XP</th>
-                        </tr>
-                    </thead>
-                    <tbody id="topUsers">
-                        <tr><td colspan="4" class="loader">جاري جلب البيانات...</td></tr>
-                    </tbody>
-                </table>
-            </div>
+            <h2><i class="fas fa-trophy"></i> قائمة المتصدرين (Top 10)</h2>
+            <table class="user-list">
+                <thead>
+                    <tr><th>الترتيب</th><th>المعرف (ID)</th><th>المستوى</th><th>الخبرة</th></tr>
+                </thead>
+                <tbody id="topUsers">
+                    <tr><td colspan="4">جاري تحميل البيانات...</td></tr>
+                </tbody>
+            </table>
         </div>
 
         <div class="panel">
-            <h2><i class="fas fa-paper-plane"></i> إرسال رسالة فورية عبر البوت</h2>
-            <label>اختر القناة المستهدفة:</label>
-            <select id="targetCh">
-                <option>جاري تحميل القنوات...</option>
-            </select>
-            <label style="display:block; margin-top:15px;">نص الرسالة:</label>
-            <textarea id="msgText" rows="4" placeholder="اكتب رسالتك هنا..."></textarea>
+            <h2><i class="fas fa-paper-plane"></i> إرسال رسالة فورية</h2>
+            <select id="targetCh"><option>تحميل القنوات...</option></select>
+            <textarea id="msgText" placeholder="اكتب نص الرسالة هنا..."></textarea>
             <button class="btn" onclick="sendMsg()">إرسال الرسالة الآن</button>
         </div>
     </div>
 
     <script>
-        // رابط الـ API الخاص بك
         const API = "https://2k-discord-bot-production.up.railway.app";
 
-        async function fetchData() {
+        async function updateData() {
             try {
                 const res = await fetch(`${API}/api/full_stats`);
-                if (!res.ok) throw new Error("API Error");
                 const data = await res.json();
                 
-                // تحديث الإحصائيات مع التحقق من وجود البيانات
                 document.getElementById('totalMembers').innerText = data.members || 0;
                 document.getElementById('onlineNow').innerText = data.online || 0;
                 document.getElementById('totalServers').innerText = data.servers || 1;
                 
-                // تحديث قائمة القنوات
-                if (data.channels && data.channels.length > 0) {
-                    const chList = data.channels.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
-                    document.getElementById('targetCh').innerHTML = chList;
+                // تحديث القنوات
+                if(data.channels) {
+                    document.getElementById('targetCh').innerHTML = data.channels.map(c => 
+                        `<option value="${c.id}">${c.name}</option>`
+                    ).join('');
                 }
 
-                // تحديث جدول المتصدرين
-                if (data.top_users && data.top_users.length > 0) {
-                    let userHtml = "";
-                    data.top_users.forEach((u, index) => {
-                        // u[0] هو الـ ID و u[1] هو بيانات المستخدم (level, xp)
-                        userHtml += `
+                // تحديث الجدول
+                if(data.top_users && data.top_users.length > 0) {
+                    document.getElementById('topUsers').innerHTML = data.top_users.map((u, i) => `
                         <tr>
-                            <td><b style="color:var(--main)">#${index+1}</b></td>
+                            <td>#${i+1}</td>
                             <td>${u[0]}</td>
-                            <td>⭐ ${u[1].level || 0}</td>
-                            <td>${u[1].xp || 0}</td>
-                        </tr>`;
-                    });
-                    document.getElementById('topUsers').innerHTML = userHtml;
+                            <td style="color:var(--main)">${u[1].level}</td>
+                            <td>${u[1].xp}</td>
+                        </tr>
+                    `).join('');
                 } else {
-                    document.getElementById('topUsers').innerHTML = "<tr><td colspan='4'>لا يوجد بيانات حالياً</td></tr>";
+                    document.getElementById('topUsers').innerHTML = "<tr><td colspan='4'>لا توجد بيانات تفاعل مسجلة بعد.</td></tr>";
                 }
-
-            } catch (e) { 
-                console.error("خطأ في الاتصال بالبوت:", e);
-                document.getElementById('topUsers').innerHTML = "<tr><td colspan='4' style='color:red'>فشل الاتصال بالبوت.. تأكد أنه يعمل!</td></tr>";
-            }
+            } catch (e) { console.error("API Connection Error"); }
         }
 
         async function sendMsg() {
-            const channelId = document.getElementById('targetCh').value;
-            const content = document.getElementById('msgText').value;
+            const channel = document.getElementById('targetCh').value;
+            const text = document.getElementById('msgText').value;
+            if(!text) return alert("اكتب رسالة!");
 
-            if(!content) return alert("الرجاء كتابة رسالة أولاً!");
-
-            const payload = {
-                channel_id: channelId,
-                content: content,
-                type: 'send'
-            };
-
-            try {
-                const response = await fetch(`${API}/api/action`, {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify(payload)
-                });
-                
-                if(response.ok) {
-                    alert("✅ تم إرسال الرسالة بنجاح!");
-                    document.getElementById('msgText').value = "";
-                } else {
-                    alert("❌ فشل الإرسال.. تأكد من صلاحيات البوت.");
-                }
-            } catch (error) {
-                alert("❌ خطأ في الاتصال بالخادم.");
-            }
+            const res = await fetch(`${API}/api/action`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ type: 'send', channel_id: channel, content: text })
+            });
+            if(res.ok) { alert("✅ تم الإرسال!"); document.getElementById('msgText').value = ""; }
         }
 
-        // تحديث أولي ثم كل 15 ثانية
-        fetchData();
-        setInterval(fetchData, 15000);
+        updateData();
+        setInterval(updateData, 8000);
     </script>
 </body>
 </html>
